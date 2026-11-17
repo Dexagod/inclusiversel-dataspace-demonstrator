@@ -1,0 +1,132 @@
+# Public documents and pages ingested into the vocabulary hub by `make seed`.
+# Add your own entries; files can also be uploaded with POST /documents.
+- url: https://acceslibre.beta.gouv.fr/contrib/documentation/
+  title: Acceslibre field documentation
+  language: fr
+  tags: [acceslibre, criteria]
+- url: https://schema.data.gouv.fr/MTES-MCT/acceslibre-schema/latest.html
+  title: Acceslibre data schema
+  language: fr
+  tags: [acceslibre, schema]
+- url: https://www.vlaanderen.be/inter/overheden-en-professionelen/iedereenoveral
+  title: IedereenOveral for governments and professionals
+  language: nl
+  tags: [iedereenoveral]
+- url: https://access-i.be/en/?p=1453
+  title: "Access-i: what it is and how places are audited"
+  language: en
+  tags: [access-i, criteria]
+- url: https://limoges.fr/sites/default/files/espace_presse/2025/CP%20Picto%20Access%2003%202025-1.pdf
+  title: Picto Access pictogram scheme (Limoges press release)
+  language: fr
+  tags: [pictoaccess, criteria]
+
+# --- From the literature study (literatuurstudie.pdf), section 3: labels and certification ---
+- url: https://www.vlaanderen.be/inter/toolbox-toegankelijke-steden-en-gemeenten/toerisme/screening-bezienswaardigheden-horeca-en-handelszaken
+  title: "Inter screening of attractions, hospitality and shops (IedereenOveral medals)"
+  language: nl
+  tags: [iedereenoveral, inter, criteria, label]
+- url: https://toerismevlaanderen.be/nl/kwaliteit/inclusie/toegankelijkheid/a-label
+  title: Toerisme Vlaanderen accessibility labels A and A+
+  language: nl
+  tags: [toerismevlaanderen, label, criteria]
+- url: https://www.vlaanderen.be/inter/overheden-en-professionelen/werken-aan-toegankelijke-gebouwen/label-toegankelijk-gebouw
+  title: Inter Label Toegankelijk Gebouw (A, A+, A++)
+  language: nl
+  tags: [inter, label, buildings]
+- url: https://access-i.be/en/faqs/ca-veut-dire-quoi-etre-certifie-par-access-i/
+  title: "Access-i: what does certification mean"
+  language: en
+  tags: [access-i, label, certification]
+- url: https://www.atout-france.fr/fr/tourisme-et-handicap
+  title: Tourisme & Handicap state label (Atout France)
+  language: fr
+  tags: [tourisme-handicap, label, certification]
+- url: https://www.entreprises.gouv.fr/priorites-et-actions/proximite-et-territoires/renforcer-le-secteur-du-tourisme/destination-pour-tous
+  title: Destination pour Tous destination label
+  language: fr
+  tags: [destination-pour-tous, label, destination]
+- url: https://handiplage.fr/
+  title: Handiplage beach accessibility label
+  language: fr
+  tags: [handiplage, label, beaches]
+- url: https://certivea.fr/certifications/label-accessibilite/
+  title: Certivéa Label Accessibilité for non-residential buildings
+  language: fr
+  tags: [certivea, label, certification, buildings]
+- url: https://handicap.gouv.fr/registre-daccessibilite-obligatoire-un-guide-pour-les-erp
+  title: Registre public d'accessibilité - guide for ERP
+  language: fr
+  tags: [registre-accessibilite, legislation, erp]
+- url: https://france-congres-evenements.org/did-label/
+  title: Destination Innovante Durable label
+  language: fr
+  tags: [did, label, destination]
+- url: https://handy.brussels/en/amt-concept/pictogrammes/
+  title: Handy.brussels / AMT Concept pictograms
+  language: en
+  tags: [handy-brussels, pictograms, criteria]
+
+# --- Literature study: data standards and schemas ---
+- url: https://schema.data.gouv.fr/MTES-MCT/acceslibre-erp-base/
+  title: Acceslibre ERP base schema
+  language: fr
+  tags: [acceslibre, schema]
+- url: https://sozialhelden.github.io/a11yjson/
+  title: A11yJSON accessibility data standard
+  language: en
+  tags: [a11yjson, schema]
+- url: https://wiki.openstreetmap.org/wiki/Disabilities
+  title: OpenStreetMap accessibility tagging (Disabilities)
+  language: en
+  tags: [openstreetmap, schema, tagging]
+- url: https://gtfs.org/documentation/schedule/examples/pathways/
+  title: GTFS pathways and physical accessibility
+  language: en
+  tags: [gtfs, transport, schema]
+- url: https://transmodel-cen.eu/wp-content/uploads/2024/07/08.NeTEx-Accessibility-WhitePaper_1.06.pdf
+  title: NeTEx accessibility white paper
+  language: en
+  tags: [netex, transport, schema]
+- url: http://datatourisme.fr/ontology/core/
+  title: DATAtourisme core ontology
+  language: fr
+  tags: [datatourisme, ontology, schema]
+- url: https://publicaties.vlaanderen.be/view-file/69606
+  title: Inter evaluation of accessibility regulation compliance (plan vs. built)
+  language: nl
+  tags: [inter, legislation, buildings, evaluation]
+
+# --- Literature study: operational knowledge on services and support ---
+- url: https://www.vlaanderen.be/inter/mensen-met-een-handicap/changing-places
+  title: Changing Places toilets in Flanders
+  language: nl
+  tags: [inter, toilets, services]
+- url: https://www.vlaanderen.be/inter/mensen-met-een-handicap/navigeer-en-parkeer
+  title: Navigeer en parkeer - accessible parking
+  language: nl
+  tags: [inter, parking, services]
+- url: https://www.vlaanderen.be/inter/mensen-met-een-handicap/iedereen-fietst
+  title: Iedereen fietst - adapted bicycles
+  language: nl
+  tags: [inter, cycling, services]
+- url: https://www.vlaanderen.be/inter/mensen-met-een-handicap/zon-zee-zorgeloos
+  title: Zon, zee, zorgeloos - accessible beaches on the Belgian coast
+  language: nl
+  tags: [inter, beaches, services]
+- url: https://www.vlaanderen.be/inter/mensen-met-een-handicap/agenda-toegankelijke-evenementen/toegankelijke-evenementen-op-uitinvlaanderen
+  title: Accessible events on UiTinVlaanderen
+  language: nl
+  tags: [inter, uitinvlaanderen, events]
+- url: https://www.visitflanders.com/en/travel-information/accessibility
+  title: VisitFlanders accessible travel information
+  language: en
+  tags: [visitflanders, tourism, services]
+- url: https://visitwallonia.be/fr-be/3/je-suis/voyageur-a-besoins-specifiques
+  title: VisitWallonia - travellers with specific needs
+  language: fr
+  tags: [visitwallonia, tourism, services]
+- url: https://www.routen.be/toegankelijkheid
+  title: Routen accessible routes
+  language: nl
+  tags: [routen, routes]

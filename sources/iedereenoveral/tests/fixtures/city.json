@@ -1,0 +1,119 @@
+[
+ {
+  "id": 5,
+  "zipcode": "3000",
+  "city": "Leuven",
+  "display_value": "3000 Leuven",
+  "coordinates": {
+   "type": "point",
+   "data": {
+    "lng": 5.6822368,
+    "lat": 50.9938447
+   }
+  }
+ },
+ {
+  "id": 1279,
+  "zipcode": "3001",
+  "city": "Leuven",
+  "display_value": "3001 Leuven",
+  "coordinates": {
+   "type": "point",
+   "data": {
+    "lng": 4.7024648,
+    "lat": 50.8791453
+   }
+  }
+ },
+ {
+  "id": 1276,
+  "zipcode": "3010",
+  "city": "Leuven",
+  "display_value": "3010 Leuven",
+  "coordinates": {
+   "type": "point",
+   "data": {
+    "lng": 4.7024648,
+    "lat": 50.8791453
+   }
+  }
+ },
+ {
+  "id": 1278,
+  "zipcode": "3012",
+  "city": "Leuven",
+  "display_value": "3012 Leuven",
+  "coordinates": {
+   "type": "point",
+   "data": {
+    "lng": 4.7024648,
+    "lat": 50.8791453
+   }
+  }
+ },
+ {
+  "id": 1275,
+  "zipcode": "3018",
+  "city": "Leuven",
+  "display_value": "3018 Leuven",
+  "coordinates": {
+   "type": "point",
+   "data": {
+    "lng": 4.7024648,
+    "lat": 50.8791453
+   }
+  }
+ },
+ {
+  "id": 194,
+  "zipcode": "3294",
+  "city": "Molenstede",
+  "display_value": "3294 Molenstede",
+  "coordinates": {
+   "type": "point",
+   "data": {
+    "lng": 5.01347,
+    "lat": 51.00378
+   }
+  }
+ },
+ {
+  "id": 883,
+  "zipcode": "9000",
+  "city": "Gent",
+  "display_value": "9000 Gent",
+  "coordinates": {
+   "type": "point",
+   "data": {
+    "lng": 3.7303351,
+    "lat": 51.0500182
+   }
+  }
+ },
+ {
+  "id": 1193,
+  "zipcode": "9050",
+  "city": "Gent",
+  "display_value": "9050 Gent",
+  "coordinates": {
+   "type": "point",
+   "data": {
+    "lng": 3.7303351,
+    "lat": 51.0500182
+   }
+  }
+ },
+ {
+  "id": 1225,
+  "zipcode": "9051",
+  "city": "Gent",
+  "display_value": "9051 Gent",
+  "coordinates": {
+   "type": "point",
+   "data": {
+    "lng": 3.7303853,
+    "lat": 51.0499922
+   }
+  }
+ }
+]

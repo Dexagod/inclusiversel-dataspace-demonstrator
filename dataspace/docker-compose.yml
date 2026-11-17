@@ -1,0 +1,43 @@
+name: accessibility-dataspace
+
+services:
+  catalog:
+    build: ./catalog
+    ports: ["${CATALOG_BIND:-127.0.0.1}:8001:8000"]  # 0.0.0.0 publishes it, including write endpoints
+    environment:
+      CATALOG_BASE_URL: ${CATALOG_BASE_URL:-http://localhost:8001}
+    volumes:
+      - catalog-data:/data
+
+  vochub-vectors:
+    image: qdrant/qdrant:v1.20.0
+    volumes: [vochub-vectors:/qdrant/storage]
+
+  vochub:
+    build: ./vochub
+    ports: ["${VOCHUB_BIND:-127.0.0.1}:8002:8000"]   # keep private: ingestion has no authentication
+    environment:
+      QDRANT_URL: http://vochub-vectors:6333
+    depends_on: [vochub-vectors]
+    restart: on-failure
+
+  connector:
+    build: ./connector
+    ports: ["${CONNECTOR_BIND:-127.0.0.1}:8800:8800"]  # the MCP endpoint agents connect to
+    env_file: [{ path: .env, required: false }]
+    environment:
+      # Defaults: catalog and vochub in this Compose project. Override in .env to use remote ones (make up-connector).
+      CATALOG_URL: ${CATALOG_URL:-http://catalog:8000}
+      VOCHUB_URL: ${VOCHUB_URL:-http://vochub:8000}
+      SOURCE_URL_MAP: ${SOURCE_URL_MAP:-}
+      CREDENTIALS_FILE: /config/credentials.yaml
+    extra_hosts: ["host.docker.internal:host-gateway"]  # reach SSH tunnels on the host (Linux; built in on Docker Desktop)
+    volumes:
+      - ./config:/config:ro
+    depends_on:
+      catalog: { condition: service_healthy }
+      vochub: { condition: service_healthy }
+
+volumes:
+  catalog-data:
+  vochub-vectors:

@@ -1,0 +1,49 @@
+{
+ "itemsReceived": 2,
+ "curPage": 1,
+ "nextPage": 2,
+ "prevPage": null,
+ "offset": 0,
+ "itemsTotal": 7722,
+ "pageTotal": 3861,
+ "items": [
+  {
+   "id": 110,
+   "slug": "00015-t-kroonrad",
+   "map_html": "<div style=\"font-family:Flanders Art Sans,sans-serif;width:170px!important;position: relative;\"><div style=\"width: 100%; display: flex; gap: 8px; justify-content: space-between; padding: 2px\"><div style=\"width: 100%; background-color: #A0D4CD; color: black; font-weight: bold; padding: 4px 0 4px 4px; font-size: 12px; height: 24px; clip-path: polygon(0 0, 100% 0, calc(100% - (24px * 0.268)) 100%, 0% 100%);\">Eten en drinken</div><div style=\"display: flex; gap: 8px; padding: 2px;\"><img style=\"width: 20px;\" alt=\"Goud\" src=\"https://xcli-wrwg-eljt.f2.xano.io/vault/N3fW9eOy/wBK7gZhnnDroyRKdyHnfyk4T5jg/AO9-4g../goud-alleen+tekst.png\" /></div></div><div style=\"background-image: url(https://xcli-wrwg-eljt.f2.xano.io/vault/N3fW9eOy/jwoDTFJsOzBr4RMBw-DBX4-VXwQ/uifh8A../thumbnail_PHOTO-2023-11-30-15-37-43.jpg); background-size: cover; width:170px; aspect-ratio: 16/9;\"><br></div><br><b>'t Kroonrad</b><br><p style=\"margin-top:4px;\">Dorpsstraat 47<br>3294 Molenstede</p><br><a style=\"margin-top:4px;color:#DA3A16;font-weight:500;\" href=\"/locaties/00015-t-kroonrad\">Bekijk locatie</a></div>",
+   "icon_link": "",
+   "test": "",
+   "coordinates": {
+    "type": "point",
+    "data": {
+     "lng": 5.0177587,
+     "lat": 51.0026872
+    }
+   },
+   "_locationtype": {
+    "id": 2,
+    "name": "Eten en drinken",
+    "show_score": true
+   }
+  },
+  {
+   "id": 917,
+   "slug": "00815-az-sintlucas-brugge",
+   "map_html": "<div style=\"font-family:Flanders Art Sans,sans-serif;width:170px!important;position: relative;\"><div style=\"width: 100%; display: flex; gap: 8px; justify-content: space-between; padding: 2px\"><div style=\"width: 100%; background-color: #A0D4CD; color: black; font-weight: bold; padding: 4px 0 4px 4px; font-size: 12px; height: 24px; clip-path: polygon(0 0, 100% 0, calc(100% - (24px * 0.268)) 100%, 0% 100%);\">Publiek toilet</div><div style=\"display: flex; gap: 8px; padding: 2px;\"></div></div><div style=\"background-image: url(https://xcli-wrwg-eljt.f2.xano.io/vault/N3fW9eOy/G7qQH29wFdP2aRI3zq7P49W-0IA/6sP5ig../20250709_170507.jpg); background-size: cover; width:170px; aspect-ratio: 16/9;\"><br></div><br><b>AZ Sint-Lucas Brugge</b><br><p style=\"margin-top:4px;\">Sint-Lucaslaan 29<br>8310 Brugge</p><br><a style=\"margin-top:4px;color:#DA3A16;font-weight:500;\" href=\"/locaties/00815-az-sintlucas-brugge\">Bekijk locatie</a></div>",
+   "icon_link": "",
+   "test": "",
+   "coordinates": {
+    "type": "point",
+    "data": {
+     "lng": 3.2491382,
+     "lat": 51.1851255
+    }
+   },
+   "_locationtype": {
+    "id": 4,
+    "name": "Publiek toilet",
+    "show_score": false
+   }
+  }
+ ]
+}

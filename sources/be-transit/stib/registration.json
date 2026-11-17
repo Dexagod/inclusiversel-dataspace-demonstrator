@@ -1,0 +1,43 @@
+{
+  "id": "stib-stops",
+  "catalog": "belgium-mobility",
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "update_frequency": "DAILY",
+  "landing_page": "https://data.belgianmobility.io/nl/data.html",
+  "title": "STIB-MIVB stops: wheelchair accessibility",
+  "publisher": {
+    "name": "STIB-MIVB",
+    "url": "https://www.stib-mivb.be"
+  },
+  "description": "Metro, tram and bus stops of STIB-MIVB in Brussels with the GTFS wheelchair_boarding value per stop: accessible (about 1,700), not_accessible (about 700) or unknown. From the static GTFS feed on data.belgianmobility.io, refreshed daily. Search by stop name or near a point.",
+  "languages": [
+    "fr",
+    "nl"
+  ],
+  "spatial": [
+    "Brussels",
+    "Bruxelles",
+    "Brussel",
+    "Belgium"
+  ],
+  "keywords": [
+    "metro",
+    "tram",
+    "bus",
+    "halte",
+    "arrêt",
+    "stop",
+    "wheelchair",
+    "rolstoel",
+    "fauteuil roulant",
+    "PMR",
+    "GTFS"
+  ],
+  "licence": "https://creativecommons.org/licenses/by/4.0/",
+  "endpoint_url": "http://src-be-transit:8000/stib/",
+  "openapi_url": "http://src-be-transit:8000/stib/openapi.json",
+  "access_note": "Open data; reuse must cite 'Source: <operator> – Open Data – <date of dataset update>' (given in each response's provenance)."
+}

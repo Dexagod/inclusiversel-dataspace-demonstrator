@@ -1,0 +1,17 @@
+{
+  "id": "acceslibre",
+  "catalog": "france",
+  "title": "Acceslibre: accessibility of establishments open to the public in France",
+  "description": "Acceslibre is the French government's open database of the accessibility of establishments open to the public (ERP): town halls, shops, restaurants, health services, culture, sports, transport and more, across France. Each establishment has address, coordinates and activity, and detailed accessibility data: transport and parking, path from the street, entrance (steps, ramp, door width, intercom), reception (staff trained, hearing loop), toilets, rooms, and labels. Use listErps to search by name (q), town (commune), postcode (code_postal), activity slug (activite, see listActivites), around a point (around=lat,lon), a bounding box (zone) or equipments; keep page_size small. Use retrieveErp or retrieveAccessibilite with readable=true for the details. Texts are in French. Live data; requires an API key.",
+  "publisher": { "name": "Acceslibre (beta.gouv.fr, French Ministry of Ecological Transition)", "url": "https://acceslibre.beta.gouv.fr" },
+  "licence_note": "Published as open data by the French State; exact licence for API reuse not yet confirmed in this catalog.",
+  "endpoint_url": "https://acceslibre.beta.gouv.fr/",
+  "openapi_url": "https://acceslibre.beta.gouv.fr/api/openapi",
+  "keywords": ["wheelchair", "fauteuil roulant", "PMR", "ERP", "établissement recevant du public", "accessibilité", "handicap", "rampe", "marche", "toilettes adaptées", "boucle magnétique", "stationnement", "mairie", "restaurant", "commerce", "santé"],
+  "themes": ["accessibility"],
+  "languages": ["fr"],
+  "spatial": ["France"],
+  "update_frequency": "CONT",
+  "landing_page": "https://acceslibre.beta.gouv.fr",
+  "access_note": "API key in the header 'Authorization: Api-Key <key>'; request one at https://acceslibre.beta.gouv.fr/contact/api_key. In this stack: ACCESLIBRE_API_KEY in .env."
+}

@@ -1,0 +1,43 @@
+{
+  "id": "irail-stations",
+  "catalog": "belgium-mobility",
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "update_frequency": "DAILY",
+  "landing_page": "https://data.belgianmobility.io/nl/data.html",
+  "title": "Belgian railway stations: accessibility facilities (iRail)",
+  "description": "About 580 NMBS/SNCB stations in Belgium with accessibility facilities from the iRail stations repository: wheelchairs available, boarding ramp, lift to the platforms, escalators, induction loop, number of disabled parking spaces and platform height. 557 stations have facility data; null means unknown. wheelchair_available, ramp and audio_induction_loop were last published by NMBS in June 2023 and may be outdated; lift and escalator data come from OpenStreetMap. NMBS's own GTFS has no wheelchair data, so this is the source for train stations.",
+  "publisher": {
+    "name": "iRail",
+    "url": "https://github.com/iRail/stations"
+  },
+  "licence_note": "The repository is CC0, but lift and escalator fields derive from OpenStreetMap (ODbL, share-alike), a conflict the repository itself flags as unresolved; platform heights come from Infrabel (CC0).",
+  "endpoint_url": "http://src-be-transit:8000/irail/",
+  "openapi_url": "http://src-be-transit:8000/irail/openapi.json",
+  "languages": [
+    "en",
+    "nl",
+    "fr"
+  ],
+  "spatial": [
+    "Belgium",
+    "België",
+    "Belgique"
+  ],
+  "keywords": [
+    "train",
+    "trein",
+    "gare",
+    "station",
+    "NMBS",
+    "SNCB",
+    "lift",
+    "ascenseur",
+    "ramp",
+    "rolstoel",
+    "wheelchair",
+    "ringleiding"
+  ]
+}

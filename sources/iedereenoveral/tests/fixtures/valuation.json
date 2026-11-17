@@ -1,0 +1,58 @@
+[
+ {
+  "id": 5,
+  "created_at": 1697450626387,
+  "order": 0,
+  "name": "None",
+  "name_nl": "Geen medaille",
+  "color": ""
+ },
+ {
+  "id": 4,
+  "created_at": 1695983452333,
+  "order": 4,
+  "name": "OK",
+  "name_nl": "OK",
+  "color": ""
+ },
+ {
+  "id": 1,
+  "created_at": 1694078566458,
+  "order": 3,
+  "name": "Gold",
+  "name_nl": "Goud",
+  "color": ""
+ },
+ {
+  "id": 2,
+  "created_at": 1694151838135,
+  "order": 2,
+  "name": "Silver",
+  "name_nl": "Zilver",
+  "color": ""
+ },
+ {
+  "id": 3,
+  "created_at": 1694151844103,
+  "order": 1,
+  "name": "Bronze",
+  "name_nl": "Brons",
+  "color": ""
+ },
+ {
+  "id": 6,
+  "created_at": 1793001786932,
+  "order": 6,
+  "name": "Present",
+  "name_nl": "Aanwezig",
+  "color": ""
+ },
+ {
+  "id": 7,
+  "created_at": 1793001822119,
+  "order": 7,
+  "name": "Info",
+  "name_nl": "Info",
+  "color": ""
+ }
+]

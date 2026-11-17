@@ -1,0 +1,47 @@
+{
+  "id": "iedereenoveral",
+  "catalog": "belgium",
+  "title": "IedereenOveral: accessibility of places in Flanders and Brussels",
+  "description": "Accessibility of cafes and restaurants, public toilets, Changing Places, museums and parking spaces in Flanders and Brussels, from IedereenOveral (run by Inter, successor of Toevla). Each place has a medal (gold, silver, bronze, ok) and answers to an accessibility questionnaire on entrance, dining area, toilet and other facilities, with measurements such as door widths. Texts are in Dutch. Live data.",
+  "publisher": {
+    "name": "Inter",
+    "url": "https://www.vlaanderen.be/inter"
+  },
+  "licence_note": "Reuse terms not yet confirmed with Inter.",
+  "endpoint_url": "http://src-iedereenoveral:8000/",
+  "openapi_url": "http://src-iedereenoveral:8000/openapi.json",
+  "keywords": [
+    "wheelchair",
+    "rolstoel",
+    "toilet",
+    "aangepast toilet",
+    "restaurant",
+    "cafe",
+    "café",
+    "horeca",
+    "museum",
+    "parking",
+    "Changing Places",
+    "drempelloos",
+    "medal"
+  ],
+  "themes": [
+    "accessibility"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "spatial": [
+    "Flanders",
+    "Vlaanderen",
+    "Brussels",
+    "Belgium",
+    "Gent",
+    "Ghent",
+    "Antwerpen",
+    "Leuven",
+    "Brugge"
+  ],
+  "update_frequency": "CONT",
+  "landing_page": "https://iedereen.overal.info/"
+}

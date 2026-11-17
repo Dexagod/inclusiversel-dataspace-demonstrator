@@ -1,0 +1,37 @@
+{
+  "id": "sncf-lift-status",
+  "catalog": "france-mobility",
+  "title": "Etat de fonctionnement des équipements d'élévatique en gare",
+  "description": "Ce jeu de données expose les équipements d'élévatique des gares de voyageurs. Id_Gare : il s’agit de la clé permettant d’identifier la gare dans le référentiel des gares voyageurs (https://ressources.data.sncf.com/explore/dataset/referentiel-gares-voyageurs) Id_equipement : Il s'agit de la clé permettant d'identifier un équipement d'élévatique Nom de l'équipement : Nom fonctionnel de l'équipement d'élévatique Localisation : Information textuelle sur l’emplacement de l’équipement Etat de fonctionnement de l’équipement : OK : fonctionnel, KO : non fonctionnel , Inconnu : état inconnu A noter que cet état de fonctionnement : est calculé à partir de paramètres techniques remontés par … Station names are not in this dataset; gareid is the id of the station in dataset sncf-stations (gares-de-voyageurs). Query it live with operation getRecords and dataset_id='etat-fonctionnement-elevatique-gare'. Filter with 'where' (ODSQL, e.g. search(\"Lille\") or a field comparison), choose fields with 'select', at most 100 per 'limit'. 2547 records. Fields: gareid (Id_Gare), id (Id_equipement), libelle (Nom de l'équipement), localisationdescriptive (Localisation), etat_de_fonctionnement (Etat de fonctionnement).",
+  "publisher": {
+    "name": "Gares & Connexions"
+  },
+  "endpoint_url": "https://ressources.data.sncf.com/api/explore/v2.1/",
+  "openapi_url": "https://ressources.data.sncf.com/api/explore/v2.1/swagger.json",
+  "source_dcat_url": "https://ressources.data.sncf.com/api/explore/v2.1/catalog/exports/dcat?where=dataset_id%3D%22etat-fonctionnement-elevatique-gare%22",
+  "keywords": [
+    "PMR",
+    "accessibilité",
+    "ascenseur",
+    "ascenseurs",
+    "escalator",
+    "escaliers mécaniques",
+    "gare",
+    "trottoirs roulants",
+    "état de fonctionnement"
+  ],
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "spatial": [
+    "France"
+  ],
+  "landing_page": "https://ressources.data.sncf.com/explore/dataset/etat-fonctionnement-elevatique-gare/",
+  "access_note": "Open Explore API; no key needed for reading.",
+  "licence": "https://data.sncf.com/pages/licence",
+  "update_frequency": "CONT"
+}

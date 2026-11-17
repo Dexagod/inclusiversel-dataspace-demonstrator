@@ -1,0 +1,34 @@
+{
+  "id": "sncf-station-equipment",
+  "catalog": "france-mobility",
+  "title": "Equipements d’accessibilité en gare",
+  "description": "Liste des équipements d’accessibilité recensés dans les gares SNCF pour améliorer l’accessibilité des clients. Cette liste est mise à jour au fur et à mesure. Ces informations ne sont donc pas encore disponibles pour toutes les gares. Query it live with operation getRecords and dataset_id='equipements-accessibilite-en-gare'. Filter with 'where' (ODSQL, e.g. search(\"Lille\") or a field comparison), choose fields with 'select', at most 100 per 'limit'. 1717 records. Fields: uic (UIC), nom_de_la_gare (Nom de la gare), adresse (Adresse), codepostal (CodePostal), ville (Ville), accessibilite (Accessibilité).",
+  "publisher": {
+    "name": "Gares & Connexions"
+  },
+  "endpoint_url": "https://ressources.data.sncf.com/api/explore/v2.1/",
+  "openapi_url": "https://ressources.data.sncf.com/api/explore/v2.1/swagger.json",
+  "source_dcat_url": "https://ressources.data.sncf.com/api/explore/v2.1/catalog/exports/dcat?where=dataset_id%3D%22equipements-accessibilite-en-gare%22",
+  "keywords": [
+    "Accessibilité",
+    "Equipement",
+    "Gares",
+    "PMR",
+    "accessibilité",
+    "gare",
+    "équipements"
+  ],
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "spatial": [
+    "France"
+  ],
+  "landing_page": "https://ressources.data.sncf.com/explore/dataset/equipements-accessibilite-en-gare/",
+  "access_note": "Open Explore API; no key needed for reading.",
+  "licence": "https://data.sncf.com/pages/licence"
+}

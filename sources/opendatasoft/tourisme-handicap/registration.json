@@ -1,0 +1,38 @@
+{
+  "id": "tourisme-handicap",
+  "catalog": "france",
+  "title": "Etablissements labellisés Tourisme et Handicap",
+  "description": "Le jeu de données, mis à disposition par la Direction Générale des Entreprises, fournit des informations depuis l'année 2014 sur les établissements bénéficiant du label Tourisme &, Handicap. Ce label est attribué aux professionnels du tourisme œuvrant en faveur de l'accessibilité pour tous. Il a pour objectif d’apporter une information objective et homogène sur l’accessibilité des sites et des équipements touristiques. Tourisme &, Handicap prend en compte les quatre familles de handicaps (auditif, mental, moteur et visuel) et vise à développer une offre touristique adaptée et intégrée à l’offre généraliste. Pour obtenir cette marque, le prestataire doit s'engager dans une démarche exigeante … Query it live with operation getRecords and dataset_id='etablissements-labellises-tourisme-et-handicap'. Filter with 'where' (ODSQL, e.g. search(\"Lille\") or a field comparison), choose fields with 'select', at most 100 per 'limit'. 3682 records. Fields: docid (DocId), nom_du_professionnel (Nom du professionnel), label (Label), droit_d_utilisation_du_label (Droit d'utilisation du label), activite (activité), filiere (filière), adresse (Adresse), complement_d_adresse (Complément d'adresse), code_postal_du_professionnel (Code postal du professionnel), ville (Ville), departement (departement), region (region), telephone (Téléphone), email_de_l_etablissement (Email de l'établissement), site_web (Site Web), raison_sociale (Raison sociale), handicap_auditif (Handicap auditif), handicap_mental (Handicap mental), handicap_moteur (Handicap moteur), handicap_visuel (Handicap visuel), coordonnees_geographiques (coordonnees_geographiques), handicaps_attribues (handicaps_attribues).",
+  "publisher": {
+    "name": "DGE"
+  },
+  "endpoint_url": "https://data.economie.gouv.fr/api/explore/v2.1/",
+  "openapi_url": "https://data.economie.gouv.fr/api/explore/v2.1/swagger.json",
+  "source_dcat_url": "https://data.economie.gouv.fr/api/explore/v2.1/catalog/exports/dcat?where=dataset_id%3D%22etablissements-labellises-tourisme-et-handicap%22",
+  "keywords": [
+    "Tourisme et Handicap",
+    "accessibilité",
+    "cartographie",
+    "handicap",
+    "handicap auditif",
+    "handicap mental",
+    "handicap moteur",
+    "handicap visuel",
+    "label",
+    "labels",
+    "marque",
+    "tourisme"
+  ],
+  "themes": [
+    "accessibility"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "spatial": [
+    "France"
+  ],
+  "landing_page": "https://data.economie.gouv.fr/explore/dataset/etablissements-labellises-tourisme-et-handicap/",
+  "access_note": "Open Explore API; no key needed for reading.",
+  "licence_note": "No licence is stated on data.economie.gouv.fr; the 2020 version of this dataset was under Licence Ouverte 2.0."
+}

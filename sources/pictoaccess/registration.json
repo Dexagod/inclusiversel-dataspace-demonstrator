@@ -1,0 +1,50 @@
+{
+  "id": "pictoaccess",
+  "catalog": "france",
+  "title": "PictoAccess: accessibility of places, mostly in France",
+  "description": "Accessibility of about 1,700 places, mostly in France: transport stops, offices, shops, hotels, culture and sports venues, town halls, and university and hospital buildings. Each place has a level per disability type (wheelchair users, walking difficulty, cognitive, blind, low vision, deaf, hard of hearing, temporary reduced mobility): autonomous, with help, inaccessible or unknown. Many places have a questionnaire per area (entrance, reception, toilets, ...). Places are grouped by organisation or site (a university, a campus, a transport network), and related buildings can be retrieved. Texts are in French. Snapshot of a full export provided by PictoAccess.",
+  "publisher": {
+    "name": "PictoAccess",
+    "url": "https://www.pictoaccess.fr"
+  },
+  "licence_note": "Export provided directly by PictoAccess (APF France Handicap) for this demonstrator, used until their API is available again; reuse terms beyond the demonstrator not yet confirmed. An open subset (scores per disability type) is published daily on data.gouv.fr under ODbL.",
+  "endpoint_url": "http://src-pictoaccess:8000/",
+  "openapi_url": "http://src-pictoaccess:8000/openapi.json",
+  "keywords": [
+    "wheelchair",
+    "fauteuil roulant",
+    "PMR",
+    "mobilité réduite",
+    "malvoyant",
+    "malentendant",
+    "handicap",
+    "accessibilité",
+    "campus",
+    "université",
+    "hôpital",
+    "arrêt de bus",
+    "hôtel",
+    "toilettes"
+  ],
+  "themes": [
+    "accessibility"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "spatial": [
+    "France",
+    "Normandie",
+    "La Rochelle",
+    "Caen",
+    "Louviers",
+    "Val-de-Reuil",
+    "Bourges",
+    "Lisieux",
+    "Rouen",
+    "Évreux",
+    "Lille"
+  ],
+  "update_frequency": "IRREG",
+  "landing_page": "https://www.pictoaccess.fr"
+}

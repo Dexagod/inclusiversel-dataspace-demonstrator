@@ -1,0 +1,407 @@
+[
+ {
+  "id": 37,
+  "created_at": 1791983313549,
+  "index": 0,
+  "name": "Voorbehouden plaats voor personen met een handicap",
+  "name_nl": "Voorbehouden plaats voor personen met een handicap",
+  "is_visible": true,
+  "locationtype_id": [
+   7
+  ]
+ },
+ {
+  "id": 24,
+  "created_at": 1789564877463,
+  "index": 0,
+  "name": "Parkeren",
+  "name_nl": "Parkeren",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 1,
+  "created_at": 1765449180259,
+  "index": 1,
+  "name": "Toegankelijk toilet",
+  "name_nl": "Toegankelijk toilet",
+  "is_visible": true,
+  "locationtype_id": [
+   3,
+   2
+  ]
+ },
+ {
+  "id": 2,
+  "created_at": 1765449181099,
+  "index": 2,
+  "name": "Toegankelijke verbruiksruimte",
+  "name_nl": "Toegankelijke verbruiksruimte",
+  "is_visible": true,
+  "locationtype_id": [
+   3,
+   2
+  ]
+ },
+ {
+  "id": 3,
+  "created_at": 1765449181803,
+  "index": 3,
+  "name": "Toegankelijke toegang",
+  "name_nl": "Toegankelijke toegang",
+  "is_visible": true,
+  "locationtype_id": [
+   3,
+   2
+  ]
+ },
+ {
+  "id": 4,
+  "created_at": 1765449226999,
+  "index": 4,
+  "name": "Rustige hoeken",
+  "name_nl": "Rustige hoeken",
+  "is_visible": true,
+  "locationtype_id": [
+   3,
+   2
+  ]
+ },
+ {
+  "id": 5,
+  "created_at": 1765449236775,
+  "index": 5,
+  "name": "Goede verlichting",
+  "name_nl": "Goede verlichting",
+  "is_visible": true,
+  "locationtype_id": [
+   3,
+   2
+  ]
+ },
+ {
+  "id": 6,
+  "created_at": 1765449253526,
+  "index": 6,
+  "name": "Wifi vrij beschikbaar",
+  "name_nl": "Wifi vrij beschikbaar",
+  "is_visible": true,
+  "locationtype_id": [
+   3,
+   2
+  ]
+ },
+ {
+  "id": 7,
+  "created_at": 1765449254806,
+  "index": 7,
+  "name": "Contrasten",
+  "name_nl": "Contrasten",
+  "is_visible": true,
+  "locationtype_id": [
+   3,
+   2
+  ]
+ },
+ {
+  "id": 8,
+  "created_at": 1765449255477,
+  "index": 8,
+  "name": "Info over allergenen",
+  "name_nl": "Info over allergenen",
+  "is_visible": true,
+  "locationtype_id": [
+   3,
+   2
+  ]
+ },
+ {
+  "id": 9,
+  "created_at": 1765449256188,
+  "index": 9,
+  "name": "Voorzieningen voor kinderen",
+  "name_nl": "Voorzieningen voor kinderen",
+  "is_visible": true,
+  "locationtype_id": [
+   3,
+   2
+  ]
+ },
+ {
+  "id": 10,
+  "created_at": 1775824153972,
+  "index": 10,
+  "name": "Drempelloze toegang",
+  "name_nl": "Drempelloze toegang",
+  "is_visible": true,
+  "locationtype_id": [
+   4
+  ]
+ },
+ {
+  "id": 25,
+  "created_at": 1789564912156,
+  "index": 10,
+  "name": "Toegang",
+  "name_nl": "Toegang",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 26,
+  "created_at": 1789564945931,
+  "index": 20,
+  "name": "Circulatie",
+  "name_nl": "Circulatie",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 11,
+  "created_at": 1775827988463,
+  "index": 20,
+  "name": "Aangepast toilet",
+  "name_nl": "Aangepast toilet",
+  "is_visible": true,
+  "locationtype_id": [
+   4
+  ]
+ },
+ {
+  "id": 12,
+  "created_at": 1775828047057,
+  "index": 30,
+  "name": "Onderrijdbare wastafel in aangepast toilet",
+  "name_nl": "Toegankelijke wastafel",
+  "is_visible": true,
+  "locationtype_id": [
+   4
+  ]
+ },
+ {
+  "id": 27,
+  "created_at": 1789564947236,
+  "index": 30,
+  "name": "Toilet",
+  "name_nl": "Toilet",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 40,
+  "created_at": 1791983316815,
+  "index": 30,
+  "name": "Voorbehouden plaats voor andere gebruikers",
+  "name_nl": "Voorbehouden plaats voor andere gebruikers - comfortplaatsen",
+  "is_visible": true,
+  "locationtype_id": [
+   7
+  ]
+ },
+ {
+  "id": 28,
+  "created_at": 1789565000715,
+  "index": 40,
+  "name": "Eten en drinken",
+  "name_nl": "Eten en drinken",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 16,
+  "created_at": 1775828479425,
+  "index": 50,
+  "name": "Standaard toilet",
+  "name_nl": "Standaard toilet",
+  "is_visible": true,
+  "locationtype_id": [
+   4
+  ]
+ },
+ {
+  "id": 29,
+  "created_at": 1789565001698,
+  "index": 50,
+  "name": "Balie - ringleiding",
+  "name_nl": "Balie - ringleiding",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 18,
+  "created_at": 1775828761689,
+  "index": 60,
+  "name": "Genderneutraal toilet",
+  "name_nl": "Genderneutraal toilet",
+  "is_visible": true,
+  "locationtype_id": [
+   4
+  ]
+ },
+ {
+  "id": 43,
+  "created_at": 1791983322792,
+  "index": 60,
+  "name": "Voorbehouden plaats met laadpunt",
+  "name_nl": "Voorbehouden plaats met laadpunt",
+  "is_visible": true,
+  "locationtype_id": [
+   7
+  ]
+ },
+ {
+  "id": 30,
+  "created_at": 1789565002695,
+  "index": 60,
+  "name": "Wifi",
+  "name_nl": "Wifi",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 19,
+  "created_at": 1775828786289,
+  "index": 70,
+  "name": "Stomavriendelijk toilet",
+  "name_nl": "Stomavriendelijk toilet",
+  "is_visible": true,
+  "locationtype_id": [
+   4
+  ]
+ },
+ {
+  "id": 31,
+  "created_at": 1789565101568,
+  "index": 70,
+  "name": "Visueel stappenplan",
+  "name_nl": "Visueel stappenplan",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 32,
+  "created_at": 1789565102478,
+  "index": 80,
+  "name": "Rondleidingen",
+  "name_nl": "Rondleidingen",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 33,
+  "created_at": 1789565103308,
+  "index": 90,
+  "name": "Beluisteren van tekstmateriaal",
+  "name_nl": "Beluisteren van tekstmateriaal",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 46,
+  "created_at": 1791983392460,
+  "index": 90,
+  "name": "Minibus",
+  "name_nl": "Minibus",
+  "is_visible": true,
+  "locationtype_id": [
+   7
+  ]
+ },
+ {
+  "id": 47,
+  "created_at": 1791983392463,
+  "index": 100,
+  "name": "Motorfietsen",
+  "name_nl": "Motorfietsen",
+  "is_visible": true,
+  "locationtype_id": [
+   7
+  ]
+ },
+ {
+  "id": 20,
+  "created_at": 1775828789214,
+  "index": 100,
+  "name": "Babyverzorgingstafel",
+  "name_nl": "Babyverzorgingstafel",
+  "is_visible": true,
+  "locationtype_id": [
+   4
+  ]
+ },
+ {
+  "id": 48,
+  "created_at": 1793089786819,
+  "index": 110,
+  "name": "Gratis parkeren",
+  "name_nl": "Gratis parkeren",
+  "is_visible": true,
+  "locationtype_id": [
+   7
+  ]
+ },
+ {
+  "id": 35,
+  "created_at": 1789565457550,
+  "index": 110,
+  "name": "Zintuiglijke beleving",
+  "name_nl": "Zintuiglijke beleving",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ },
+ {
+  "id": 17,
+  "created_at": 1775828743229,
+  "index": 110,
+  "name": "Contrasten",
+  "name_nl": "Contrasten",
+  "is_visible": true,
+  "locationtype_id": [
+   4
+  ]
+ },
+ {
+  "id": 21,
+  "created_at": 1775829395556,
+  "index": 120,
+  "name": "Visueel brandalarm",
+  "name_nl": "Visueel brandalarm",
+  "is_visible": true,
+  "locationtype_id": [
+   4
+  ]
+ },
+ {
+  "id": 36,
+  "created_at": 1789565458787,
+  "index": 120,
+  "name": "Stille ruimte",
+  "name_nl": "Stille ruimte",
+  "is_visible": true,
+  "locationtype_id": [
+   6
+  ]
+ }
+]

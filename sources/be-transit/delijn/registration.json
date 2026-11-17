@@ -1,0 +1,42 @@
+{
+  "id": "delijn-stops",
+  "catalog": "belgium-mobility",
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "update_frequency": "DAILY",
+  "landing_page": "https://data.belgianmobility.io/nl/data.html",
+  "title": "De Lijn stops: wheelchair accessibility",
+  "publisher": {
+    "name": "De Lijn",
+    "url": "https://www.delijn.be"
+  },
+  "description": "Bus and tram stops of De Lijn in Flanders with the GTFS wheelchair_boarding value per stop. About 5,500 stops are marked accessible; the other 25,000 are unknown: De Lijn's GTFS gives no information for them, which does not mean inaccessible. De Lijn's own finer classification (autonomous, with help, visual impairment) is not in this feed. From the static GTFS feed on data.belgianmobility.io, refreshed daily.",
+  "languages": [
+    "nl"
+  ],
+  "spatial": [
+    "Flanders",
+    "Vlaanderen",
+    "Belgium",
+    "Gent",
+    "Antwerpen",
+    "Leuven",
+    "Brugge"
+  ],
+  "keywords": [
+    "bus",
+    "tram",
+    "halte",
+    "stop",
+    "wheelchair",
+    "rolstoel",
+    "toegankelijk",
+    "GTFS"
+  ],
+  "licence": "https://creativecommons.org/licenses/by/4.0/",
+  "endpoint_url": "http://src-be-transit:8000/delijn/",
+  "openapi_url": "http://src-be-transit:8000/delijn/openapi.json",
+  "access_note": "Open data; reuse must cite 'Source: <operator> – Open Data – <date of dataset update>' (given in each response's provenance)."
+}

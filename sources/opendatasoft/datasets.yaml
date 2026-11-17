@@ -1,0 +1,80 @@
+# Datasets on Opendatasoft portals that the connector queries live, with no proxy.
+# `make registrations` (in this folder) turns each entry into <id>/registration.json from the portal's own metadata;
+# `hint` is added to the description; other keys (except portal, dataset_id, catalog) override generated fields.
+- id: tourisme-handicap
+  portal: data.economie.gouv.fr
+  dataset_id: etablissements-labellises-tourisme-et-handicap
+  catalog: france
+  spatial: [France]
+  keywords: [Tourisme et Handicap, label, accessibilité, handicap moteur, handicap visuel, handicap auditif, handicap mental]
+  licence_note: No licence is stated on data.economie.gouv.fr; the 2020 version of this dataset was under Licence Ouverte 2.0.
+
+- id: liege-pmr-toilets
+  portal: www.odwb.be
+  dataset_id: toilettes-pmr
+  catalog: belgium
+  spatial: [Liège, Wallonia, Belgium]
+
+- id: sncf-lift-status
+  portal: ressources.data.sncf.com
+  dataset_id: etat-fonctionnement-elevatique-gare
+  catalog: france-mobility
+  spatial: [France]
+  update_frequency: CONT
+  keywords: [ascenseur, escalator, gare, PMR, état de fonctionnement]
+  hint: Station names are not in this dataset; gareid is the id of the station in dataset sncf-stations (gares-de-voyageurs).
+
+- id: sncf-stations
+  portal: ressources.data.sncf.com
+  dataset_id: gares-de-voyageurs
+  catalog: france-mobility
+  spatial: [France]
+  keywords: [gare, gares de voyageurs, référentiel, UIC]
+  hint: Reference list of passenger stations; its id is the gareid used in sncf-lift-status.
+
+- id: sncf-station-equipment
+  portal: ressources.data.sncf.com
+  dataset_id: equipements-accessibilite-en-gare
+  catalog: france-mobility
+  spatial: [France]
+  keywords: [gare, accessibilité, PMR, équipements]
+
+- id: sncf-assistance
+  portal: ressources.data.sncf.com
+  dataset_id: assistance-psh-pmr
+  catalog: france-mobility
+  spatial: [France]
+  keywords: [gare, assistance, PMR, handicap, Accès Plus]
+
+- id: liege-pmr-parking
+  portal: www.odwb.be
+  dataset_id: stationnement-pmr
+  catalog: belgium-mobility
+  spatial: [Liège, Wallonia, Belgium]
+
+- id: brabant-wallon-pmr-parking
+  portal: www.odwb.be
+  dataset_id: stationnements-pmr-en-brabant-wallon
+  catalog: belgium-mobility
+  spatial: [Brabant wallon, Wallonia, Belgium]
+
+- id: marche-en-famenne-pmr-parking
+  portal: www.odwb.be
+  dataset_id: parkings-pmr
+  catalog: belgium-mobility
+  spatial: [Marche-en-Famenne, Wallonia, Belgium]
+  licence: null
+  licence_note: The publisher's metadata conflicts; it names the licence CC0 but links to CC BY.
+
+- id: la-louviere-pmr-parking
+  portal: www.odwb.be
+  dataset_id: parkings-pour-personnes-a-mobilite-reduite-pmr-la-louviere
+  catalog: belgium-mobility
+  spatial: [La Louvière, Wallonia, Belgium]
+  licence_note: The publisher marks the licence as not specified (Licence non spécifiée).
+
+- id: databusters-pmr-parking
+  portal: www.odwb.be
+  dataset_id: emplacements-pmr-databusters
+  catalog: belgium-mobility
+  spatial: [Wallonia, Belgium]

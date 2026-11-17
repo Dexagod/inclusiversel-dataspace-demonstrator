@@ -1,0 +1,31 @@
+{
+  "id": "marche-en-famenne-pmr-parking",
+  "catalog": "belgium-mobility",
+  "title": "Marche-en-Famenne / Parkings Pmr",
+  "description": "Query it live with operation getRecords and dataset_id='parkings-pmr'. Filter with 'where' (ODSQL, e.g. search(\"Lille\") or a field comparison), choose fields with 'select', at most 100 per 'limit'. 26 records. Fields: societe (societe), rue (rue), numero (numero), cp (cp), localite (localite), telephone (telephone), telephone_autre (telephone_autre), fax (fax), gsm (gsm), website (website), email (email), longitude (longitude), latitude (latitude), centreville (centreville), midi (midi), pmr (pmr), numero_tva (numero_tva), fonction (fonction), civilite (civilite), nom (nom), prenom (prenom), contact_rue (contact_rue), contact_num (contact_num), contact_cp (contact_cp), contact_localite (contact_localite), contact_telephone (contact_telephone), contact_telephone_autre (contact_telephone_autre), contact_fax (contact_fax), contact_gsm (contact_gsm), contact_email (contact_email), id (id), comment1 (comment1), comment2 (comment2), comment3 (comment3), slug (slug), facebook (facebook), twitter (twitter), instagram (instagram), tiktok (tiktok), youtube (youtube), linkedin (linkedin), updated_at (updated_at), created_at (created_at), slugname (slugname), google_plus (google_plus), newsletter (newsletter), newsletter_date (newsletter_date), photos (photos), logo (logo), tags (tags), tagsobject (tagsObject), classements (classements), horaires (horaires), images (images).",
+  "publisher": {
+    "name": "Ville de Marche-en-Famenne"
+  },
+  "endpoint_url": "https://www.odwb.be/api/explore/v2.1/",
+  "openapi_url": "https://www.odwb.be/api/explore/v2.1/swagger.json",
+  "source_dcat_url": "https://www.odwb.be/api/explore/v2.1/catalog/exports/dcat?where=dataset_id%3D%22parkings-pmr%22",
+  "keywords": [
+    "parkings"
+  ],
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "spatial": [
+    "Marche-en-Famenne",
+    "Wallonia",
+    "Belgium"
+  ],
+  "landing_page": "https://www.odwb.be/explore/dataset/parkings-pmr/",
+  "access_note": "Open Explore API; no key needed for reading.",
+  "licence": null,
+  "licence_note": "The publisher's metadata conflicts; it names the licence CC0 but links to CC BY."
+}

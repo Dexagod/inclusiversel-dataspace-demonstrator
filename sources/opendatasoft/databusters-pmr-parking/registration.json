@@ -1,0 +1,41 @@
+{
+  "id": "databusters-pmr-parking",
+  "catalog": "belgium-mobility",
+  "title": "Emplacements PMR - Databusters",
+  "description": "Ce jeu de données présente différentes places de parking pour personne à mobilité réduite à Wallonie Motivations pour la création du jeu de données Ce jeu de données est issu d’un exercice de Crowdsourcing réalisé par FuturoCité du 10 au 31 octobre 2022, sous forme de challenge (“Emplacements PMR - Si tu prends ma place, prends mon handicap”) grâce à l’outil Databusters développé par FuturoCité. Databusters est un service sous forme de web app qui invite les citoyen·ne·s wallon·ne·s à collecter des données dans le cadre de challenges ouverts par des acteurs publics ou par FuturoCité. Sous forme de crowdsourcing, la collecte de données permise par le service Databusters permet aux … Query it live with operation getRecords and dataset_id='emplacements-pmr-databusters'. Filter with 'where' (ODSQL, e.g. search(\"Lille\") or a field comparison), choose fields with 'select', at most 100 per 'limit'. 117 records. Fields: id (Identifiant), municipality (Nom de la commune), ins_code (Code INS), zone_address (Partie de commune), ins_zone_address (Code INS de la partie de commune), street_name (Nom de rue), street_number (Code rue BeSTAddress), street_number_rrn (Code rue national), house_number (Numéro de police (maison)), distance (Distance au point d'adresse), coordinates (Coordonnées), available_places (Nombre de places), length (Longueur), width (Largeur), modalities (Modalités), availability (Disponibilité), equipment (Equipement), created_date (Date de création de la donnée), last_modified_date (Date de dernière modification de la donnée), picture (Photo).",
+  "publisher": {
+    "name": "FuturoCité"
+  },
+  "endpoint_url": "https://www.odwb.be/api/explore/v2.1/",
+  "openapi_url": "https://www.odwb.be/api/explore/v2.1/swagger.json",
+  "source_dcat_url": "https://www.odwb.be/api/explore/v2.1/catalog/exports/dcat?where=dataset_id%3D%22emplacements-pmr-databusters%22",
+  "keywords": [
+    "emplacement",
+    "handicap",
+    "handicapé",
+    "invalide",
+    "mobilité",
+    "parking",
+    "personne",
+    "place",
+    "pmr",
+    "réduire",
+    "stationnement",
+    "voiture",
+    "véhicul"
+  ],
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "spatial": [
+    "Wallonia",
+    "Belgium"
+  ],
+  "landing_page": "https://www.odwb.be/explore/dataset/emplacements-pmr-databusters/",
+  "access_note": "Open Explore API; no key needed for reading.",
+  "licence": "https://creativecommons.org/licenses/by/4.0/"
+}

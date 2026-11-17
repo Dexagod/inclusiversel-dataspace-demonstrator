@@ -1,0 +1,34 @@
+{
+  "id": "la-louviere-pmr-parking",
+  "catalog": "belgium-mobility",
+  "title": "Stationnement pour personnes à mobilité réduite (PMR) La Louvière",
+  "description": "Recensement des points de stationnement pour les personnes à mobilité réduite Query it live with operation getRecords and dataset_id='parkings-pour-personnes-a-mobilite-reduite-pmr-la-louviere'. Filter with 'where' (ODSQL, e.g. search(\"Lille\") or a field comparison), choose fields with 'select', at most 100 per 'limit'. 632 records. Fields: geo_point (Geo Point), geo_shape (Geo Shape), objectid (OBJECTID), code_postal (Code Postal), localite (Localité), rue (Rue), numero (Numéro), annee_de_demande (Année de Demande), statut (Statut).",
+  "publisher": {
+    "name": "Ville de La Louvière"
+  },
+  "endpoint_url": "https://www.odwb.be/api/explore/v2.1/",
+  "openapi_url": "https://www.odwb.be/api/explore/v2.1/swagger.json",
+  "source_dcat_url": "https://www.odwb.be/api/explore/v2.1/catalog/exports/dcat?where=dataset_id%3D%22parkings-pour-personnes-a-mobilite-reduite-pmr-la-louviere%22",
+  "keywords": [
+    "automobile",
+    "localisation",
+    "pmr",
+    "stationnement",
+    "statique"
+  ],
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "spatial": [
+    "La Louvière",
+    "Wallonia",
+    "Belgium"
+  ],
+  "landing_page": "https://www.odwb.be/explore/dataset/parkings-pour-personnes-a-mobilite-reduite-pmr-la-louviere/",
+  "access_note": "Open Explore API; no key needed for reading.",
+  "licence_note": "The publisher marks the licence as not specified (Licence non spécifiée)."
+}

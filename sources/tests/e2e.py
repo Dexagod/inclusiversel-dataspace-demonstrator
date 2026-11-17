@@ -1,0 +1,86 @@
+"""End-to-end check against a running stack (`docker compose up`). Run with `make e2e` in sources/ after `make up register`."""
+
+import asyncio
+import json
+import os
+
+import httpx
+from mcp import Client
+
+CATALOG = os.environ.get("CATALOG", "http://localhost:8001")
+VOCHUB = os.environ.get("VOCHUB", "http://localhost:8002")
+MCP = os.environ.get("MCP", "http://localhost:8800/mcp")
+
+DOC = b"""# Picto Access levels
+
+## Level A
+A green pictogram (level A) means the place can be used autonomously.
+
+## Level C
+A red pictogram (level C) means the place is not accessible for this disability.
+"""
+
+
+def check(cond, msg):
+    print(("ok   " if cond else "FAIL ") + msg)
+    if not cond:
+        raise SystemExit(1)
+
+
+def payload(result):
+    return json.loads(result.content[0].text)
+
+
+async def main():
+    ids = [d["id"] for d in httpx.get(f"{CATALOG}/datasets").json()]
+    check({"iedereenoveral", "pictoaccess", "acceslibre"} <= set(ids), f"catalog lists the registered datasets ({ids})")
+    check("endpointDescription" in httpx.get(f"{CATALOG}/catalog").text, "catalog exports DCAT with endpointDescription")
+
+    r = httpx.post(f"{VOCHUB}/documents", files={"file": ("levels.md", DOC, "text/markdown")},
+                   data={"language": "en", "tags": "pictoaccess"}, timeout=60)
+    check(r.status_code == 201, f"vochub ingests a Markdown file ({r.status_code})")
+    hits = httpx.get(f"{VOCHUB}/search", params={"q": "Que signifie un pictogramme vert ?", "k": 1}).json()
+    check(hits and hits[0]["heading"].endswith("Level A"), "French question finds the English 'Level A' passage")
+
+    async with Client(MCP) as mcp:
+        tools = {t.name for t in (await mcp.list_tools()).tools}
+        check(tools == {"vochub_search", "catalog_search", "catalog_get_dataset", "get_openapi",
+                        "call_source_operation"}, f"connector lists the five tools")
+        hits = payload(await mcp.call_tool("catalog_search", {"query": "wheelchair restaurant Ghent"}))["results"]
+        check(any(h["id"] == "iedereenoveral" for h in hits), "catalog_search via MCP")
+        api = payload(await mcp.call_tool("get_openapi", {"dataset_id": "pictoaccess"}))
+        check("pictoaccess_search_places" in [o["operation_id"] for o in api["operations"]], "get_openapi condenses operations")
+        res = payload(await mcp.call_tool("call_source_operation", {
+            "dataset_id": "pictoaccess", "operation_id": "pictoaccess_search_places",
+            "params": {"city": "Limoges", "mobility": ["autonomous"], "limit": 1}}))
+        check(res["provenance"]["status"] == 200 and res["data"]["total"] > 0,
+              "call_source_operation returns data with provenance (PictoAccess snapshot)")
+        bad = payload(await mcp.call_tool("call_source_operation", {
+            "dataset_id": "pictoaccess", "operation_id": "pictoaccess_search_places", "params": {"town": "Gent"}}))
+        check("not in the OpenAPI" in bad.get("error", ""), "invented parameters are refused")
+
+        # Live, with a real key: only when ACCESLIBRE_API_KEY is set for the connector.
+        al = payload(await mcp.call_tool("catalog_search", {"query": "Acceslibre"}))["results"]
+        if next(h for h in al if h["id"] == "acceslibre")["credentials_configured"]:
+            res = payload(await mcp.call_tool("call_source_operation", {
+                "dataset_id": "acceslibre", "operation_id": "listErps", "params": {"commune": "Rouen", "page_size": 1}}))
+            check(res["provenance"]["status"] == 200, "call_source_operation injects the Acceslibre API key")
+        else:
+            print("skip Acceslibre key check: ACCESLIBRE_API_KEY not configured")
+
+        # Live: needs internet, calls the IedereenOveral API through its adapter.
+        res = payload(await mcp.call_tool("call_source_operation", {
+            "dataset_id": "iedereenoveral", "operation_id": "iedereenoveral_search_places",
+            "params": {"town": "Gent", "category": "food_and_drink", "limit": 5}}))
+        places = res["data"]["places"]
+        check(res["provenance"]["status"] == 200 and places and len(json.dumps(res)) < 6000,
+              f"IedereenOveral search for Gent returns {res['data']['total']} compact places")
+        res = payload(await mcp.call_tool("call_source_operation", {
+            "dataset_id": "iedereenoveral", "operation_id": "iedereenoveral_get_place",
+            "params": {"place_id": places[0]["id"]}}))
+        check(res["data"].get("accessibility") is not None and not res.get("truncated"),
+              f"IedereenOveral place detail fits untruncated ({len(json.dumps(res))} chars)")
+    print("e2e passed")
+
+
+asyncio.run(main())

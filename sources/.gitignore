@@ -1,0 +1,5 @@
+.env
+__pycache__/
+.pytest_cache/
+# Export of a token-protected API; not public data.
+pictoaccess/pictoaccess_dump/

@@ -1,0 +1,72 @@
+[
+ {
+  "id": 6,
+  "created_at": 1782898474912,
+  "locationcategory_id": 4,
+  "name": "Museum",
+  "is_active": true,
+  "users_can_create": false,
+  "visible_for_users": true,
+  "allow_qr_gen": true,
+  "keep_original_photo": true,
+  "info_description": "Dit type bevat informatie die afkomstig is van de Toegankelijkheidswijzer.\n\nInter heeft per locatie een link voorzien naar de detail-info over het dossier die beschikbaar is op de website van de locatie zelf.",
+  "show_score": false,
+  "is_manual_location_allowed": true
+ },
+ {
+  "id": 7,
+  "created_at": 1789565902169,
+  "locationcategory_id": 5,
+  "name": "Parkeerplaatsen",
+  "is_active": true,
+  "users_can_create": true,
+  "visible_for_users": true,
+  "allow_qr_gen": true,
+  "keep_original_photo": false,
+  "info_description": "",
+  "show_score": false,
+  "is_manual_location_allowed": true
+ },
+ {
+  "id": 2,
+  "created_at": 1694773267529,
+  "locationcategory_id": 2,
+  "name": "Eten en drinken",
+  "is_active": true,
+  "users_can_create": true,
+  "visible_for_users": true,
+  "allow_qr_gen": true,
+  "keep_original_photo": true,
+  "info_description": "",
+  "show_score": true,
+  "is_manual_location_allowed": false
+ },
+ {
+  "id": 4,
+  "created_at": 1765524838242,
+  "locationcategory_id": 3,
+  "name": "Publiek toilet",
+  "is_active": true,
+  "users_can_create": true,
+  "visible_for_users": true,
+  "allow_qr_gen": true,
+  "keep_original_photo": true,
+  "info_description": "Onder dit type kan je volgende toiletten terugvinden:\n- Toilet in een (publiek) gebouw (vb. in een bibliotheek, zwembad …)\n- Toilet op openbaar domein (= in losstaand gebouw vb. op een plein …)",
+  "show_score": false,
+  "is_manual_location_allowed": true
+ },
+ {
+  "id": 5,
+  "created_at": 1773155867667,
+  "locationcategory_id": 3,
+  "name": "Changing place",
+  "is_active": true,
+  "users_can_create": false,
+  "visible_for_users": true,
+  "allow_qr_gen": true,
+  "keep_original_photo": true,
+  "info_description": "Een changing place is een ruimte ingericht met een vrijstaand toilet, wastafel, in hoogte verstelbare verzorgingstafel, tillift en soms ook een douchezone. Het is een aangename en rustgevende ruimte met goede verlichting, antislipvloer en genoeg plaats voor iemand met een handicap en twee assistenten of zorgverleners.",
+  "show_score": true,
+  "is_manual_location_allowed": true
+ }
+]

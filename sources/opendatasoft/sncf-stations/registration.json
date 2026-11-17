@@ -1,0 +1,36 @@
+{
+  "id": "sncf-stations",
+  "catalog": "france-mobility",
+  "title": "Gares de voyageurs",
+  "description": "Une gare est un ensemble de biens fonciers, pour lequel SNCF G&C est affectataire en droit réel de la propriété de l'Etat ou d'un propriétaire tiers, ayant servi, servant ou qui servira à l'interface entre la ville et le train. Ce jeu de données représente l'ensemble des gares répondant à la définition ci-dessus. Les données affichées sont les suivantes : Id_Gare : Identifiant unique de la gare Nom_Gare : Nom de la gare Trigramme : Codification de la gare, chaque gare possède un trigramme unique Segment(s) DRG : segment(s) de la gare associé au document de référence des gares Position géographique : coordonnées géographiques de la gare Code Commune : Le code INSEE de chaque commune est … Reference list of passenger stations; its id is the gareid used in sncf-lift-status. Query it live with operation getRecords and dataset_id='gares-de-voyageurs'. Filter with 'where' (ODSQL, e.g. search(\"Lille\") or a field comparison), choose fields with 'select', at most 100 per 'limit'. 2792 records. Fields: nom (Nom_Gare), libellecourt (Trigramme), segment_drg (Segment(s) DRG), position_geographique (Position géographique), codeinsee (Code commune), codes_uic (Code_UIC), id (Id_Gare).",
+  "publisher": {
+    "name": "Gares & Connexions"
+  },
+  "endpoint_url": "https://ressources.data.sncf.com/api/explore/v2.1/",
+  "openapi_url": "https://ressources.data.sncf.com/api/explore/v2.1/swagger.json",
+  "source_dcat_url": "https://ressources.data.sncf.com/api/explore/v2.1/catalog/exports/dcat?where=dataset_id%3D%22gares-de-voyageurs%22",
+  "keywords": [
+    "Code UIC",
+    "Gare de voyageurs",
+    "Gares",
+    "Gares de voyageurs",
+    "Géolocalisation",
+    "UIC",
+    "gare",
+    "gares de voyageurs",
+    "référentiel"
+  ],
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "spatial": [
+    "France"
+  ],
+  "landing_page": "https://ressources.data.sncf.com/explore/dataset/gares-de-voyageurs/",
+  "access_note": "Open Explore API; no key needed for reading.",
+  "licence": "https://data.sncf.com/pages/licence"
+}

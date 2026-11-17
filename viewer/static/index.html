@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore the accessibility data space: integrated DCAT catalogs, source metadata and cited vocabulary search.">
+  <title>Accessibility data space · Explorer</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="#catalog"><img src="/favicon.svg" alt="" width="38" height="38"><span>Accessibility<span class="brand-sub">DATA SPACE EXPLORER</span></span></a>
+    <div class="header-note"><span class="dot"></span>KNoWS · Ghent University<span class="research-tag">Research demonstrator</span></div>
+  </header>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <p class="eyebrow">WORKSPACE</p>
+      <nav aria-label="Data space sections">
+        <a class="nav-item active" id="nav-catalog" href="#catalog" aria-current="page"><span class="nav-icon" aria-hidden="true">▦</span>Metadata broker<span class="nav-count" id="nav-datasets">—</span></a>
+        <a class="nav-item" id="nav-vocabulary" href="#vocabulary"><span class="nav-icon" aria-hidden="true">≋</span>Vocabulary hub<span class="nav-count" id="nav-documents">—</span></a>
+      </nav>
+      <div class="sidebar-note"><span class="mini-mark" aria-hidden="true">↗</span><strong>Connected knowledge.<br>More accessible places.</strong><p>Explore who publishes what, and find the knowledge behind accessibility information.</p></div>
+      <div class="connection-panel"><p class="eyebrow">SERVICE CONNECTIONS</p><div><span>Metadata broker</span><span id="catalog-status" class="status">Checking…</span></div><div><span>Vocabulary hub</span><span id="vochub-status" class="status">Checking…</span></div><p class="muted small">Read-only view · live metadata</p></div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <section id="catalog-view" aria-labelledby="catalog-heading">
+        <div class="page-heading"><div><p class="eyebrow">DISCOVER THE DATA SPACE</p><h1 id="catalog-heading">Metadata broker</h1><p class="intro">One view of the catalogs, publishers and APIs connected to the data space.</p></div><button class="button secondary" id="refresh-catalog"><span aria-hidden="true">↻</span> Refresh</button></div>
+        <div id="catalog-message" role="status" aria-live="polite"></div>
+        <div class="metrics" id="catalog-metrics" aria-label="Catalog statistics"></div>
+        <div class="section-heading"><div><p class="eyebrow">CATALOG NETWORK</p><h2>Explore the collections</h2></div><div class="export-links"><a href="/api/catalog/catalog?format=turtle" download="catalog.ttl">Turtle <span aria-hidden="true">↓</span></a><a href="/api/catalog/catalog?format=jsonld" download="catalog.jsonld">JSON-LD <span aria-hidden="true">↓</span></a></div></div>
+        <div id="catalog-cards" class="catalog-grid"></div>
+        <section class="panel dataset-panel" aria-labelledby="datasets-heading">
+          <div class="panel-heading"><div><h2 id="datasets-heading">Registered datasets <span class="count-label" id="dataset-count">—</span></h2><p class="muted small" id="catalog-selection">Across all catalogs</p></div><button class="text-button" id="clear-filters">Reset filters</button></div>
+          <div class="filter-bar"><label class="search-field"><span class="sr-only">Search datasets</span><span aria-hidden="true">⌕</span><input id="dataset-search" type="search" placeholder="Search datasets, publishers or places…"></label><label><span class="sr-only">Dataset language</span><select id="dataset-language"><option value="">All languages</option></select></label><label><span class="sr-only">Licence information</span><select id="dataset-licence"><option value="">All licence statuses</option><option value="url">Licence URL provided</option><option value="note">No licence URL</option></select></label></div>
+          <div class="table-scroll"><table><caption class="sr-only">Integrated datasets. Select a dataset to inspect its full registration.</caption><thead><tr><th scope="col">Dataset / publisher</th><th scope="col">Catalog</th><th scope="col">Coverage</th><th scope="col">Licence</th><th scope="col"><span class="sr-only">Details</span></th></tr></thead><tbody id="dataset-rows"></tbody></table></div>
+          <div id="dataset-empty" class="empty-state" hidden></div>
+          <div class="panel-footer"><span>Registration metadata, as provided by each publisher.</span><span id="catalog-updated">Waiting for the broker</span></div>
+        </section>
+      </section>
+      <section id="vocabulary-view" aria-labelledby="vocabulary-heading" hidden>
+        <div class="page-heading"><div><p class="eyebrow">UNDERSTAND THE INFORMATION</p><h1 id="vocabulary-heading">Vocabulary hub</h1><p class="intro">Definitions, schemas and accessibility guidance, with their original sources.</p></div><button class="button secondary" id="refresh-vocabulary"><span aria-hidden="true">↻</span> Refresh</button></div>
+        <div id="vocabulary-message" role="status" aria-live="polite"></div>
+        <div class="question-panel"><div class="question-title"><span class="question-icon" aria-hidden="true">✳</span><div><span class="eyebrow">SEMANTIC SEARCH</span><h2>Ask the knowledge collection</h2></div><span class="pill">RAG retrieval</span></div><p class="question-description" id="search-help">Ask a question to retrieve relevant passages from ingested documents. Results are source excerpts, not a generated answer or a live place search.</p>
+          <form id="question-form"><label class="sr-only" for="question">Your question</label><textarea id="question" rows="2" minlength="2" maxlength="2000" required aria-describedby="search-help" placeholder="What do accessibility labels tell me about a place?"></textarea><div class="question-controls"><div class="search-options"><label>Passages<select id="result-limit"><option>3</option><option selected>5</option><option>10</option><option>20</option></select></label><label>Document language<select id="search-language"><option value="">All languages</option></select></label><label>Topic<select id="search-tag"><option value="">All topics</option></select></label></div><button class="button primary" id="search-button" type="submit">Find relevant passages <span aria-hidden="true">↗</span></button></div></form>
+          <div class="suggestions"><span>Try a question</span><button type="button" data-question="What does a green A pictogram mean in Picto Access?">Picto Access pictograms ↗</button><button type="button" data-question="Wat betekent rolstoeltoegankelijk?">Rolstoeltoegankelijkheid ↗</button><button type="button" data-question="Que signifie le label Tourisme et Handicap ?">Tourisme & Handicap ↗</button></div>
+        </div>
+        <section id="results-section" class="results-section" hidden aria-labelledby="results-heading"><div class="section-heading"><div><p class="eyebrow">RETRIEVED EVIDENCE</p><h2 id="results-heading">Relevant passages</h2></div><span class="muted small" id="results-meta"></span></div><p class="muted small" id="results-query"></p><div id="search-message" role="status" aria-live="polite"></div><div id="search-results"></div></section>
+        <section class="panel document-panel" aria-labelledby="documents-heading"><div class="panel-heading"><div><p class="eyebrow">KNOWLEDGE COLLECTION</p><h2 id="documents-heading">Ingested documents <span class="count-label" id="document-count">—</span></h2><p class="muted small" id="document-summary">Loading document metadata…</p></div><label class="search-field"><span class="sr-only">Filter documents by title, topic or language</span><span aria-hidden="true">⌕</span><input id="document-search" type="search" placeholder="Find a document or topic…"></label></div><div id="document-list" class="document-list"></div><div id="document-empty" class="empty-state" hidden></div><div class="panel-footer"><span>Document inclusion does not imply that a provider's place API is connected.</span><span id="vocabulary-updated"></span></div></section>
+      </section>
+      <footer class="page-footer"><span>Accessibility data space</span><span>Public research · KNoWS, Ghent University</span></footer>
+    </main>
+  </div>
+  <dialog id="dataset-dialog" aria-labelledby="detail-title"><div class="dialog-top"><span class="eyebrow">DATASET REGISTRATION</span><button id="close-dialog" class="icon-button" aria-label="Close dataset details">×</button></div><div id="dataset-detail" aria-live="polite"></div></dialog>
+</body>
+</html>

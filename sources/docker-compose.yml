@@ -1,0 +1,33 @@
+# Source proxies, run next to the data space. They join the data space's network so the catalog and
+# connector reach them by service name (as in each registration.json); start the data space first.
+name: accessibility-sources
+
+services:
+  # Live proxy in front of the IedereenOveral (Xano) API: compact, read-only, described for agents.
+  src-iedereenoveral:
+    build: ./iedereenoveral
+    ports: ["${SOURCES_BIND:-127.0.0.1}:8102:8000"]
+    environment:
+      IEDEREENOVERAL_API: ${IEDEREENOVERAL_API:-https://xcli-wrwg-eljt.f2.xano.io/api:SuAo_4fA}
+
+  # Read-only API over a local PictoAccess export (snapshot; the dump is not part of this repository).
+  src-pictoaccess:
+    build: ./pictoaccess
+    ports: ["${SOURCES_BIND:-127.0.0.1}:8103:8000"]
+    volumes:
+      - ${PICTOACCESS_PLACES_DIR:-./pictoaccess/pictoaccess_dump/places}:/data/places:ro
+
+  # Belgian public transport stops (GTFS of STIB, TEC, De Lijn) and iRail station facilities; daily snapshot.
+  src-be-transit:
+    build: ./be-transit
+    ports: ["${SOURCES_BIND:-127.0.0.1}:8104:8000"]
+    volumes:
+      - be-transit-cache:/data
+
+volumes:
+  be-transit-cache:
+
+networks:
+  default:
+    name: accessibility-dataspace_default
+    external: true

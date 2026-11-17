@@ -1,0 +1,44 @@
+[
+ {
+  "id": 1,
+  "created_at": 1697702137775,
+  "index": 1,
+  "name": "Blinden en slechtzienden"
+ },
+ {
+  "id": 2,
+  "created_at": 1697702146262,
+  "index": 2,
+  "name": "Doven en slechthorenden"
+ },
+ {
+  "id": 3,
+  "created_at": 1697702153480,
+  "index": 3,
+  "name": "Motorische beperking"
+ },
+ {
+  "id": 4,
+  "created_at": 1697702166848,
+  "index": 4,
+  "name": "Verstandelijke beperking"
+ },
+ {
+  "id": 5,
+  "created_at": 1697702174502,
+  "index": 5,
+  "name": "Autisme"
+ },
+ {
+  "id": 6,
+  "created_at": 1697702192383,
+  "index": 6,
+  "name": "Ouderen"
+ },
+ {
+  "id": 7,
+  "created_at": 1697702199275,
+  "index": 7,
+  "name": "Andere"
+ }
+]

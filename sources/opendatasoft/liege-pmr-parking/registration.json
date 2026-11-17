@@ -1,0 +1,32 @@
+{
+  "id": "liege-pmr-parking",
+  "catalog": "belgium-mobility",
+  "title": "Stationnement pour personnes handicapées",
+  "description": "Le jeu de données reprend les emplacements géolocalisés de stationnement pour personnes handicapées sur le territoire de la Ville de Liège. Pour en savoir plus sur les initiatives et démarches en faveur des personnes handicapées, consultez le site de la Ville de Liège : www.liege.be . Les informations sont régulièrement vérifiées par nos services sur le terrain. Cependant, il est possible qu'un décalage existe entre le moment de collecte des données, de leurs modifications et la publication de mise à jour de la base de données sur la plateforme. Vous avez une question ou une remarque à formuler ? Contactez-nous . Query it live with operation getRecords and dataset_id='stationnement-pmr'. Filter with 'where' (ODSQL, e.g. search(\"Lille\") or a field comparison), choose fields with 'select', at most 100 per 'limit'. 1481 records. Fields: geo_point_2d (Geo Point), geo_shape (Geo Shape), status (Statut), gid (Identifiant), municipality (Commune), width (Largeur), available_spaces (Places disponibles), commissioning_year (Année de mise en service), length (Longueur), street_code (Code rue), icar_street_id (Code rue (ICAR / BeStaddress)), street_name (Rue), icar_address_id (Identifiant d'adresse (ICAR / BeStaddress)), house_number (Numéro), postal_code (Code postal), created (Date de création), last_modified (Date de dernière modification), city (Ville).",
+  "publisher": {
+    "name": "Ville de Liège"
+  },
+  "endpoint_url": "https://www.odwb.be/api/explore/v2.1/",
+  "openapi_url": "https://www.odwb.be/api/explore/v2.1/swagger.json",
+  "source_dcat_url": "https://www.odwb.be/api/explore/v2.1/catalog/exports/dcat?where=dataset_id%3D%22stationnement-pmr%22",
+  "keywords": [
+    "handicapés",
+    "parking",
+    "stationnement"
+  ],
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "spatial": [
+    "Liège",
+    "Wallonia",
+    "Belgium"
+  ],
+  "landing_page": "https://www.odwb.be/explore/dataset/stationnement-pmr/",
+  "access_note": "Open Explore API; no key needed for reading.",
+  "licence": "https://creativecommons.org/licenses/by/4.0/"
+}
