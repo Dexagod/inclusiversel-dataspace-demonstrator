@@ -36,11 +36,18 @@ async def main():
     check({"iedereenoveral", "pictoaccess", "acceslibre"} <= set(ids), f"catalog lists the registered datasets ({ids})")
     check("endpointDescription" in httpx.get(f"{CATALOG}/catalog").text, "catalog exports DCAT with endpointDescription")
 
-    r = httpx.post(f"{VOCHUB}/documents", files={"file": ("levels.md", DOC, "text/markdown")},
-                   data={"language": "en", "tags": "pictoaccess"}, timeout=60)
+    # Fictional test document: searched only within its own tag, and always removed again.
+    r = httpx.post(f"{VOCHUB}/documents", files={"file": ("e2e-levels.md", DOC, "text/markdown")},
+                   data={"language": "en", "tags": "e2e-test"}, timeout=60)
     check(r.status_code == 201, f"vochub ingests a Markdown file ({r.status_code})")
-    hits = httpx.get(f"{VOCHUB}/search", params={"q": "Que signifie un pictogramme vert ?", "k": 1}).json()
-    check(hits and hits[0]["heading"].endswith("Level A"), "French question finds the English 'Level A' passage")
+    try:
+        hits = httpx.get(f"{VOCHUB}/search",
+                         params={"q": "Que signifie un pictogramme vert ?", "k": 1, "tag": "e2e-test"}).json()
+        check(hits and hits[0]["heading"].endswith("Level A"), "French question finds the English 'Level A' passage")
+    finally:
+        httpx.delete(f"{VOCHUB}/documents/{r.json()['doc_id']}")
+    left = [d for d in httpx.get(f"{VOCHUB}/documents").json() if "e2e-test" in d["tags"]]
+    check(not left, "the test document is removed from vochub again")
 
     async with Client(MCP) as mcp:
         tools = {t.name for t in (await mcp.list_tools()).tools}

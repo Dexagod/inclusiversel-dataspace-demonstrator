@@ -6,6 +6,7 @@ services:
   # Live proxy in front of the IedereenOveral (Xano) API: compact, read-only, described for agents.
   src-iedereenoveral:
     build: ./iedereenoveral
+    restart: unless-stopped  # come back after a reboot
     ports: ["${SOURCES_BIND:-127.0.0.1}:8102:8000"]
     environment:
       IEDEREENOVERAL_API: ${IEDEREENOVERAL_API:-https://xcli-wrwg-eljt.f2.xano.io/api:SuAo_4fA}
@@ -13,6 +14,7 @@ services:
   # Read-only API over a local PictoAccess export (snapshot; the dump is not part of this repository).
   src-pictoaccess:
     build: ./pictoaccess
+    restart: unless-stopped  # come back after a reboot
     ports: ["${SOURCES_BIND:-127.0.0.1}:8103:8000"]
     volumes:
       - ${PICTOACCESS_PLACES_DIR:-./pictoaccess/pictoaccess_dump/places}:/data/places:ro
@@ -20,6 +22,7 @@ services:
   # Belgian public transport stops (GTFS of STIB, TEC, De Lijn) and iRail station facilities; daily snapshot.
   src-be-transit:
     build: ./be-transit
+    restart: unless-stopped  # come back after a reboot
     ports: ["${SOURCES_BIND:-127.0.0.1}:8104:8000"]
     volumes:
       - be-transit-cache:/data

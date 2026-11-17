@@ -34,7 +34,12 @@ The first build downloads the embedding model (about 220 MB) into the vochub ima
 
 ## Running on a remote server
 
-The stack runs the same way on a server: copy both `dataspace/` and `../sources/` (including `sources/pictoaccess/pictoaccess_dump/`, which is not in git), then run `make up` in `dataspace/` and `make up register` in `sources/`. **By default every port is bound to `127.0.0.1`**, so nothing is reachable from outside until you open it on purpose. The services reach each other over Docker's network, not over these ports.
+The stack runs the same way on a server. Clone the repository there, copy the PictoAccess place files (git-ignored) into `sources/pictoaccess/pictoaccess_dump/places/` (see the [repository README](../README.md#deploy-to-a-server) for the `rsync` command), then run `make up` in `dataspace/` and `make up register` in `sources/`. The repository README compares the three set-ups: connector on your machine, ChatGPT, or password-protected.
+
+- **By default every port is bound to `127.0.0.1`**, so nothing is reachable from outside until you open it on purpose. The services reach each other over Docker's network, not over these ports.
+- **Every service restarts after a reboot** (`restart: unless-stopped`); registrations, vectors and the transit cache are on Docker volumes and survive. Stop the stack for good with `make down`.
+- **First start:** building vochub downloads the embedding model (about 220 MB); the transit proxy then downloads about 300 MB of timetables, and its calls return 503 until that is done.
+- **Updating:** `git pull`, then `make up` here and `make up register` in `../sources`. Registering again is safe: each entry is replaced, and copied source DCAT is fetched again.
 
 ### Ports
 

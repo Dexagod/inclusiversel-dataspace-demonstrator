@@ -1,5 +1,8 @@
-# Public documents and pages ingested into the vocabulary hub by `make seed`.
+# Public documents and pages ingested into the vocabulary hub by `make knowledge` (in sources/).
 # Add your own entries; files can also be uploaded with POST /documents.
+# Left out because they cannot be fetched automatically (upload them as files if needed):
+#   https://certivea.fr/certifications/label-accessibilite/  the site sends an incomplete TLS certificate chain
+#   http://datatourisme.fr/ontology/core/                    an RDF ontology, not readable text
 - url: https://acceslibre.beta.gouv.fr/contrib/documentation/
   title: Acceslibre field documentation
   language: fr
@@ -50,10 +53,6 @@
   title: Handiplage beach accessibility label
   language: fr
   tags: [handiplage, label, beaches]
-- url: https://certivea.fr/certifications/label-accessibilite/
-  title: Certivéa Label Accessibilité for non-residential buildings
-  language: fr
-  tags: [certivea, label, certification, buildings]
 - url: https://handicap.gouv.fr/registre-daccessibilite-obligatoire-un-guide-pour-les-erp
   title: Registre public d'accessibilité - guide for ERP
   language: fr
@@ -88,10 +87,6 @@
   title: NeTEx accessibility white paper
   language: en
   tags: [netex, transport, schema]
-- url: http://datatourisme.fr/ontology/core/
-  title: DATAtourisme core ontology
-  language: fr
-  tags: [datatourisme, ontology, schema]
 - url: https://publicaties.vlaanderen.be/view-file/69606
   title: Inter evaluation of accessibility regulation compliance (plan vs. built)
   language: nl

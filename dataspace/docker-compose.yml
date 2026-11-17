@@ -3,6 +3,7 @@ name: accessibility-dataspace
 services:
   catalog:
     build: ./catalog
+    restart: unless-stopped  # come back after a reboot
     ports: ["${CATALOG_BIND:-127.0.0.1}:8001:8000"]  # 0.0.0.0 publishes it, including write endpoints
     environment:
       CATALOG_BASE_URL: ${CATALOG_BASE_URL:-http://localhost:8001}
@@ -11,18 +12,20 @@ services:
 
   vochub-vectors:
     image: qdrant/qdrant:v1.20.0
+    restart: unless-stopped  # come back after a reboot
     volumes: [vochub-vectors:/qdrant/storage]
 
   vochub:
     build: ./vochub
+    restart: unless-stopped  # come back after a reboot
     ports: ["${VOCHUB_BIND:-127.0.0.1}:8002:8000"]   # keep private: ingestion has no authentication
     environment:
       QDRANT_URL: http://vochub-vectors:6333
     depends_on: [vochub-vectors]
-    restart: on-failure
 
   connector:
     build: ./connector
+    restart: unless-stopped  # come back after a reboot
     ports: ["${CONNECTOR_BIND:-127.0.0.1}:8800:8800"]  # the MCP endpoint agents connect to
     env_file: [{ path: .env, required: false }]
     environment:

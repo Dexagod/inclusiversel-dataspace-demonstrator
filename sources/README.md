@@ -45,6 +45,8 @@ make test                 # offline unit tests of the proxies
 make e2e                  # data space + sources end to end (needs internet for IedereenOveral)
 ```
 
+On a server, the PictoAccess export is not in git: copy `pictoaccess_dump/places/` there first (command in the [repository README](../README.md#deploy-to-a-server)), or the PictoAccess proxy starts with no places. The transit proxy fills its `be-transit-cache` volume on first start and refreshes it daily; the volume survives restarts and redeploys.
+
 `CATALOG_URL` and `VOCHUB_URL` point `seed.py` at another data space; for a data space on a remote server, run these commands on the server or through an SSH tunnel (see "Running on a remote server" in the data space README). Registering checks that each source's OpenAPI is reachable from the catalog, so start the proxies first. The registrations use Docker-internal addresses (`http://src-iedereenoveral:8000/`) because the catalog and connector call the proxies from inside Docker; `localhost:8102` inside a container is that container itself. A source hosted elsewhere registers its public URL instead.
 
 Settings for the proxies go in `sources/.env` (read by Compose): `SOURCES_BIND` (address the proxy ports 8102 to 8104 are published on, default `127.0.0.1`; keep it on a server, the catalog and connector use the Docker network), `IEDEREENOVERAL_API` (upstream base URL), and `PICTOACCESS_PLACES_DIR` (location of the export, default `./pictoaccess/pictoaccess_dump/places`).

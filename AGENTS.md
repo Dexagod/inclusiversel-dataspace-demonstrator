@@ -17,14 +17,16 @@ This file is the working version of `Accessibility Data Space Demonstrator — P
 
 ## Layout
 
+One git repository at this root (it may be split into `dataspace/` and `sources/` later; keep the two independent). `.env` files and `sources/pictoaccess/pictoaccess_dump/` are git-ignored.
+
 ```text
-dataspace/                  generic data space; its own git repo (CLAUDE.md -> AGENTS.md there)
+dataspace/                  generic data space (CLAUDE.md -> AGENTS.md there)
   catalog/                  registration API, search, DCAT (rdflib), SPARQL, country sub-catalogs   :8001
   vochub/                   document ingestion, chunking, multilingual embeddings (fastembed), Qdrant :8002
   connector/                MCP server, five read-only tools; openapi_calls.py validates and adds keys :8800/mcp
   config/credentials.yaml   connector's API keys per dataset id (env var references only)
   docs/adr/                 decision records
-sources/                    everything source-specific; not yet under version control
+sources/                    everything source-specific
   docker-compose.yml        proxies; join the external network accessibility-dataspace_default
   seed.py                   `register`: PUT */registration.json to the catalog; `knowledge`: ingest domain-knowledge.yaml
   domain-knowledge.yaml     public documents for the vocabulary hub
@@ -57,7 +59,9 @@ Agents connect to `http://localhost:8800/mcp` only. The proxies and the catalog 
 
 ### Deployment on a server
 
-See "Running on a remote server" in `dataspace/README.md`. In short:
+The repository `README.md` compares the three set-ups (A: catalog, vochub and proxies on the server, connector local over SSH; B: everything on the server for ChatGPT, secret path; C: everything on the server, basic auth) and gives the clone + `rsync` steps. Details in "Running on a remote server" in `dataspace/README.md`. In short:
+- **Getting it there:** `git clone`, then `rsync` the git-ignored `sources/pictoaccess/pictoaccess_dump/places/` (33 MB; the images are not used). Update with `git pull`, `make -C dataspace up`, `make -C sources up register`.
+- **Restarts:** every service has `restart: unless-stopped`; state lives on volumes (`catalog-data`, `vochub-vectors`, `be-transit-cache`).
 - **Ports:** all published ports bind to `127.0.0.1` by default (`CONNECTOR_BIND`, `CATALOG_BIND`, `VOCHUB_BIND` in `dataspace/.env`; `SOURCES_BIND` in `sources/.env`). Only port 8800 (MCP) needs to reach agents; 8001 (catalog) only for publishing DCAT, and then read-only. 8002 and 8102 to 8104 stay private.
 - **Base URL:** `CATALOG_BASE_URL` in `dataspace/.env` is the public base of every URI in the DCAT export; each URI resolves (`/catalog`, `/catalogs/{id}`, `/datasets/{id}`, `/services/{id}`, `/themes/{slug}`).
 - **Security:** no component authenticates. Put HTTPS and authentication in front with a reverse proxy (Caddy example in the README), or the connector exposes your API keys' quota and the PictoAccess snapshot to anyone.
@@ -135,8 +139,7 @@ Pick one task, stay in one component, and meet its acceptance criteria.
 | 8 | Prove the recipe with a fifth source (4.4), e.g. Toerisme Vlaanderen accessible monuments | `sources/` | added by following `sources/README.md` alone, with no change in `dataspace/` |
 | 9 | Fix the Acceslibre `zone` mismatch: comma-join array parameters whose OpenAPI `style`/`explode` asks for it | `dataspace/connector/openapi_calls.py` | unit test: `zone=[a,b,c,d]` becomes `zone=a,b,c,d` |
 | 10 | CI running `make check` and `make -C sources test` (0.1) | repo root | green on push |
-| 11 | Put `sources/` under version control (with its `.gitignore`), or make the root the repository | repo | the PictoAccess dump stays untracked |
-| 12 | More sources from the literature study (Nov 16 evaluation): Accessibility.Cloud needs an account and key; De Lijn's finer stop classification (autonomous / with help / visual) needs a key on data.delijn.be; VisitFlanders Toegankelijkheidszoeker needs reuse terms from Toerisme Vlaanderen; OpenStreetMap (Overpass) needs an adapter (no OpenAPI) | `sources/` | one registration each, tested through the connector |
+| 11 | More sources from the literature study (Nov 16 evaluation): Accessibility.Cloud needs an account and key; De Lijn's finer stop classification (autonomous / with help / visual) needs a key on data.delijn.be; VisitFlanders Toegankelijkheidszoeker needs reuse terms from Toerisme Vlaanderen; OpenStreetMap (Overpass) needs an adapter (no OpenAPI) | `sources/` | one registration each, tested through the connector |
 
 Open questions for the project lead (from the plan, still open): contacts at Inter, Access-i and PictoAccess; whether snapshots may be redistributed; plain DCAT-AP or the Flemish profile; supported agent runtimes; geocoding of place names; post-demo hosting.
 
