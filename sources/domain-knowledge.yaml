@@ -1,5 +1,7 @@
 # Public documents and pages ingested into the vocabulary hub by `make knowledge` (in sources/).
 # Add your own entries; files can also be uploaded with POST /documents.
+# Tag `licence-restricted`: the site's terms restrict reproduction. These are used only in local tests and closed demos,
+# with the licence knowingly disregarded; leave them out of any public deployment (see domain-knowledge-inventory.md).
 # Left out because they cannot be fetched automatically (upload them as files if needed):
 #   https://certivea.fr/certifications/label-accessibilite/  the site sends an incomplete TLS certificate chain
 #   http://datatourisme.fr/ontology/core/                    an RDF ontology, not readable text
@@ -18,7 +20,7 @@
 - url: https://access-i.be/en/?p=1453
   title: "Access-i: what it is and how places are audited"
   language: en
-  tags: [access-i, criteria]
+  tags: [access-i, criteria, licence-restricted]
 - url: https://limoges.fr/sites/default/files/espace_presse/2025/CP%20Picto%20Access%2003%202025-1.pdf
   title: Picto Access pictogram scheme (Limoges press release)
   language: fr
@@ -32,7 +34,7 @@
 - url: https://toerismevlaanderen.be/nl/kwaliteit/inclusie/toegankelijkheid/a-label
   title: Toerisme Vlaanderen accessibility labels A and A+
   language: nl
-  tags: [toerismevlaanderen, label, criteria]
+  tags: [toerismevlaanderen, label, criteria, licence-restricted]
 - url: https://www.vlaanderen.be/inter/overheden-en-professionelen/werken-aan-toegankelijke-gebouwen/label-toegankelijk-gebouw
   title: Inter Label Toegankelijk Gebouw (A, A+, A++)
   language: nl
@@ -40,11 +42,11 @@
 - url: https://access-i.be/en/faqs/ca-veut-dire-quoi-etre-certifie-par-access-i/
   title: "Access-i: what does certification mean"
   language: en
-  tags: [access-i, label, certification]
+  tags: [access-i, label, certification, licence-restricted]
 - url: https://www.atout-france.fr/fr/tourisme-et-handicap
   title: Tourisme & Handicap state label (Atout France)
   language: fr
-  tags: [tourisme-handicap, label, certification]
+  tags: [tourisme-handicap, label, certification, licence-restricted]
 - url: https://www.entreprises.gouv.fr/priorites-et-actions/proximite-et-territoires/renforcer-le-secteur-du-tourisme/destination-pour-tous
   title: Destination pour Tous destination label
   language: fr
@@ -60,11 +62,11 @@
 - url: https://france-congres-evenements.org/did-label/
   title: Destination Innovante Durable label
   language: fr
-  tags: [did, label, destination]
+  tags: [did, label, destination, licence-restricted]
 - url: https://handy.brussels/en/amt-concept/pictogrammes/
   title: Handy.brussels / AMT Concept pictograms
   language: en
-  tags: [handy-brussels, pictograms, criteria]
+  tags: [handy-brussels, pictograms, criteria, licence-restricted]
 
 # --- Literature study: data standards and schemas ---
 - url: https://schema.data.gouv.fr/MTES-MCT/acceslibre-erp-base/
@@ -116,12 +118,12 @@
 - url: https://www.visitflanders.com/en/travel-information/accessibility
   title: VisitFlanders accessible travel information
   language: en
-  tags: [visitflanders, tourism, services]
+  tags: [visitflanders, tourism, services, licence-restricted]
 - url: https://visitwallonia.be/fr-be/3/je-suis/voyageur-a-besoins-specifiques
   title: VisitWallonia - travellers with specific needs
   language: fr
-  tags: [visitwallonia, tourism, services]
+  tags: [visitwallonia, tourism, services, licence-restricted]
 - url: https://www.routen.be/toegankelijkheid
   title: Routen accessible routes
   language: nl
-  tags: [routen, routes]
+  tags: [routen, routes, licence-restricted]

@@ -13,6 +13,12 @@ Everything that is specific to a data source: proxies (adapters) in front of pro
 
 Each source directory holds a `registration.json`: the record PUT to the catalog.
 
+Two inventories track the work against the literature study:
+- [source-inventory.md](source-inventory.md) lists every source: added, candidate, blocked or skipped, with how it is reached, its licence and the study's errors.
+- [domain-knowledge-inventory.md](domain-knowledge-inventory.md) does the same for the vocabulary hub's documents.
+
+Update them when a source or document changes status.
+
 ### Belgian public transport stops (`be-transit`)
 
 `src-be-transit` downloads the static GTFS of STIB-MIVB, TEC and De Lijn from data.belgianmobility.io, and `stations.csv` + `facilities.csv` from github.com/iRail/stations. It keeps only boarding stops (railway stations for iRail) and stores them on the `be-transit-cache` volume. The data is refreshed every `REFRESH_HOURS` (default 24) in the background; the first start takes a minute or two, during which calls return 503. Each operator is a mounted sub-API (`/stib/`, `/tec/`, `/delijn/`, `/irail/`) with its own OpenAPI, so each is a separate catalog entry with its own licence and attribution.
@@ -69,3 +75,4 @@ The agent should find `iedereenoveral` through `catalog_search`, inspect it with
 2. Write `<id>/registration.json` (fields: see "Publishing a dataset" in the data space README).
 3. If it needs a key, add an entry to `../dataspace/config/credentials.yaml`.
 4. `make up register`.
+5. Update its row in [source-inventory.md](source-inventory.md).

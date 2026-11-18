@@ -41,6 +41,8 @@ rsync -a sources/pictoaccess/pictoaccess_dump/places/ \
     user@server:data-architecture/sources/pictoaccess/pictoaccess_dump/places/
 ```
 
+Set-ups B and C need a reverse proxy on the server. Ready-made configurations for Caddy and nginx are in [Reverse proxy: Caddy or nginx](dataspace/README.md#reverse-proxy-caddy-or-nginx).
+
 Then set `dataspace/.env` (`make up` creates it from `.env.example`): source API keys such as `ACCESLIBRE_API_KEY`, and `CATALOG_BASE_URL` if you publish the DCAT catalog. All settings and ports are listed in [Running on a remote server](dataspace/README.md#running-on-a-remote-server).
 
 To update a running server: `git pull`, then `make -C dataspace up` and `make -C sources up register` (registering again is safe; it replaces each entry).

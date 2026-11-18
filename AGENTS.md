@@ -13,6 +13,16 @@ This file is the working version of `Accessibility Data Space Demonstrator — P
 - **One task, one component.** Changing a component's contract (API, registration fields, MCP tools) needs a short ADR in `dataspace/docs/adr/`.
 - **Tests run offline**, on fixtures. Never hit live public sites from unit tests. Crawlers and fetchers honour robots.txt and rate limits and send the user agent `accessibility-dataspace-demo/0.1 (open research demonstrator)`.
 - **Unknown licences are written down, not guessed.** If reuse terms are unconfirmed, a registration leaves `licence` empty and explains the situation in `licence_note`.
+- **Keep the inventories current.** [`sources/source-inventory.md`](sources/source-inventory.md) and [`sources/domain-knowledge-inventory.md`](sources/domain-knowledge-inventory.md) are the source of truth for the following:
+  - which sources and documents are added, candidates, blocked or skipped, and why;
+  - their licences and terms of use;
+  - where the literature study is wrong or out of date.
+
+  Read them before you pick or add a source or document. When you add, block or skip one, update its row and the "Last checked" date in the same change.
+- **Vocabulary-hub documents may disregard their site's licence, visibly.** The hub is used only locally and in closed demos.
+  - A document whose terms restrict reproduction gets the tag `licence-restricted` in `sources/domain-knowledge.yaml` and is marked **Restricted** in the inventory.
+  - A public deployment leaves all tagged documents out.
+  - This exception covers hub documents only, never data sources.
 - **Done means green.** A task is done when `make check` passes in `dataspace/`, `make test` passes in `sources/`, and, for changes that cross components, `make e2e` passes in `sources/`.
 
 ## Layout
@@ -30,6 +40,8 @@ sources/                    everything source-specific
   docker-compose.yml        proxies; join the external network accessibility-dataspace_default
   seed.py                   `register`: PUT */registration.json to the catalog; `knowledge`: ingest domain-knowledge.yaml
   domain-knowledge.yaml     public documents for the vocabulary hub
+  source-inventory.md       every source from the literature study: status, access, proxy, licence, study errors
+  domain-knowledge-inventory.md  the same for vocabulary-hub documents, with each site's reuse terms
   tests/e2e.py              end-to-end test of data space + sources
   iedereenoveral/           live proxy in front of IedereenOveral's Xano API                         :8102
   pictoaccess/              snapshot API over the local PictoAccess export (+ pictoaccess_export.py)  :8103
@@ -64,9 +76,9 @@ The repository `README.md` compares the three set-ups (A: catalog, vochub and pr
 - **Restarts:** every service has `restart: unless-stopped`; state lives on volumes (`catalog-data`, `vochub-vectors`, `be-transit-cache`).
 - **Ports:** all published ports bind to `127.0.0.1` by default (`CONNECTOR_BIND`, `CATALOG_BIND`, `VOCHUB_BIND` in `dataspace/.env`; `SOURCES_BIND` in `sources/.env`). Only port 8800 (MCP) needs to reach agents; 8001 (catalog) only for publishing DCAT, and then read-only. 8002 and 8102 to 8104 stay private.
 - **Base URL:** `CATALOG_BASE_URL` in `dataspace/.env` is the public base of every URI in the DCAT export; each URI resolves (`/catalog`, `/catalogs/{id}`, `/datasets/{id}`, `/services/{id}`, `/themes/{slug}`).
-- **Security:** no component authenticates. Put HTTPS and authentication in front with a reverse proxy (Caddy example in the README), or the connector exposes your API keys' quota and the PictoAccess snapshot to anyone.
+- **Security:** no component authenticates. Put HTTPS and authentication in front with a reverse proxy (Caddy and nginx configurations in "Reverse proxy: Caddy or nginx" in `dataspace/README.md`), or the connector exposes your API keys' quota and the PictoAccess snapshot to anyone.
 - **Registrations** keep Docker-internal proxy URLs; that is correct on a server too.
-- **ChatGPT and other web-hosted agents** reach the connector at `https://<host>/<secret>/mcp` through Caddy (only ports 443 and 80 open; the secret path is the only protection, as these agents accept only OAuth or no authentication). Steps in "Connecting ChatGPT or another web-hosted agent" in `dataspace/README.md`.
+- **ChatGPT and other web-hosted agents** reach the connector at `https://<host>/<secret>/mcp` through Caddy or nginx (only ports 443 and 80 open; the secret path is the only protection, as these agents accept only OAuth or no authentication). Steps in "Connecting ChatGPT or another web-hosted agent" in `dataspace/README.md`.
 
 ## Current state
 
@@ -139,7 +151,7 @@ Pick one task, stay in one component, and meet its acceptance criteria.
 | 8 | Prove the recipe with a fifth source (4.4), e.g. Toerisme Vlaanderen accessible monuments | `sources/` | added by following `sources/README.md` alone, with no change in `dataspace/` |
 | 9 | Fix the Acceslibre `zone` mismatch: comma-join array parameters whose OpenAPI `style`/`explode` asks for it | `dataspace/connector/openapi_calls.py` | unit test: `zone=[a,b,c,d]` becomes `zone=a,b,c,d` |
 | 10 | CI running `make check` and `make -C sources test` (0.1) | repo root | green on push |
-| 11 | More sources from the literature study (Nov 16 evaluation): Accessibility.Cloud needs an account and key; De Lijn's finer stop classification (autonomous / with help / visual) needs a key on data.delijn.be; VisitFlanders Toegankelijkheidszoeker needs reuse terms from Toerisme Vlaanderen; OpenStreetMap (Overpass) needs an adapter (no OpenAPI) | `sources/` | one registration each, tested through the connector |
+| 11 | More sources from the literature study: take the next one from "Candidates, in suggested order" in [`sources/source-inventory.md`](sources/source-inventory.md) (Toerisme Vlaanderen linked data, DATAtourisme, Accessibility.Cloud, OpenStreetMap and so on) | `sources/` | one registration each, tested through the connector; its row in the inventory updated |
 
 Open questions for the project lead (from the plan, still open): contacts at Inter, Access-i and PictoAccess; whether snapshots may be redistributed; plain DCAT-AP or the Flemish profile; supported agent runtimes; geocoding of place names; post-demo hosting.
 

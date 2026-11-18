@@ -68,25 +68,100 @@ The registrations keep their Docker-internal addresses (`http://src-…:8000/`);
 
 ### HTTPS and authentication
 
-The connector and catalog have no authentication of their own. Anyone who can reach the connector can query every source with your API keys and read the PictoAccess snapshot. A reverse proxy such as [Caddy](https://caddyserver.com) adds HTTPS and a password. A sketch (Caddy 2.8+; replace the host and the hash from `caddy hash-password`):
+The connector and catalog have no authentication of their own. Anyone who can reach the connector can query every source with your API keys and read the PictoAccess snapshot. A reverse proxy on the server adds HTTPS and either a password or a secret path; see [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx).
+
+### Reverse proxy: Caddy or nginx
+
+The reverse proxy runs on the server itself (not in Docker). It handles HTTPS and forwards requests to the ports that Compose binds to `127.0.0.1`. Use Caddy or nginx; both configurations below forward the same paths:
+
+| Public path | Forwards to | Protection |
+| --- | --- | --- |
+| `/SECRET/mcp` (ChatGPT set-up) or `/mcp` (password set-up) | `127.0.0.1:8800/mcp`, the connector | the secret in the path, or basic auth |
+| `/catalog/…` (optional) | `127.0.0.1:8001/…`, the catalog | read-only: only `GET` and `HEAD` pass |
+| anything else | nothing | 404 |
+
+Replace `dataspace.example.org` with your host name. For the secret path, generate `SECRET` with `openssl rand -hex 16`. Each configuration contains both set-ups: keep the one you use and leave the other commented out. If you publish the catalog, set `CATALOG_BASE_URL=https://dataspace.example.org/catalog` in `.env` and run `make up`; the DCAT export is then at `https://dataspace.example.org/catalog/catalog`.
+
+**Caddy** (2.8 or later) fetches and renews the certificate itself. Put this in `/etc/caddy/Caddyfile`, then run `sudo systemctl reload caddy`:
 
 ```caddyfile
 dataspace.example.org {
-    handle /mcp* {
-        basic_auth {
-            agent $2a$14$REPLACE_WITH_HASH
-        }
+    # ChatGPT set-up: secret path
+    handle /SECRET/mcp* {
+        uri strip_prefix /SECRET
         reverse_proxy 127.0.0.1:8800
     }
+
+    # Password set-up instead (hash from `caddy hash-password`):
+    # handle /mcp* {
+    #     basic_auth {
+    #         agent $2a$14$REPLACE_WITH_HASH
+    #     }
+    #     reverse_proxy 127.0.0.1:8800
+    # }
+
+    # Optional: the DCAT catalog, read-only
     handle_path /catalog/* {
         @write not method GET HEAD
         respond @write 405
         reverse_proxy 127.0.0.1:8001
     }
+
+    respond 404
 }
 ```
 
-With this, set `CATALOG_BASE_URL=https://dataspace.example.org/catalog`; the DCAT export is at `https://dataspace.example.org/catalog/catalog`.
+Caddy passes the connector's streamed responses through without extra settings. It writes no access log unless you add `log`, so the secret stays out of its logs.
+
+**nginx** needs a certificate before it starts with this file. Get one with `sudo certbot certonly --nginx -d dataspace.example.org`; certbot renews it automatically. Put this in `/etc/nginx/sites-available/dataspace`, link it into `sites-enabled/`, then run `sudo nginx -t && sudo systemctl reload nginx`:
+
+```nginx
+server {
+    listen 80;
+    server_name dataspace.example.org;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name dataspace.example.org;
+    ssl_certificate     /etc/letsencrypt/live/dataspace.example.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/dataspace.example.org/privkey.pem;
+
+    # The connector streams its answers (server-sent events), and some source calls take a while
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+    proxy_read_timeout 300s;
+
+    # ChatGPT set-up: secret path
+    location /SECRET/mcp {
+        access_log off;   # keep the secret out of the logs
+        proxy_pass http://127.0.0.1:8800/mcp;
+    }
+
+    # Password set-up instead (file from `htpasswd -c /etc/nginx/dataspace.htpasswd agent`,
+    # in the apache2-utils package):
+    # location /mcp {
+    #     auth_basic "dataspace";
+    #     auth_basic_user_file /etc/nginx/dataspace.htpasswd;
+    #     proxy_pass http://127.0.0.1:8800;
+    # }
+
+    # Optional: the DCAT catalog, read-only (other methods get 403)
+    location /catalog/ {
+        limit_except GET { deny all; }
+        proxy_pass http://127.0.0.1:8001/;
+    }
+
+    location / { return 404; }
+}
+```
+
+`limit_except GET` also allows `HEAD`. Without `proxy_buffering off`, nginx holds back the connector's streamed answers and agents time out.
+
+Open ports 80 and 443 for either proxy: 443 for the agent, and 80 for certificate issuance and renewal. Check the result with the `curl` commands in step 6 of the next section. To check the password set-up, send the same `initialize` request to `/mcp`: it returns 401 without credentials and 200 with `-u agent:PASSWORD`.
 
 ### Connecting an agent to the server
 
@@ -115,19 +190,7 @@ A web-hosted agent calls the connector from its own servers, so the whole stack 
    Nothing else: catalog, vochub and the proxies stay on `127.0.0.1` (keep the `*_BIND` defaults and leave `SOURCE_URL_MAP` empty).
 3. **Stack:** on the server, `make up` here and `make up register` in `../sources`; put the source API keys (`ACCESLIBRE_API_KEY`) in this server's `.env`.
 4. **Secret:** generate one with `openssl rand -hex 16`.
-5. **Caddy** (`/etc/caddy/Caddyfile`, then `systemctl reload caddy`), replacing the host and `SECRET`:
-
-   ```caddyfile
-   dataspace.yourdomain.org {
-       handle /SECRET/mcp* {
-           uri strip_prefix /SECRET
-           reverse_proxy 127.0.0.1:8800
-       }
-       respond 404
-   }
-   ```
-
-   Every other path returns 404, including `/mcp` without the secret.
+5. **Reverse proxy:** use the secret-path configuration for Caddy or nginx from [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). Every other path returns 404, including `/mcp` without the secret.
 6. **Check** from any machine: the first call returns 200 with the server's capabilities, the second 404.
 
    ```bash
@@ -138,7 +201,7 @@ A web-hosted agent calls the connector from its own servers, so the whole stack 
    ```
 7. **ChatGPT:** add a custom connector (in ChatGPT's connector settings; custom MCP connectors may require developer mode) with the URL `https://dataspace.yourdomain.org/SECRET/mcp` and no authentication. The five tools of the connector should appear.
 
-To also publish the DCAT catalog read-only, add the `handle_path /catalog/*` block from the previous Caddy example inside the same site and set `CATALOG_BASE_URL=https://dataspace.yourdomain.org/catalog`.
+To also publish the DCAT catalog read-only, keep the `/catalog` block in that configuration and set `CATALOG_BASE_URL=https://dataspace.yourdomain.org/catalog`.
 
 ### Registering sources and ingesting documents from your laptop
 
