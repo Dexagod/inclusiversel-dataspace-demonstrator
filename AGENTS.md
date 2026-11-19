@@ -47,6 +47,9 @@ sources/                    everything source-specific
   pictoaccess/              snapshot API over the local PictoAccess export (+ pictoaccess_export.py)  :8103
   acceslibre/               registration only: Acceslibre's own API is used directly
   be-transit/               Belgian stops: daily snapshot of STIB, TEC and De Lijn GTFS + iRail station facilities :8104
+  toerismevlaanderen/       Toerisme Vlaanderen linked open data (SPARQL), cached in memory, A-labels :8106
+  documents/                web pages and PDFs as datasets: one documents/<id>/registration.json each, outline/search/section :8107
+  osm/                      OpenStreetMap live (OnWheels features + native accessibility tags), polite Overpass use :8105
   opendatasoft/             11 open datasets forwarded live from Opendatasoft portals; registrations generated
                             from the portals' metadata by make_registrations.py (datasets.yaml lists them)
 ```
@@ -74,7 +77,7 @@ Agents connect to `http://localhost:8800/mcp` only. The proxies and the catalog 
 The repository `README.md` compares the three set-ups (A: catalog, vochub and proxies on the server, connector local over SSH; B: everything on the server for ChatGPT, secret path; C: everything on the server, basic auth) and gives the clone + `rsync` steps. Details in "Running on a remote server" in `dataspace/README.md`. In short:
 - **Getting it there:** `git clone`, then `rsync` the git-ignored `sources/pictoaccess/pictoaccess_dump/places/` (33 MB; the images are not used). Update with `git pull`, `make -C dataspace up`, `make -C sources up register`.
 - **Restarts:** every service has `restart: unless-stopped`; state lives on volumes (`catalog-data`, `vochub-vectors`, `be-transit-cache`).
-- **Ports:** all published ports bind to `127.0.0.1` by default (`CONNECTOR_BIND`, `CATALOG_BIND`, `VOCHUB_BIND` in `dataspace/.env`; `SOURCES_BIND` in `sources/.env`). Only port 8800 (MCP) needs to reach agents; 8001 (catalog) only for publishing DCAT, and then read-only. 8002 and 8102 to 8104 stay private.
+- **Ports:** all published ports bind to `127.0.0.1` by default (`CONNECTOR_BIND`, `CATALOG_BIND`, `VOCHUB_BIND` in `dataspace/.env`; `SOURCES_BIND` in `sources/.env`). Only port 8800 (MCP) needs to reach agents; 8001 (catalog) only for publishing DCAT, and then read-only. 8002 and 8102 to 8107 stay private.
 - **Base URL:** `CATALOG_BASE_URL` in `dataspace/.env` is the public base of every URI in the DCAT export; each URI resolves (`/catalog`, `/catalogs/{id}`, `/datasets/{id}`, `/services/{id}`, `/themes/{slug}`).
 - **Security:** no component authenticates. Put HTTPS and authentication in front with a reverse proxy (Caddy and nginx configurations in "Reverse proxy: Caddy or nginx" in `dataspace/README.md`), or the connector exposes your API keys' quota and the PictoAccess snapshot to anyone.
 - **Registrations** keep Docker-internal proxy URLs; that is correct on a server too.
@@ -94,6 +97,9 @@ The repository `README.md` compares the three set-ups (A: catalog, vochub and pr
 | `sncf-stations`, `sncf-lift-status`, `sncf-station-equipment`, `sncf-assistance` | france-mobility | SNCF Explore API directly | live; lift status is real time | ODbL (SNCF licence page) |
 | `stib-stops`, `tec-stops`, `delijn-stops` | belgium-mobility | `src-be-transit` | daily snapshot of the operators' static GTFS: wheelchair value per stop | CC BY 4.0, attribution "Source: <operator> – Open Data – <date>" |
 | `irail-stations` | belgium-mobility | `src-be-transit` | daily snapshot of iRail's station facilities (ramp, lift, induction loop, platform height) | repository CC0, but lift/escalator data from OSM (ODbL); some fields date from June 2023 |
+| `zon-zee-zorgeloos` | belgium | `src-documents` | Inter's web page on accessible beaches per coastal town, served as sections (outline, word search, full section) that keep the town as heading; refetched daily, with document dates | vlaanderen.be disclaimer: free reuse |
+| `toerismevlaanderen` | belgium | `src-toerismevlaanderen` | 1,039 tourist places with accessibility information from Toerisme Vlaanderen's SPARQL, loaded every 6 h; A / A+ labels, groups catered for, texts per topic (nl, en); topics often misfiled in the source, the API says so | no licence published; Toerisme Vlaanderen asked for the integration; licence being discussed |
+| `onwheels`, `osm-accessibility` | root catalog (no sub-catalog; Belgium and Hauts-de-France) | `src-osm` | **possible, not reliable**: live Overpass search, OSM API detail; the public Overpass server was full for a whole night of polite retries, so searches return 503. Usable once a private Overpass instance (`OVERPASS_URL`) or access to the OnWheels API is arranged | ODbL, "© OpenStreetMap contributors"; not republished |
 | `liege-`, `brabant-wallon-`, `marche-en-famenne-`, `la-louviere-`, `databusters-pmr-parking` | belgium-mobility | ODWB Explore API directly | live; disabled parking spaces | CC BY, except Marche (publisher metadata conflicts) and La Louvière (not specified) |
 
 The catalog has four DCAT sub-catalogs, linked from the root with `dcat:catalog`: `belgium`, `france`, and, for transport and parking, `belgium-mobility` and `france-mobility` ([ADR 0001](dataspace/docs/adr/0001-country-sub-catalogs.md), [ADR 0003](dataspace/docs/adr/0003-mobility-catalogs-source-dcat-optional-keys.md)). Datasets forwarded from open data portals carry the publisher's original DCAT, copied in through `source_dcat_url` and linked with `dct:source`. You can list them with `GET /catalogs` and filter search with `GET /datasets?catalog=`. Adding a country means adding one entry to `CATALOGS` in `dataspace/catalog/dcat.py`.
@@ -113,6 +119,12 @@ The catalog has four DCAT sub-catalogs, linked from the root with `dcat:catalog`
 - **SNCF lift status** has no station names: `gareid` is the `id` in `sncf-stations` (gares-de-voyageurs). The station reference id named in SNCF's own description (`referentiel-gares-voyageurs`) no longer exists.
 - **Publisher metadata is not always clean**: Liège's DCAT export uses "Ville de Liège" as an IRI (those triples are skipped when copying), and Marche-en-Famenne names CC0 but links to CC BY (recorded as a licence note).
 - **Belgian public transport**: the static GTFS of STIB, TEC, De Lijn and SNCB downloads from data.belgianmobility.io without a key (CC BY 4.0, operator is the licensor). STIB and TEC fill `wheelchair_boarding` well; De Lijn only marks accessible stops (`0` = no information); SNCB fills none, hence iRail's `facilities.csv` for stations. The feeds are 12 to 184 MB zips and the server ignores range requests, so they are cached, not forwarded.
+- **OpenStreetMap's public Overpass server is often full** (checked Nov 18, 2026):
+  - overpass-api.de answered 502 "at capacity" or took 28 to 41 s even for a trivial query;
+  - private.coffee and kumi.systems were also full, and openstreetmap.fr and mail.ru are whitelist-only;
+  - the OSM API (`api.openstreetmap.org`) answers single features in well under a second.
+
+  Hence the `osm/` adapter's politeness guards, and the advice to set `OVERPASS_URL` to a private instance if searches must be reliable. Overpass metadata includes contributor user names; never pass them on.
 - **IedereenOveral's raw API** is unsuitable for agents (130 KB details, numeric ids, silently dropped array values); see `sources/iedereenoveral/README.md`.
 
 ### Status against the plan
@@ -148,10 +160,12 @@ Pick one task, stay in one component, and meet its acceptance criteria.
 | 5 | Skill document (3.4): workflow steps 1 to 8 in the plan, "Skill document" | new `agent/skills/accessibility-dataspace/SKILL.md` | a fresh agent session follows it without extra instructions |
 | 6 | Demo CLI agent (3.5) | new `agent/` | `docker compose run agent "<question>"` prints an answer with sources |
 | 7 | SHACL validation against DCAT-AP (2.11) | `dataspace/catalog/` | `make check` fails for a dataset without licence information or distribution |
-| 8 | Prove the recipe with a fifth source (4.4), e.g. Toerisme Vlaanderen accessible monuments | `sources/` | added by following `sources/README.md` alone, with no change in `dataspace/` |
+| 8 | ~~Prove the recipe with a fifth source (4.4)~~ done: `toerismevlaanderen` (2026-11-19) | `sources/` | added by following `sources/README.md` alone, with no change in `dataspace/` |
 | 9 | Fix the Acceslibre `zone` mismatch: comma-join array parameters whose OpenAPI `style`/`explode` asks for it | `dataspace/connector/openapi_calls.py` | unit test: `zone=[a,b,c,d]` becomes `zone=a,b,c,d` |
 | 10 | CI running `make check` and `make -C sources test` (0.1) | repo root | green on push |
-| 11 | More sources from the literature study: take the next one from "Candidates, in suggested order" in [`sources/source-inventory.md`](sources/source-inventory.md) (Toerisme Vlaanderen linked data, DATAtourisme, Accessibility.Cloud, OpenStreetMap and so on) | `sources/` | one registration each, tested through the connector; its row in the inventory updated |
+| 11 | More sources from the literature study: take the next one from "Candidates, in suggested order" in [`sources/source-inventory.md`](sources/source-inventory.md) (DATAtourisme, Accessibility.Cloud and so on) | `sources/` | one registration each, tested through the connector; its row in the inventory updated |
+
+User profiles (personal needs and preferences) are analysed in [`user-profiles.md`](user-profiles.md): not implemented; read it before adding anything profile-related to the connector or skill.
 
 Open questions for the project lead (from the plan, still open): contacts at Inter, Access-i and PictoAccess; whether snapshots may be redistributed; plain DCAT-AP or the Flemish profile; supported agent runtimes; geocoding of place names; post-demo hosting.
 

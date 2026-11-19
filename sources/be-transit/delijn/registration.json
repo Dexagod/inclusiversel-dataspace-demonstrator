@@ -25,6 +25,12 @@
     "Leuven",
     "Brugge"
   ],
+  "conforms_to": [
+    {
+      "url": "https://gtfs.org/documentation/schedule/reference/",
+      "title": "GTFS Schedule reference (stops.txt, wheelchair_boarding)"
+    }
+  ],
   "keywords": [
     "bus",
     "tram",

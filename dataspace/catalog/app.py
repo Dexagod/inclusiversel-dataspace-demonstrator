@@ -28,6 +28,17 @@ class Publisher(BaseModel):
     url: AnyHttpUrl | None = None
 
 
+class Standard(BaseModel):
+    url: AnyHttpUrl = Field(description="URL of the schema, data model or vocabulary, e.g. https://gtfs.org/documentation/schedule/reference/")
+    title: str = Field(min_length=1)
+
+
+class Distribution(BaseModel):
+    url: AnyHttpUrl = Field(description="Where the file or page is published, e.g. the original PDF")
+    media_type: str = Field(pattern=r"^[a-z]+/[a-z0-9.+-]+$", description="IANA media type, e.g. application/pdf, text/html")
+    title: str | None = None
+
+
 class Registration(BaseModel):
     id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{1,62}$", description="Stable slug, e.g. 'acceslibre'")
     catalog: str | None = Field(default=None, description=f"Sub-catalog the dataset belongs to: {sorted(CATALOGS)}")
@@ -42,6 +53,10 @@ class Registration(BaseModel):
     source_dcat_url: AnyHttpUrl | None = Field(default=None, description="URL of the publisher's own DCAT description of "
                                                "this dataset (one dcat:Dataset; Turtle, RDF/XML or JSON-LD); it is copied "
                                                "into this catalog and linked with dct:source")
+    conforms_to: list[Standard] = Field(default=[], description="Published schemas, data models or vocabularies the "
+                                        "source data follows; exported as dct:conformsTo on the dataset")
+    distributions: list[Distribution] = Field(default=[], description="Further distributions besides the API, e.g. "
+                                              "the web page or PDF the API reads; exported as dcat:Distribution")
     keywords: list[str] = []
     themes: list[str] = Field(default=["accessibility"], description="Theme slugs")
     languages: list[str] = Field(default=[], description=f"ISO 639-1 codes: {sorted(LANGUAGES)}")
@@ -91,8 +106,8 @@ class Registration(BaseModel):
 datasets: dict[str, dict] = {}
 
 
-async def check_openapi(url: str) -> None:
-    """Reject a registration whose OpenAPI document cannot be fetched or is not OpenAPI 3.x."""
+async def fetch_openapi(url: str) -> dict:
+    """The OpenAPI 3.x document; reject the registration if it cannot be fetched or is not OpenAPI 3.x."""
     try:
         async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
             r = await client.get(url)
@@ -102,6 +117,7 @@ async def check_openapi(url: str) -> None:
         raise HTTPException(422, f"openapi_url could not be fetched or parsed: {e}") from e
     if not isinstance(doc, dict) or not str(doc.get("openapi", "")).startswith("3"):
         raise HTTPException(422, "openapi_url must point to an OpenAPI 3.x document (Swagger 2 is not supported)")
+    return doc
 
 
 async def fetch_source_dcat(url: str) -> dict:
@@ -126,7 +142,8 @@ def save(record: dict) -> None:
 
 async def register(reg: Registration) -> dict:
     record = reg.model_dump(mode="json")
-    await check_openapi(record["openapi_url"])
+    # A copy, so the DCAT export links a description that resolves even when openapi_url is Docker-internal.
+    record["openapi"] = await fetch_openapi(record["openapi_url"])
     if record.get("source_dcat_url"):
         record["source_dcat"] = await fetch_source_dcat(record["source_dcat_url"])
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -215,7 +232,15 @@ def search(
 def get(dataset_id: str):
     if dataset_id not in datasets:
         raise HTTPException(404, "dataset not found")
-    return datasets[dataset_id]
+    return {k: v for k, v in datasets[dataset_id].items() if k != "openapi"}
+
+
+@app.get("/services/{dataset_id}/openapi.json", operation_id="get_service_openapi",
+         summary="Copy of a data service's OpenAPI document, taken at registration (its dcat:endpointDescription)")
+def service_openapi(dataset_id: str):
+    if "openapi" not in datasets.get(dataset_id, {}):
+        raise HTTPException(404, "no OpenAPI copy for this dataset; register it again")
+    return datasets[dataset_id]["openapi"]
 
 
 @app.get("/catalogs", operation_id="list_catalogs", summary="Sub-catalogs and the ids of their datasets")

@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from rdflib import Graph
 
+OPENAPI = {"openapi": "3.1.0", "info": {"title": "Test", "version": "1"}, "paths": {}}
 REG = {
     "id": "test-places",
     "title": "Example Ghent places",
@@ -16,6 +17,8 @@ REG = {
     "languages": ["nl", "en"],
     "spatial": ["Ghent", "Flanders"],
     "update_frequency": "MONTHLY",
+    "conforms_to": [{"url": "https://gtfs.org/documentation/schedule/reference/", "title": "GTFS Schedule"}],
+    "distributions": [{"url": "https://example.org/guide.pdf", "media_type": "application/pdf", "title": "Guide"}],
 }
 
 
@@ -31,8 +34,9 @@ def client(tmp_path, monkeypatch):
     async def ok(url):
         if "broken" in url:
             raise app_module.HTTPException(422, "openapi_url could not be fetched")
+        return OPENAPI
 
-    monkeypatch.setattr(app_module, "check_openapi", ok)
+    monkeypatch.setattr(app_module, "fetch_openapi", ok)
     with TestClient(app_module.app) as c:
         yield c
 
@@ -46,7 +50,8 @@ def test_register_search_and_get(client):
     assert client.get("/datasets", params={"q": "tokyo"}).json() == []
     assert client.get("/datasets", params={"language": "fr"}).json() == []
     assert client.get("/datasets", params={"spatial": "flan"}).json()[0]["id"] == "test-places"
-    assert client.get("/datasets/test-places").json()["registered_at"]
+    full = client.get("/datasets/test-places").json()
+    assert full["registered_at"] and "openapi" not in full  # the copy is served separately
 
 
 def test_invalid_registration_is_readable(client):
@@ -64,7 +69,16 @@ def test_dcat_output(client):
     g = Graph().parse(data=ttl, format="turtle")
     q = """PREFIX dcat: <http://www.w3.org/ns/dcat#>
            SELECT ?desc WHERE { ?s a dcat:DataService ; dcat:endpointDescription ?desc }"""
-    assert [str(r.desc) for r in g.query(q)] == [REG["openapi_url"]]
+    copy = "http://localhost:8001/services/test-places/openapi.json"
+    assert [str(r.desc) for r in g.query(q)] == [copy]
+    assert client.get("/services/test-places/openapi.json").json() == OPENAPI
+    std = """PREFIX dct: <http://purl.org/dc/terms/>
+             SELECT ?src ?title WHERE { <%s> dct:source ?src . ?d dct:conformsTo ?s . ?s a dct:Standard ; dct:title ?title }"""
+    assert [(str(r.src), str(r.title)) for r in g.query(std % copy)] == [(REG["openapi_url"], "GTFS Schedule")]
+    pdf = """PREFIX dcat: <http://www.w3.org/ns/dcat#>
+             SELECT ?file ?type WHERE { ?d dcat:distribution ?x . ?x dcat:downloadURL ?file ; dcat:mediaType ?type }"""
+    assert [(str(r.file), str(r.type)) for r in g.query(pdf)] == [
+        ("https://example.org/guide.pdf", "https://www.iana.org/assignments/media-types/application/pdf")]
     jsonld = client.get("/catalog", params={"format": "jsonld"})
     assert jsonld.headers["content-type"].startswith("application/ld+json")
     Graph().parse(data=jsonld.text, format="json-ld")

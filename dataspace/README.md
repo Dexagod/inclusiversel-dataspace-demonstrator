@@ -48,7 +48,7 @@ The stack runs the same way on a server. Clone the repository there, copy the Pi
 | **8800** | connector, MCP endpoint `/mcp` | **Yes: this is the only port an agent needs.** Put it behind HTTPS and authentication (see below) |
 | 8001 | catalog: DCAT export, search, SPARQL, registration | Optional, to publish the DCAT catalog. It also serves `POST`/`PUT`/`DELETE /datasets` without authentication, so expose only `GET` (see below) |
 | 8002 | vocabulary hub | No. Ingestion has no authentication; reach it through an SSH tunnel |
-| 8102 to 8104 | source proxies (in `../sources`) | No. The catalog and connector call them over the Docker network, and the PictoAccess proxy serves non-public data |
+| 8102 to 8107 | source proxies (in `../sources`) | No. The catalog and connector call them over the Docker network, and the PictoAccess proxy serves non-public data |
 
 ### Settings
 
@@ -233,13 +233,13 @@ The connector holds the source API keys and is what your agent talks to, so runn
 2. On the laptop, open an SSH tunnel to the five ports and leave it running:
    ```bash
    ssh -N -L 8001:127.0.0.1:8001 -L 8002:127.0.0.1:8002 \
-       -L 8102:127.0.0.1:8102 -L 8103:127.0.0.1:8103 -L 8104:127.0.0.1:8104 user@server
+       -L 8102:127.0.0.1:8102 -L 8103:127.0.0.1:8103 -L 8104:127.0.0.1:8104 -L 8105:127.0.0.1:8105 -L 8106:127.0.0.1:8106 -L 8107:127.0.0.1:8107 user@server
    ```
 3. On the laptop, add to `dataspace/.env` (the connector runs in Docker, so it reaches the tunnel on the host as `host.docker.internal`):
    ```bash
    CATALOG_URL=http://host.docker.internal:8001
    VOCHUB_URL=http://host.docker.internal:8002
-   SOURCE_URL_MAP=http://src-iedereenoveral:8000/=http://host.docker.internal:8102/,http://src-pictoaccess:8000/=http://host.docker.internal:8103/,http://src-be-transit:8000/=http://host.docker.internal:8104/
+   SOURCE_URL_MAP=http://src-iedereenoveral:8000/=http://host.docker.internal:8102/,http://src-pictoaccess:8000/=http://host.docker.internal:8103/,http://src-be-transit:8000/=http://host.docker.internal:8104/,http://src-osm:8000/=http://host.docker.internal:8105/,http://src-toerismevlaanderen:8000/=http://host.docker.internal:8106/,http://src-documents:8000/=http://host.docker.internal:8107/
    ACCESLIBRE_API_KEY=...
    ```
 4. On the laptop: `make up-connector`, and connect the agent to `http://localhost:8800/mcp` as usual.
@@ -254,7 +254,7 @@ Instead of SSH tunnels you can publish the catalog, vochub and proxies over HTTP
 
 ## Publishing a dataset
 
-A publisher registers a dataset with its metadata, the base URL of its API and the URL of its OpenAPI 3.x document. The catalog fetches the OpenAPI document and rejects the registration if it is missing or not OpenAPI 3.
+A publisher registers a dataset with its metadata, the base URL of its API and the URL of its OpenAPI 3.x document. The catalog fetches the OpenAPI document and rejects the registration if it is missing or not OpenAPI 3. It keeps a copy, served at `/services/{id}/openapi.json`, so the DCAT export links a description that resolves from outside even when `openapi_url` is a Docker-internal address.
 
 ```bash
 curl -X PUT http://localhost:8001/datasets/my-source -H 'content-type: application/json' -d '{
@@ -270,6 +270,7 @@ curl -X PUT http://localhost:8001/datasets/my-source -H 'content-type: applicati
   "languages": ["nl", "en"],
   "spatial": ["Leuven", "Flanders", "Belgium"],
   "update_frequency": "WEEKLY",
+  "conforms_to": [{"url": "https://gtfs.org/documentation/schedule/reference/", "title": "GTFS Schedule reference"}],
   "access_note": "Request an API key at https://api.example.org/keys"
 }'
 ```
@@ -288,13 +289,15 @@ curl -X PUT http://localhost:8001/datasets/my-source -H 'content-type: applicati
 | `licence_note` | no | reuse conditions in words |
 | `landing_page`, `contact_email`, `access_note` | no | `access_note` tells consumers how to get a key |
 | `catalog` | no | sub-catalog, see below |
+| `conforms_to` | no | published schemas, data models or vocabularies the data follows (`url`, `title`); exported as `dct:conformsTo` ([ADR 0004](docs/adr/0004-schemas-in-dcat.md)) |
+| `distributions` | no | further distributions besides the API (`url`, `media_type`, `title`), e.g. the web page or PDF a document dataset reads; exported as `dcat:Distribution` with `dcat:mediaType` ([ADR 0005](docs/adr/0005-documents-as-datasets.md)) |
 | `source_dcat_url` | no | the publisher's own DCAT for this dataset; copied into the catalog and linked with `dct:source` ([ADR 0003](docs/adr/0003-mobility-catalogs-source-dcat-optional-keys.md)) |
 
 When a provider's own API is hard for an agent to use (huge responses, numeric ids, no descriptions), put a thin adapter in front of it and register the adapter instead; [../sources/iedereenoveral](../sources/iedereenoveral/README.md) is an example.
 
 Datasets belong to a sub-catalog through the optional `catalog` field: `belgium`, `france`, `belgium-mobility` or `france-mobility`. In the DCAT export both are `dcat:Catalog`s linked from the root catalog with `dcat:catalog`; `GET /catalogs` lists them with their dataset ids, and `GET /datasets?catalog=france` filters search ([ADR](docs/adr/0001-country-sub-catalogs.md)).
 
-Other calls: `POST /datasets` (create only), `DELETE /datasets/{id}`, `GET /datasets?q=&theme=&spatial=&language=`, `GET /catalog?format=turtle|jsonld`, `GET /catalogs/{id}`, `/services/{id}` and `/themes/{slug}` (DCAT description of each URI in the export), `GET|POST /sparql`. Registrations are stored on the `catalog-data` volume.
+Other calls: `POST /datasets` (create only), `DELETE /datasets/{id}`, `GET /datasets?q=&theme=&spatial=&language=`, `GET /catalog?format=turtle|jsonld`, `GET /catalogs/{id}`, `/services/{id}` and `/themes/{slug}` (DCAT description of each URI in the export), `GET /services/{id}/openapi.json` (the OpenAPI copy), `GET|POST /sparql`. Registrations are stored on the `catalog-data` volume.
 
 ## API keys for sources
 

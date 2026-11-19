@@ -1,0 +1,22 @@
+{
+  "id": "zon-zee-zorgeloos",
+  "catalog": "belgium",
+  "title": "Zon, Zee … Zorgeloos: accessible beaches on the Belgian coast",
+  "description": "Inter's page on Zon, Zee … Zorgeloos, the summer service that makes beaches on the Belgian coast accessible. Per coastal town (De Panne, Nieuwpoort, Oostende, Bredene, De Haan and Wenduine, Zeebrugge and others): what is available (reserved parking, accessible tram stop, accessible toilet and changing room with hoist, paved beach access, free beach wheelchairs, electric beach wheelchairs), how to book a beach wheelchair (phone, website), where to find it, assistants who help with moving, dressing and the toilet, and the dates of the season (mostly July and August). Seasonal information that changes each year; texts in Dutch.",
+  "publisher": {
+    "name": "Inter (Vlaams Expertisecentrum Toegankelijkheid)",
+    "url": "https://www.vlaanderen.be/inter"
+  },
+  "licence_note": "Published on vlaanderen.be, whose disclaimer allows free reuse (https://www.vlaanderen.be/over-vlaanderenbe/disclaimer).",
+  "endpoint_url": "http://src-documents:8000/zon-zee-zorgeloos/",
+  "openapi_url": "http://src-documents:8000/zon-zee-zorgeloos/openapi.json",
+  "distributions": [
+    {"url": "https://www.vlaanderen.be/inter/mensen-met-een-handicap/zon-zee-zorgeloos", "media_type": "text/html", "title": "Web page Zon, Zee … Zorgeloos (vlaanderen.be)"}
+  ],
+  "keywords": ["strand", "beach", "plage", "strandrolstoel", "beach wheelchair", "Changing Places", "kust", "coast", "assistent", "toegankelijk toilet", "zomer"],
+  "themes": ["accessibility", "tourism"],
+  "languages": ["nl"],
+  "spatial": ["Belgian coast", "Kust", "West-Vlaanderen", "Flanders", "Belgium", "De Panne", "Nieuwpoort", "Oostende", "Ostend", "Bredene", "De Haan", "Wenduine", "Zeebrugge", "Knokke-Heist"],
+  "update_frequency": "ANNUAL",
+  "landing_page": "https://www.vlaanderen.be/inter/mensen-met-een-handicap/zon-zee-zorgeloos"
+}

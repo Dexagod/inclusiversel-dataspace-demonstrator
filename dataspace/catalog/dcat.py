@@ -8,6 +8,7 @@ EU = "http://publications.europa.eu/resource/authority/"
 LANGUAGES = {"nl": "NLD", "fr": "FRA", "en": "ENG", "de": "DEU"}
 FREQUENCIES = {"CONT", "DAILY", "WEEKLY", "MONTHLY", "QUARTERLY", "ANNUAL", "IRREG", "UNKNOWN"}
 OPENAPI = URIRef("https://spec.openapis.org/oas/v3.1.0")
+OPENAPI_JSON = URIRef("https://www.iana.org/assignments/media-types/application/vnd.oai.openapi+json")
 # Sub-catalogs of the data space, one per country; a registration names its sub-catalog in `catalog`.
 CATALOGS = {
     "belgium": {"title": "Accessibility data space catalog: Belgium", "country": "BEL"},
@@ -81,6 +82,11 @@ def build_graph(records, base: str) -> Graph:
         g.add((pub, FOAF.name, Literal(d["publisher"]["name"])))
         if d["publisher"].get("url"):
             g.add((pub, FOAF.homepage, URIRef(d["publisher"]["url"])))
+        for std in d.get("conforms_to", []):
+            s = URIRef(std["url"])
+            g.add((ds, DCTERMS.conformsTo, s))
+            g.add((s, RDF.type, DCTERMS.Standard))
+            g.add((s, DCTERMS.title, Literal(std["title"])))
         for k in d["keywords"]:
             g.add((ds, DCAT.keyword, Literal(k)))
         for t in d["themes"]:
@@ -102,6 +108,16 @@ def build_graph(records, base: str) -> Graph:
             g.add((cp, RDF.type, VCARD.Kind))
             g.add((cp, VCARD.hasEmail, URIRef(f"mailto:{d['contact_email']}")))
 
+        for n, extra in enumerate(d.get("distributions", []), 1):
+            x = URIRef(f"{base}/datasets/{d['id']}#dist-{n}")
+            g.add((ds, DCAT.distribution, x))
+            g.add((x, RDF.type, DCAT.Distribution))
+            g.add((x, DCAT.accessURL, URIRef(extra["url"])))
+            if extra["media_type"] != "text/html":  # a file, not a page
+                g.add((x, DCAT.downloadURL, URIRef(extra["url"])))
+            g.add((x, DCAT.mediaType, URIRef(f"https://www.iana.org/assignments/media-types/{extra['media_type']}")))
+            if extra.get("title"):
+                g.add((x, DCTERMS.title, Literal(extra["title"])))
         g.add((ds, DCAT.distribution, dist))
         g.add((dist, RDF.type, DCAT.Distribution))
         g.add((dist, DCAT.accessURL, URIRef(d["endpoint_url"])))
@@ -112,7 +128,14 @@ def build_graph(records, base: str) -> Graph:
         g.add((svc, RDF.type, DCAT.DataService))
         g.add((svc, DCTERMS.title, Literal(f"{d['title']} API")))
         g.add((svc, DCAT.endpointURL, URIRef(d["endpoint_url"])))
-        g.add((svc, DCAT.endpointDescription, URIRef(d["openapi_url"])))
+        if d.get("openapi"):  # our resolvable copy, linked to the original
+            desc = URIRef(f"{base}/services/{d['id']}/openapi.json")
+            g.add((desc, DCTERMS.source, URIRef(d["openapi_url"])))
+            g.add((desc, DCTERMS.conformsTo, OPENAPI))
+            g.add((desc, DCTERMS.format, OPENAPI_JSON))
+        else:  # registered before copies were kept
+            desc = URIRef(d["openapi_url"])
+        g.add((svc, DCAT.endpointDescription, desc))
         g.add((svc, DCTERMS.conformsTo, OPENAPI))
         g.add((svc, DCAT.servesDataset, ds))
         if d.get("access_note"):

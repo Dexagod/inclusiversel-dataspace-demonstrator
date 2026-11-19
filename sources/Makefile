@@ -1,5 +1,5 @@
 PY := uv run --python 3.12
-TESTED := iedereenoveral pictoaccess be-transit
+TESTED := iedereenoveral pictoaccess be-transit osm toerismevlaanderen documents
 
 .PHONY: up down test register knowledge e2e
 

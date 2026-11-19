@@ -23,6 +23,12 @@
     "Brussel",
     "Belgium"
   ],
+  "conforms_to": [
+    {
+      "url": "https://gtfs.org/documentation/schedule/reference/",
+      "title": "GTFS Schedule reference (stops.txt, wheelchair_boarding)"
+    }
+  ],
   "keywords": [
     "metro",
     "tram",

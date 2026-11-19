@@ -9,6 +9,12 @@
   "endpoint_url": "https://ressources.data.sncf.com/api/explore/v2.1/",
   "openapi_url": "https://ressources.data.sncf.com/api/explore/v2.1/swagger.json",
   "source_dcat_url": "https://ressources.data.sncf.com/api/explore/v2.1/catalog/exports/dcat?where=dataset_id%3D%22equipements-accessibilite-en-gare%22",
+  "conforms_to": [
+    {
+      "url": "https://ressources.data.sncf.com/api/explore/v2.1/catalog/datasets/equipements-accessibilite-en-gare",
+      "title": "Schema of 'Equipements d’accessibilité en gare': its fields with name, type and label (Opendatasoft)"
+    }
+  ],
   "keywords": [
     "Accessibilité",
     "Equipement",

@@ -1,0 +1,55 @@
+{
+  "id": "osm-accessibility",
+  "themes": [
+    "accessibility"
+  ],
+  "update_frequency": "CONT",
+  "landing_page": "https://wiki.openstreetmap.org/wiki/Disabilities",
+  "title": "OpenStreetMap: places with community accessibility tags",
+  "description": "Restaurants, cafés, shops, museums, hotels, toilets, pharmacies and other places in Belgium and Hauts-de-France with OpenStreetMap's community accessibility tags: wheelchair (yes, limited, no, designated), wheelchair:description, toilets:wheelchair, hearing_loop (induction loop), ramp, step_count and more, as contributed by mappers and apps such as Wheelmap and OnWheels. Search around a point within 1 km, by kind, name and tag values. Live data; a missing tag means unknown. When OpenStreetMap's shared server is busy, calls return 503 with a retry time.",
+  "publisher": {
+    "name": "OpenStreetMap contributors",
+    "url": "https://www.openstreetmap.org/copyright"
+  },
+  "licence": "https://opendatacommons.org/licenses/odbl/1-0/",
+  "licence_note": "ODbL 1.0: cite '© OpenStreetMap contributors'. Queried live through the public Overpass and OSM APIs, not republished.",
+  "endpoint_url": "http://src-osm:8000/osm/",
+  "openapi_url": "http://src-osm:8000/osm/openapi.json",
+  "languages": [
+    "en",
+    "nl",
+    "fr"
+  ],
+  "spatial": [
+    "Belgium",
+    "België",
+    "Belgique",
+    "Hauts-de-France"
+  ],
+  "conforms_to": [
+    {
+      "url": "https://wiki.openstreetmap.org/wiki/Key:wheelchair",
+      "title": "OpenStreetMap key wheelchair (and related accessibility keys)"
+    },
+    {
+      "url": "https://wiki.openstreetmap.org/wiki/Map_features",
+      "title": "OpenStreetMap map features"
+    }
+  ],
+  "keywords": [
+    "OpenStreetMap",
+    "wheelchair",
+    "rolstoeltoegankelijk",
+    "accessible en fauteuil roulant",
+    "toilet",
+    "toilettes",
+    "hearing loop",
+    "ringleiding",
+    "boucle magnétique",
+    "Wheelmap",
+    "restaurant",
+    "café",
+    "museum",
+    "hotel"
+  ]
+}

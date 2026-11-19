@@ -41,6 +41,8 @@ def registration(entry: dict) -> dict:
         "endpoint_url": f"{api}/",
         "openapi_url": f"{api}/swagger.json",
         "source_dcat_url": f"{api}/catalog/exports/dcat?where=" + quote(f'dataset_id="{entry["dataset_id"]}"'),
+        "conforms_to": [{"url": f"{api}/catalog/datasets/{entry['dataset_id']}",
+                         "title": f"Schema of '{m['title']}': its fields with name, type and label (Opendatasoft)"}],
         "keywords": sorted(set((m.get("keyword") or []) + entry.get("keywords", []))),
         "themes": ["accessibility"] + (["mobility"] if entry["catalog"].endswith("-mobility") else []),
         "languages": [lang for lang in [m.get("language") or "fr"] if lang in {"nl", "fr", "en", "de"}],

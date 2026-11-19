@@ -27,6 +27,26 @@ services:
     volumes:
       - be-transit-cache:/data
 
+  # Toerisme Vlaanderen's linked open data (SPARQL): accessibility of tourist places, cached in memory.
+  src-toerismevlaanderen:
+    build: ./toerismevlaanderen
+    restart: unless-stopped
+    ports: ["${SOURCES_BIND:-127.0.0.1}:8106:8000"]
+
+  # Documents as datasets: published web pages and PDFs, served as sections (one sub-API per documents/<id>/).
+  src-documents:
+    build: ./documents
+    restart: unless-stopped
+    ports: ["${SOURCES_BIND:-127.0.0.1}:8107:8000"]
+
+  # OpenStreetMap accessibility (OnWheels features and native tags); live and polite towards the public Overpass.
+  src-osm:
+    build: ./osm
+    restart: unless-stopped  # come back after a reboot
+    ports: ["${SOURCES_BIND:-127.0.0.1}:8105:8000"]
+    environment:
+      OVERPASS_URL: ${OVERPASS_URL:-https://overpass-api.de/api/interpreter}
+
 volumes:
   be-transit-cache:
 

@@ -26,6 +26,12 @@
     "België",
     "Belgique"
   ],
+  "conforms_to": [
+    {
+      "url": "https://github.com/iRail/stations",
+      "title": "iRail stations: stations.csv and facilities.csv columns (README)"
+    }
+  ],
   "keywords": [
     "train",
     "trein",

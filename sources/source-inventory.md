@@ -10,13 +10,13 @@ Domain knowledge (labels, schemas, procedures) has its own file: [domain-knowled
 
 **Keep this file current.** When you add, block or skip a source, update its row and the "Last checked" date. Write down a licence only when you have read it on the publisher's own page, and link that page. "Not stated" is a valid answer; a guess is not. These licence readings come from the publishers' pages and are not legal advice.
 
-Last checked: **2026-11-18**. Checked with live, read-only requests to the publishers' pages and APIs, and in the code and registrations in this folder.
+Last checked: **2026-11-19** (Toerisme Vlaanderen, OpenStreetMap; the rest 2026-11-18). Checked with live, read-only requests to the publishers' pages and APIs, and in the code and registrations in this folder.
 
 ## Legend
 
 | Column | Values |
 | --- | --- |
-| **Status** | **Added**: registered in the catalog. **Candidate**: could be added; next step given. **Blocked**: waiting for permission. **Skipped**: not added; reason given. **Portal**: a catalog of other sources, used to find data, not queried as a source |
+| **Status** | **Added**: registered in the catalog. **Candidate**: could be added; next step given. **Possible**: adapter built and registered, but not usable until infrastructure or access is arranged (see the row). **Blocked**: waiting for permission. **Skipped**: not added; reason given. **Portal**: a catalog of other sources, used to find data, not queried as a source |
 | **Access** | **API** (with or without an OpenAPI), **dataset** (file download: CSV, GTFS, NeTEx, RDF), **SPARQL**, **website**, **app** (mobile only), **PDF** |
 | **Integration** | **Direct**: the connector calls the publisher's own API, with no code of ours. **Proxy (live)**: our adapter in `sources/<id>/` calls the publisher on each request. **Proxy (snapshot)**: our adapter serves a downloaded or provided copy. **None** |
 | **Key** | whether the publisher requires an API key or account |
@@ -35,11 +35,11 @@ Last checked: **2026-11-18**. Checked with live, read-only requests to the publi
 | ODWB PMR parking (Liège, Brabant wallon, Marche-en-Famenne, La Louvière, Databusters) | Wallonia | not in study | **Added** (5 datasets) | API (Opendatasoft Explore, odwb.be) | Direct | no | CC BY, except Marche (conflicting metadata) and La Louvière (not specified) |
 | ODWB Liège PMR toilets | Wallonia | not in study | **Added** | API (Opendatasoft Explore) | Direct | no | CC BY |
 | Access-i | Wallonia, Brussels | 2.2.5 | **Blocked** | website | None | – | [mentions légales](https://access-i.be/mentions-legales/): reproduction only after prior permission by e-mail; database protected. Permission requested |
-| Toerisme Vlaanderen linked open data | Flanders | 2.1.3, 3.2.3 | **Candidate** | SPARQL, JSON:API, RDF dump | needs adapter | no | not stated |
-| VisitFlanders Toegankelijkheidszoeker | Flanders, Brussels | 2.3.1 | **Candidate** (after Toerisme Vlaanderen) | API (undocumented, answers without key) | needs adapter | no | not stated for the API; [website disclaimer](https://www.visitflanders.com/en/disclaimer) forbids storing or reproducing without consent |
+| Toerisme Vlaanderen linked open data | Flanders, Brussels | 2.1.3, 3.2.3 | **Added** (`toerismevlaanderen`) | SPARQL (open, fast), JSON:API, dumps: `public.csv` 11 MB (accommodation only, **no accessibility columns**), `toeristische-attracties.ttl` 663 MB | Proxy (cached, refreshed every 6 h) `toerismevlaanderen/`: two SPARQL queries load the 1,039 places with accessibility information; search and detail run locally | no | no licence in the DCAT; the [open data page](https://toerismevlaanderen.be/nl/cijfers/open-data) says the datasets "mogen zonder registratie gebruikt worden"; Toerisme Vlaanderen asked for this integration; licence to be confirmed with them |
+| VisitFlanders Toegankelijkheidszoeker | Flanders, Brussels | 2.3.1 | **Skipped** for now (same register as `toerismevlaanderen`; candidate for the ~110 places only it has) | API (undocumented JSON, no key): `GET /rest/1.1/baseregistry/accessibility` returns all 1,038 places in one 2.3 MB call; `/product/{id}` gives per-topic texts | needs adapter (live) | no | not stated for the API; [website disclaimer](https://www.visitflanders.com/en/disclaimer) forbids storing or reproducing without consent |
 | DATAtourisme | France | 2.3.5 | **Candidate** | API ([docs](https://api.datatourisme.fr/v1/docs)); daily exports on data.gouv.fr | Direct if an OpenAPI exists, else adapter | yes (free, form + CGU) | [Licence Ouverte 2.0](https://www.datatourisme.fr/utiliser-les-donnees/): credit producer and update date |
 | Accessibility.Cloud | worldwide | 2.7.2 | **Candidate** | API ([docs](https://github.com/sozialhelden/accessibility-cloud/blob/main/app/docs/json-api.md)) | needs adapter (no OpenAPI) | yes (free token, non-commercial only) | per source, returned in each response |
-| OpenStreetMap (Overpass) | worldwide | 2.7.1 | **Candidate** | API (Overpass) | needs adapter (no OpenAPI) | no | [ODbL](https://www.openstreetmap.org/copyright) |
+| OpenStreetMap native accessibility tags | Belgium, Hauts-de-France (searched area) | 2.7.1 | **Possible** (`osm-accessibility`, built, not reliable) | API (Overpass for search, OSM API for detail) | Proxy (live) `osm/`, polite Overpass use; needs a private Overpass instance (proxying infrastructure) | no | [ODbL](https://www.openstreetmap.org/copyright); queried live, not republished |
 | UiTdatabank (publiq) | Flanders, Brussels | 2.3.7 | **Candidate** (costs money) | API (Search API) | needs adapter or direct | yes; test free, production from €125/year | [terms](https://www.publiq.be/projecten/publiq-platform/gebruiksvoorwaarden): attribution, no commercial use, no resale |
 | De Lijn open data (data.delijn.be) | Flanders | 2.4.2 | **Candidate** (check first) | API | Direct or adapter | yes (free, instant) | "Licentie voor gratis hergebruik" (PDF linked from [data.delijn.be](https://data.delijn.be)) |
 | French GTFS feeds (transport.data.gouv.fr) | France | 2.4.1 | **Candidate** | dataset (GTFS per network); [API](https://transport.data.gouv.fr/api/openapi) lists them | Proxy (snapshot), like `be-transit/` | no | per feed |
@@ -51,8 +51,8 @@ Last checked: **2026-11-18**. Checked with live, read-only requests to the publi
 | Tourisme & Handicap Hauts-de-France 2022 | Hauts-de-France | 2.3.3 | **Skipped** (duplicate) | dataset on data.gouv.fr | None | no | `notspecified` |
 | AccessNow | worldwide | 2.2.6 | **Skipped** | website, app | None | – | "All rights reserved"; terms page did not render |
 | Accessible.net | France | 2.2.7 | **Skipped** | website | None | – | not stated |
-| OnWheels | worldwide | 2.2.8 | **Skipped** (reach through OSM) | app writing to OSM | None | – | ODbL (OSM) |
-| Wheelmap | worldwide | 2.2.9 | **Skipped** (reach through OSM, Accessibility.Cloud) | website, app | None | – | ODbL (OSM part) |
+| OnWheels | Belgium, Hauts-de-France (searched area) | 2.2.8 | **Possible** (`onwheels`, built, not reliable) through OSM | app writing to OSM; data via Overpass and the OSM API | Proxy (live) `osm/`: OnWheels feature types and keys, edits made with OnWheels flagged; needs a private Overpass instance or access to the OnWheels API (to negotiate) | no | ODbL (OSM) |
+| Wheelmap | worldwide | 2.2.9 | **Skipped** (its OSM part is covered by `osm-accessibility`) | website, app | None | – | ODbL (OSM part) |
 | Drempelvrij | Belgium | 2.2.10 | **Skipped** | website | None | – | not stated |
 | Handy.Brussels | Brussels | 2.2.11 | **Skipped** | website | None | – | not stated |
 | All Access (Province of Luxembourg) | Wallonia | 2.2.12 | **Skipped** | website | None | – | not checked |
@@ -69,9 +69,10 @@ Last checked: **2026-11-18**. Checked with live, read-only requests to the publi
 | Ezymob, Handimap/HITinéraire, Route4u, PIAF | France | 2.5.4, 2.5.5 | **Skipped** | app (Handimap: B2B routing API) | None | – | not checked |
 | Iedereen Fietst, Routen, RouteYou, VisitVlaamsBrabant, Gfietst.be | Flanders | 2.6.1 | **Skipped** | website | None | – | not checked; Routen "all rights reserved" |
 | Cirkwi | France | 2.6.1 | **Skipped** | website; no public API documentation found | None | – | [CGU](https://www.cirkwi.com/fr/cgu): no derived works without permission |
-| Zon, Zee … Zorgeloos; Handiplage | coast BE; France | 2.6.2 | **Skipped** (knowledge, not data) | website | None | – | not stated |
+| Zon, Zee … Zorgeloos | Belgian coast | 2.6.2 | **Added** (`zon-zee-zorgeloos`) | website (one page, sections per town in accordions) | Document dataset `documents/`: outline, word search, full sections; refetched daily | no | vlaanderen.be [disclaimer](https://www.vlaanderen.be/over-vlaanderenbe/disclaimer): free reuse |
+| Handiplage | France | 2.6.2 | **Skipped** (for now) | website: the guide page is a teaser of 8 beaches; details are on one page per beach | None; could be a document dataset per region or beach | – | not stated |
 | Parkeerhulp België | Belgium | 2.6.3 | **Skipped** (not public) | website behind a Cloudflare Access login | None | login | not stated |
-| Toilettes Publiques | France | 2.6.4 | **Skipped** (reach through OSM) | website | None | – | [ODbL](https://www.toilettespubliques.fr/mentions-legales/) (OSM) |
+| Toilettes Publiques | France | 2.6.4 | **Skipped** (covered by `osm-accessibility`, `kind=toilets`) | website | None | – | [ODbL](https://www.toilettespubliques.fr/mentions-legales/) (OSM) |
 | HogeNood | Netherlands | 2.6.4 | **Skipped** (paid) | API in the paid Goud package only | None | paid | [business terms](https://www.hogenood.nl/juridisch-algemene-voorwaarden-bedrijven) |
 | Changing Places (Inter) | Flanders | 2.6.4 | **Skipped** (no dataset) | website (map) | None | – | not stated |
 | Resto.be, Booking.com | Belgium, worldwide | 2.6.5, 2.6.7 | **Skipped** (commercial, self-declared) | website | None | – | not checked |
@@ -100,6 +101,9 @@ Each of these has a `registration.json` in this folder and passes `make test` / 
 | `acceslibre/` | Its own API has an OpenAPI; registering it is enough. Known quirks (`zone`, `commune`, duplicates) are in AGENTS.md. |
 | `opendatasoft/` (11 datasets) | All Opendatasoft portals share one Explore API with an OpenAPI and a DCAT export, so `make_registrations.py` generates the registrations and copies the publisher's DCAT. |
 | `be-transit/` (4 datasets) | GTFS zips (12 to 184 MB) cannot be queried; the proxy loads a daily snapshot and answers per stop. |
+| `osm/` (2 datasets) | Overpass has no OpenAPI, and its query language is a poor fit for agents. The adapter offers searches around a point, normalises lengths to metres, and drops contributor names. It also shields the shared public Overpass server: coverage limit, cache, one query at a time, a free-slot check, back-off and a daily cap ([README](README.md#openstreetmap-onwheels-and-native-accessibility-tags-osm)). |
+| `toerismevlaanderen/` | The SPARQL endpoint is hard for an agent (RDF model, 57,000 mostly empty records, slow generic queries). The adapter loads the ~1,000 filled places with two fast queries every 6 hours and offers search by point, municipality, category, A-label and group catered for, plus a detail with the texts per topic. It warns that topics are often misfiled in the source (see § 2.1.3). |
+| `documents/` (1 dataset) | Web pages and PDFs have no API, and generic text extraction loses their structure (the town names of Zon, Zee … Zorgeloos sit in accordion titles). The adapter serves each registered document as sections that follow its headings, PDF pages or table of contents, with an outline, word search and full-section operation, and dates in every answer ([ADR 0005](../dataspace/docs/adr/0005-documents-as-datasets.md)). Adding a document is one `documents/<id>/registration.json`. |
 
 **Follow-up:** the Acceslibre registration still says its licence is unconfirmed. The same data is published on data.gouv.fr under Licence Ouverte 2.0, but the API itself states no licence, so the registration keeps a note rather than a licence (open work 2 in AGENTS.md).
 
@@ -107,17 +111,15 @@ Each of these has a `registration.json` in this folder and passes `make test` / 
 
 | # | Source | Why it is worth it | Next step |
 | --- | --- | --- | --- |
-| 1 | **Toerisme Vlaanderen linked open data** | Flemish accommodation and attractions with an `AccessibilityInformation` model (about 40 properties) and the A / A+ labels, open SPARQL, no key. It fills the Flanders tourism gap and lets an agent verify an A-label. | Ask Toerisme Vlaanderen for the licence (none stated). Then an adapter that turns a few SPARQL queries into OpenAPI operations (open work 8). |
-| 2 | **DATAtourisme** | National French tourism data with accessibility properties and Tourisme & Handicap labels; Licence Ouverte 2.0. | Request a free key; check whether `api.datatourisme.fr` has an OpenAPI. Its bulk "Diffuseur" feeds close in October 2027, so use the API. |
-| 3 | **Accessibility.Cloud** | Aggregates many sources in one schema (A11yJSON), with licence per record. | Create a non-commercial token; adapter (no OpenAPI). Check which sources it holds for BE and FR. |
-| 4 | **OpenStreetMap (Overpass)** | `wheelchair=*`, toilets, kerbs; covers OnWheels, Wheelmap and Toilettes Publiques at once. | Adapter with a few fixed queries (open work 11); attribute ODbL. |
-| 5 | **De Lijn open data** | De Lijn's three-level stop classification (autonomous, with help, visual) is richer than GTFS `wheelchair_boarding`. | Get the free key; check that the API actually returns the classification (not found in the public docs or OGC layer). |
-| 6 | **More Opendatasoft datasets** | Cheapest additions: one line in `datasets.yaml` each. | Search ODWB, SNCF and French regional portals for PMR datasets. |
-| 7 | **French GTFS feeds** | Stop accessibility for French networks (Lille, Limoges for the golden questions). The `gtfs-stops` API lacks accessibility, so feeds must be read. | Reuse the `be-transit/` snapshot approach for a few networks; licence per feed. |
-| 8 | **UiTdatabank** | Accessible events, with a `facility` taxonomy (wheelchair, audio description, induction loop). | Decide whether the €125/year production plan is acceptable; terms forbid commercial use. |
-| 9 | **VisitFlanders Toegankelijkheidszoeker** | Same kind of data as #1, through an undocumented API. | Only if #1 does not hold the same records; needs permission (website terms forbid storing). |
-| 10 | **Navigeer en Parkeer** | Measured disabled parking spaces in West Flanders. | Ask Inter for the files and reuse terms. |
-| 11 | **SNCF `accessibilite_gares` NeTEx, OpenRouteService** | Station detail; wheelchair routing. | Low priority. |
+| 1 | **DATAtourisme** | National French tourism data with accessibility properties and Tourisme & Handicap labels; Licence Ouverte 2.0. | Request a free key; check whether `api.datatourisme.fr` has an OpenAPI. Its bulk "Diffuseur" feeds close in October 2027, so use the API. |
+| 2 | **Accessibility.Cloud** | Aggregates many sources in one schema (A11yJSON), with licence per record. | Create a non-commercial token; adapter (no OpenAPI). Check which sources it holds for BE and FR. |
+| 3 | **De Lijn open data** | De Lijn's three-level stop classification (autonomous, with help, visual) is richer than GTFS `wheelchair_boarding`. | Get the free key; check that the API actually returns the classification (not found in the public docs or OGC layer). |
+| 4 | **More Opendatasoft datasets** | Cheapest additions: one line in `datasets.yaml` each. | Search ODWB, SNCF and French regional portals for PMR datasets. |
+| 5 | **French GTFS feeds** | Stop accessibility for French networks (Lille, Limoges for the golden questions). The `gtfs-stops` API lacks accessibility, so feeds must be read. | Reuse the `be-transit/` snapshot approach for a few networks; licence per feed. |
+| 6 | **UiTdatabank** | Accessible events, with a `facility` taxonomy (wheelchair, audio description, induction loop). | Decide whether the €125/year production plan is acceptable; terms forbid commercial use. |
+| 7 | **VisitFlanders Toegankelijkheidszoeker** | The same records as `toerismevlaanderen` from the same register (`businessProductId` = the LOD's `skos:notation`): 926 shared, 112 only here, 103 only in the LOD. Cleaner fields than the LOD (`entranceDescription`, `commonToiletDescription`, …, matching the site), a six-way `accessibilityFacilities` flag (motor, visual, auditive, mental, dementia, allergy), and up to 7 languages. No coordinates, only an address. Some `accessibilityDescription` texts are marketing copy, not accessibility information. | Only for the places missing from `toerismevlaanderen`, or if the LOD's misfiled topics become a problem; ask Toerisme Vlaanderen first (website terms forbid storing). A live proxy would store nothing. |
+| 8 | **Navigeer en Parkeer** | Measured disabled parking spaces in West Flanders. | Ask Inter for the files and reuse terms. |
+| 9 | **SNCF `accessibilite_gares` NeTEx, OpenRouteService** | Station detail; wheelchair routing. | Low priority. |
 
 ## Blocked
 
@@ -135,10 +137,10 @@ Checked against the live sources on 2026-11-18. Section numbers refer to `litera
 | 2.2.13, 2.2.14 | Euan's Guide, Forêt de Saint-Hubert accessible | Headings only, no text. Euan's Guide's terms forbid text and data mining. |
 | 2.9 | Overview table | Still a TODO. This file's overview can serve as its basis. |
 | 2.1.2 | Datavindplaats has a documented API with a key | Two systems: Datavindplaats (key by e-mail, no public documentation found) and metadata.vlaanderen.be (public GeoNetwork with CSW, no key). |
-| 2.1.3 | Toerisme Vlaanderen has "only two downloadable datasets" | Two files of one dataset (Basisregister Logies, CSV and TTL). Through SPARQL it also holds accessibility information and the A / A+ labels, plus a dataset on attractions, not offered as a download. No licence stated. |
+| 2.1.3 | Toerisme Vlaanderen has "only two downloadable datasets" | Two datasets, both refreshed daily: Basisregister Logies as `public.csv` (11 MB, 35,846 accommodation rows, **no accessibility columns**), and tourist attractions as `toeristische-attracties.ttl` (663 MB). The accessibility information and the A / A+ labels are only reachable through SPARQL or that Turtle dump. No licence in the DCAT; the open data page says the data may be used without registration. **Data error:** for places that are not accommodation (museums, monuments, churches, restaurants, tourist offices), each text is filed one topic too far: the entrance under `informationAboutRouteAndLevels`, the route under `informationAboutCommonToiletFacilities`, the toilet under `informationAboutExtraFacilities`, the experience under `informationAboutGarden`. In a sample of 15 places compared with the search site, all 6 such places were shifted and all accommodation was correct; in the whole LOD, 398 of 411 non-accommodation places with a route text have no entrance text (the pattern), against 0 of 331 accommodations. Example: Sint-Pieterskerk Leuven, id 298597. To be reported to Toerisme Vlaanderen (2026-11-19). **Coverage:** only 1,039 of 69,453 places have any accessibility information; the detailed screening results since 2008 sat in Inter's *Databank Toegankelijk Vlaanderen*, which went offline at the end of 2025 ([A-label page](https://toerismevlaanderen.be/nl/kwaliteit/inclusie/toegankelijkheid/a-label)); Inter is building a successor. |
 | 2.2.2 | Acceslibre API is free but access must be requested | Correct. The dataset licence is Licence Ouverte 2.0, which the study does not mention. |
 | 2.2.4 | Toegankelijkheidswijzer has no API or dataset | Its data now feeds IedereenOveral (per Inter), so IedereenOveral's API is the machine route. |
-| 2.3.1 | Toegankelijkheidszoeker has an undocumented backend API | Correct; it answers without a key. The study does not link it to the linked open data above. |
+| 2.3.1 | Toegankelijkheidszoeker has an undocumented backend API | Correct; it answers without a key (`/rest/1.1/baseregistry/accessibility`, found in the site's JavaScript). The study does not link it to the linked open data above, yet both come from the same register and share 926 of about 1,030 places. |
 | 2.3.4 | Apidae API is paid | Access conditions and price are not stated on the developer site; unverified. |
 | 2.3.5 | DATAtourisme via API with key | Correct. Also daily exports on data.gouv.fr; bulk Diffuseur feeds close in October 2027. Licence Ouverte 2.0 not mentioned. |
 | 2.3.7 | UiTdatabank: free up to a limit, then paid | Test environment free, production from €125 a year, 60,000 calls a day. The study does not mention its accessibility `facility` taxonomy. |

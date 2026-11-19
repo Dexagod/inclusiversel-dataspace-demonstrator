@@ -1,0 +1,59 @@
+{
+  "id": "onwheels",
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "update_frequency": "CONT",
+  "landing_page": "https://mapcomplete.org/onwheels",
+  "title": "OnWheels: measured accessibility features in OpenStreetMap",
+  "description": "Entrances, kerbs, toilets, lifts, reception desks and disabled parking in Belgium and Hauts-de-France, as mapped in OpenStreetMap with the OnWheels map (MapComplete): entrance and door widths, automatic doors, kerb heights, tactile paving, toilet door width and changing tables, lift dimensions and speech output, desk heights and disabled parking capacity, with lengths in metres. Search around a point within 300 m. Live data from OpenStreetMap; the detail of a feature says whether its last edit was made with OnWheels. A missing attribute means unknown. When OpenStreetMap's shared server is busy, calls return 503 with a retry time.",
+  "publisher": {
+    "name": "OpenStreetMap contributors (OnWheels data model by MapComplete)",
+    "url": "https://www.openstreetmap.org/copyright"
+  },
+  "licence": "https://opendatacommons.org/licenses/odbl/1-0/",
+  "licence_note": "ODbL 1.0: cite '© OpenStreetMap contributors'. Queried live through the public Overpass and OSM APIs, not republished.",
+  "endpoint_url": "http://src-osm:8000/onwheels/",
+  "openapi_url": "http://src-osm:8000/onwheels/openapi.json",
+  "languages": [
+    "en",
+    "nl",
+    "fr"
+  ],
+  "spatial": [
+    "Belgium",
+    "België",
+    "Belgique",
+    "Hauts-de-France"
+  ],
+  "conforms_to": [
+    {
+      "url": "https://wiki.openstreetmap.org/wiki/Key:wheelchair",
+      "title": "OpenStreetMap key wheelchair (and related accessibility keys)"
+    },
+    {
+      "url": "https://mapcomplete.org/onwheels",
+      "title": "OnWheels (MapComplete theme): the features and keys it asks contributors to map"
+    }
+  ],
+  "keywords": [
+    "OnWheels",
+    "OpenStreetMap",
+    "entrance",
+    "ingang",
+    "entrée",
+    "door width",
+    "deurbreedte",
+    "kerb",
+    "boordsteen",
+    "trottoir",
+    "toilet",
+    "lift",
+    "ascenseur",
+    "parking PMR",
+    "wheelchair",
+    "rolstoel",
+    "fauteuil roulant"
+  ]
+}
