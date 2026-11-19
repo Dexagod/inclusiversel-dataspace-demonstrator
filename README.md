@@ -22,13 +22,12 @@ The first start of the Belgian transport proxy downloads about 300 MB of timetab
 
 ## Deploy to a server
 
-Pick one of three set-ups. All ports are bound to `127.0.0.1` by default, every service restarts after a reboot, and nothing is reachable from outside until you open it.
+Pick one of two set-ups. All ports are bound to `127.0.0.1` by default, every service restarts after a reboot, and nothing is reachable from outside until you open it.
 
 | Set-up | Runs on the server | Runs on your machine | Open on the server | Guide |
 | --- | --- | --- | --- | --- |
 | **A. Agent on your machine, connector local** (keys stay local) | catalog, vochub, proxies | connector | 22 (SSH tunnel) | [Running components separately](dataspace/README.md#running-components-separately) |
-| **B. Web-hosted agent such as ChatGPT** | everything | nothing | 443 and 80 (Caddy, secret path), 22 | [Connecting ChatGPT or another web-hosted agent](dataspace/README.md#connecting-chatgpt-or-another-web-hosted-agent) |
-| **C. Agent anywhere, password-protected** | everything | nothing | 443 and 80 (Caddy, basic auth), 22 | [HTTPS and authentication](dataspace/README.md#https-and-authentication) |
+| **B. Agent anywhere, bearer token** (also web-hosted agents that can send a header) | everything | nothing | 443 and 80 (Caddy or nginx), 22 | [HTTPS and authentication](dataspace/README.md#https-and-authentication), [Connecting ChatGPT or another web-hosted agent](dataspace/README.md#connecting-chatgpt-or-another-web-hosted-agent) |
 
 For every set-up, first get the code and the PictoAccess export onto the server:
 
@@ -41,13 +40,13 @@ rsync -a sources/pictoaccess/pictoaccess_dump/places/ \
     user@server:data-architecture/sources/pictoaccess/pictoaccess_dump/places/
 ```
 
-Set-ups B and C need a reverse proxy on the server. Ready-made configurations for Caddy and nginx are in [Reverse proxy: Caddy or nginx](dataspace/README.md#reverse-proxy-caddy-or-nginx).
+Set-up B needs `MCP_TOKEN` in `dataspace/.env` and a reverse proxy on the server. Ready-made configurations for Caddy and nginx are in [Reverse proxy: Caddy or nginx](dataspace/README.md#reverse-proxy-caddy-or-nginx).
 
 Then set `dataspace/.env` (`make up` creates it from `.env.example`): source API keys such as `ACCESLIBRE_API_KEY`, and `CATALOG_BASE_URL` if you publish the DCAT catalog. All settings and ports are listed in [Running on a remote server](dataspace/README.md#running-on-a-remote-server).
 
 To update a running server: `git pull`, then `make -C dataspace up` and `make -C sources up register` (registering again is safe; it replaces each entry).
 
-No component authenticates its callers. Never publish the vocabulary hub, the catalog's write endpoints or the PictoAccess proxy without protection; the connector is protected only by what you put in front of it.
+Only the connector authenticates its callers, and only when `MCP_TOKEN` is set. Never publish the vocabulary hub, the catalog's write endpoints or the PictoAccess proxy without protection.
 
 ## Licence
 

@@ -1,5 +1,6 @@
 """MCP connector: the single, read-only door between a user agent and the data space."""
 
+import hmac
 import json
 import os
 from datetime import datetime, timezone
@@ -19,6 +20,8 @@ SOURCE_URL_MAP = parse_url_map(os.environ.get("SOURCE_URL_MAP", ""))
 CREDENTIALS_FILE = os.environ.get("CREDENTIALS_FILE", "config/credentials.yaml")
 TIMEOUT = float(os.environ.get("SOURCE_TIMEOUT_S", "20"))
 MAX_CHARS = int(os.environ.get("MAX_RESPONSE_CHARS", "20000"))
+# When set, every request except /health needs `Authorization: Bearer <MCP_TOKEN>`. Empty: no authentication.
+TOKEN = os.environ.get("MCP_TOKEN", "")
 
 mcp = MCPServer("accessibility-dataspace", version="0.1.0",
                 instructions="Read-only access to an accessibility data space. Workflow: vochub_search, "
@@ -122,6 +125,21 @@ async def call_source_operation(dataset_id: str, operation_id: str, params: dict
     }
 
 
+def require_token(app, token: str):
+    """ASGI wrapper: only /health passes without the bearer token (constant-time compare)."""
+    expected = f"Bearer {token}".encode()
+
+    async def guarded(scope, receive, send):
+        if scope["type"] == "http" and scope["path"] != "/health" and \
+                not hmac.compare_digest(dict(scope["headers"]).get(b"authorization", b""), expected):
+            return await JSONResponse({"error": "missing or wrong bearer token"}, 401,
+                                      headers={"WWW-Authenticate": "Bearer"})(scope, receive, send)
+        await app(scope, receive, send)
+    return guarded
+
+
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http", host="0.0.0.0", port=int(os.environ.get("PORT", "8800")),
-            stateless_http=True)
+    import uvicorn
+
+    app = mcp.streamable_http_app(stateless_http=True, host="0.0.0.0")
+    uvicorn.run(require_token(app, TOKEN) if TOKEN else app, host="0.0.0.0", port=int(os.environ.get("PORT", "8800")))

@@ -60,6 +60,7 @@ In `dataspace/.env` (read by Compose; restart with `make up` after a change):
 | `CONNECTOR_BIND` | `127.0.0.1` | Keep `127.0.0.1` when a reverse proxy on the same host forwards to the connector; `0.0.0.0` publishes port 8800 directly (only behind a firewall that allows your own addresses) |
 | `CATALOG_BIND` | `127.0.0.1` | Same, for port 8001 |
 | `VOCHUB_BIND` | `127.0.0.1` | Keep |
+| `MCP_TOKEN` | empty (no authentication) | **A long random token, e.g. from `openssl rand -hex 32`.** When set, the connector answers only requests with `Authorization: Bearer <token>` (except `/health`); restart the connector after a change |
 | `ACCESLIBRE_API_KEY` | | Source API keys, as on a laptop |
 
 In `sources/.env`: `SOURCES_BIND` (default `127.0.0.1`, keep it).
@@ -68,7 +69,7 @@ The registrations keep their Docker-internal addresses (`http://src-…:8000/`);
 
 ### HTTPS and authentication
 
-The connector and catalog have no authentication of their own. Anyone who can reach the connector can query every source with your API keys and read the PictoAccess snapshot. A reverse proxy on the server adds HTTPS and either a password or a secret path; see [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx).
+The connector checks a bearer token when `MCP_TOKEN` is set in `.env`; without it, anyone who can reach the connector can query every source with your API keys and read the PictoAccess snapshot. **Always set `MCP_TOKEN` on a server.** A reverse proxy on the server adds HTTPS, so the token never travels in clear text; see [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). The catalog has no authentication; publish it read-only.
 
 ### Reverse proxy: Caddy or nginx
 
@@ -76,29 +77,20 @@ The reverse proxy runs on the server itself (not in Docker). It handles HTTPS an
 
 | Public path | Forwards to | Protection |
 | --- | --- | --- |
-| `/SECRET/mcp` (ChatGPT set-up) or `/mcp` (password set-up) | `127.0.0.1:8800/mcp`, the connector | the secret in the path, or basic auth |
+| `/mcp` | `127.0.0.1:8800/mcp`, the connector | the bearer token, checked by the connector (`MCP_TOKEN`) |
 | `/catalog/…` (optional) | `127.0.0.1:8001/…`, the catalog | read-only: only `GET` and `HEAD` pass |
 | anything else | nothing | 404 |
 
-Replace `dataspace.example.org` with your host name. For the secret path, generate `SECRET` with `openssl rand -hex 16`. Each configuration contains both set-ups: keep the one you use and leave the other commented out. If you publish the catalog, set `CATALOG_BASE_URL=https://dataspace.example.org/catalog` in `.env` and run `make up`; the DCAT export is then at `https://dataspace.example.org/catalog/catalog`.
+Replace `dataspace.example.org` with your host name. If you publish the catalog, set `CATALOG_BASE_URL=https://dataspace.example.org/catalog` in `.env` and run `make up`; the DCAT export is then at `https://dataspace.example.org/catalog/catalog`.
 
 **Caddy** (2.8 or later) fetches and renews the certificate itself. Put this in `/etc/caddy/Caddyfile`, then run `sudo systemctl reload caddy`:
 
 ```caddyfile
 dataspace.example.org {
-    # ChatGPT set-up: secret path
-    handle /SECRET/mcp* {
-        uri strip_prefix /SECRET
+    # The connector, which checks the bearer token itself
+    handle /mcp* {
         reverse_proxy 127.0.0.1:8800
     }
-
-    # Password set-up instead (hash from `caddy hash-password`):
-    # handle /mcp* {
-    #     basic_auth {
-    #         agent $2a$14$REPLACE_WITH_HASH
-    #     }
-    #     reverse_proxy 127.0.0.1:8800
-    # }
 
     # Optional: the DCAT catalog, read-only
     handle_path /catalog/* {
@@ -111,7 +103,7 @@ dataspace.example.org {
 }
 ```
 
-Caddy passes the connector's streamed responses through without extra settings. It writes no access log unless you add `log`, so the secret stays out of its logs.
+Caddy passes the connector's streamed responses and the `Authorization` header through without extra settings. It writes no access log unless you add `log`.
 
 **nginx** needs a certificate before it starts with this file. Get one with `sudo certbot certonly --nginx -d dataspace.example.org`; certbot renews it automatically. Put this in `/etc/nginx/sites-available/dataspace`, link it into `sites-enabled/`, then run `sudo nginx -t && sudo systemctl reload nginx`:
 
@@ -135,19 +127,11 @@ server {
     proxy_buffering off;
     proxy_read_timeout 300s;
 
-    # ChatGPT set-up: secret path
-    location /SECRET/mcp {
-        access_log off;   # keep the secret out of the logs
-        proxy_pass http://127.0.0.1:8800/mcp;
+    # The connector, which checks the bearer token itself
+    location /mcp {
+        access_log off;   # no record of who asked what
+        proxy_pass http://127.0.0.1:8800;
     }
-
-    # Password set-up instead (file from `htpasswd -c /etc/nginx/dataspace.htpasswd agent`,
-    # in the apache2-utils package):
-    # location /mcp {
-    #     auth_basic "dataspace";
-    #     auth_basic_user_file /etc/nginx/dataspace.htpasswd;
-    #     proxy_pass http://127.0.0.1:8800;
-    # }
 
     # Optional: the DCAT catalog, read-only (other methods get 403)
     location /catalog/ {
@@ -161,22 +145,22 @@ server {
 
 `limit_except GET` also allows `HEAD`. Without `proxy_buffering off`, nginx holds back the connector's streamed answers and agents time out.
 
-Open ports 80 and 443 for either proxy: 443 for the agent, and 80 for certificate issuance and renewal. Check the result with the `curl` commands in step 6 of the next section. To check the password set-up, send the same `initialize` request to `/mcp`: it returns 401 without credentials and 200 with `-u agent:PASSWORD`.
+Open ports 80 and 443 for either proxy: 443 for the agent, and 80 for certificate issuance and renewal. Check the result with the `curl` commands in step 6 of the next section. 
 
 ### Connecting an agent to the server
 
-Use the public MCP address with the credentials as a header, for example in Claude Code:
+Use the public MCP address with the token as a header, for example in Claude Code:
 
 ```bash
 claude mcp add --transport http accessibility-dataspace https://dataspace.example.org/mcp \
-  --header "Authorization: Basic $(printf 'agent:PASSWORD' | base64)"
+  --header "Authorization: Bearer TOKEN"
 ```
 
-In VS Code, add `"headers": {"Authorization": "Basic …"}` next to `"url"` in the server entry. Web-hosted agents that only support OAuth or no authentication (such as ChatGPT) cannot send this header; see the next section.
+In VS Code, add `"headers": {"Authorization": "Bearer TOKEN"}` next to `"url"` in the server entry. For web-hosted agents, see the next section.
 
 ### Connecting ChatGPT or another web-hosted agent
 
-A web-hosted agent calls the connector from its own servers, so the whole stack runs on your server and only the connector is published, over HTTPS. Such agents generally accept only OAuth or no authentication, so this setup protects the connector with a **secret path**: the URL itself is the password. That is security through obscurity, acceptable for a demonstrator: anyone who learns the URL can query every source with your API keys and read the PictoAccess snapshot. Do not share it, and replace it if it leaks.
+A web-hosted agent calls the connector from its own servers, so the whole stack runs on your server and only the connector is published, over HTTPS, protected by the bearer token. The agent must be able to send a fixed `Authorization: Bearer` header; check its connector settings. An agent that offers only OAuth or no authentication cannot connect. Anyone who has the token can query every source with your API keys and read the PictoAccess snapshot: do not share it, and replace it if it leaks.
 
 1. **DNS:** point a name at the server's public IP, e.g. `dataspace.yourdomain.org` (certificates are not issued for a bare IP).
 2. **Ports:** open, and forward on the router if the server is behind NAT:
@@ -189,17 +173,18 @@ A web-hosted agent calls the connector from its own servers, so the whole stack 
 
    Nothing else: catalog, vochub and the proxies stay on `127.0.0.1` (keep the `*_BIND` defaults and leave `SOURCE_URL_MAP` empty).
 3. **Stack:** on the server, `make up` here and `make up register` in `../sources`; put the source API keys (`ACCESLIBRE_API_KEY`) in this server's `.env`.
-4. **Secret:** generate one with `openssl rand -hex 16`.
-5. **Reverse proxy:** use the secret-path configuration for Caddy or nginx from [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). Every other path returns 404, including `/mcp` without the secret.
-6. **Check** from any machine: the first call returns 200 with the server's capabilities, the second 404.
+4. **Token:** generate one with `openssl rand -hex 32`, put it in `.env` as `MCP_TOKEN=…` and run `make up`.
+5. **Reverse proxy:** use the Caddy or nginx configuration from [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). Every path other than `/mcp` (and the optional `/catalog`) returns 404.
+6. **Check** from any machine: the first call returns 200 with the server's capabilities, the second 401.
 
    ```bash
-   curl -s -o /dev/null -w "%{http_code}\n" -X POST https://dataspace.yourdomain.org/SECRET/mcp \
+   curl -s -o /dev/null -w "%{http_code}\n" -X POST https://dataspace.yourdomain.org/mcp \
      -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' \
+     -H 'Authorization: Bearer TOKEN' \
      -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"check","version":"0"}}}'
    curl -s -o /dev/null -w "%{http_code}\n" https://dataspace.yourdomain.org/mcp
    ```
-7. **ChatGPT:** add a custom connector (in ChatGPT's connector settings; custom MCP connectors may require developer mode) with the URL `https://dataspace.yourdomain.org/SECRET/mcp` and no authentication. The five tools of the connector should appear.
+7. **Agent:** add a custom connector with the URL `https://dataspace.yourdomain.org/mcp` and the header `Authorization: Bearer TOKEN` (or the token in a "bearer token" or "API key" field). The five tools of the connector should appear.
 
 To also publish the DCAT catalog read-only, keep the `/catalog` block in that configuration and set `CATALOG_BASE_URL=https://dataspace.yourdomain.org/catalog`.
 
@@ -212,7 +197,7 @@ ssh -N -L 8001:127.0.0.1:8001 -L 8002:127.0.0.1:8002 user@server   # leave runni
 make -C ../sources register knowledge
 ```
 
-`CATALOG_URL` and `VOCHUB_URL` point `seed.py` and the end-to-end test elsewhere if needed; the end-to-end test also takes `MCP`, e.g. `MCP=https://dataspace.example.org/mcp` (without authentication only).
+`CATALOG_URL` and `VOCHUB_URL` point `seed.py` and the end-to-end test elsewhere if needed; the end-to-end test also takes `MCP`, e.g. `MCP=https://dataspace.example.org/mcp` (only with `MCP_TOKEN` unset).
 
 ## Running components separately
 

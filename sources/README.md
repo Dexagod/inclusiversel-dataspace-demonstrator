@@ -11,7 +11,7 @@ Everything that is specific to a data source: proxies (adapters) in front of pro
 | `opendatasoft/*` (11 datasets) | all four | no proxy: live Explore API of Opendatasoft portals (SNCF, ODWB, data.economie.gouv.fr); registrations generated from the portals' own metadata, with their DCAT copied in | see below |
 | `toerismevlaanderen` | belgium | `src-toerismevlaanderen`, port 8106: Toerisme Vlaanderen's linked open data (SPARQL), loaded into memory every 6 hours | see below |
 | `documents/*`: `zon-zee-zorgeloos` | belgium | `src-documents`, port 8107: published web pages and PDFs served as sections | see below |
-| `osm/*`: `onwheels`, `osm-accessibility` | root catalog (no sub-catalog: covers Belgium and Hauts-de-France) | `src-osm`, port 8105: live adapter over OpenStreetMap's public Overpass and OSM APIs | see below |
+| `osm/*`: `onwheels`, `osm-accessibility` | **not registered** (registrations parked as `registration.parked.json`) | `src-osm`, port 8105: live adapter over OpenStreetMap's public Overpass and OSM APIs; waits for a private Overpass instance or OnWheels API access | see below |
 | Access-i | (belgium) | **not connected**: no public API, and reuse needs Access-i's approval (requested) | do not crawl or snapshot before approval |
 
 Each source directory holds a `registration.json`: the record PUT to the catalog.
@@ -52,6 +52,8 @@ To add a document:
 The adapter fetches at most every `REFRESH_HOURS` (default 24), honours robots.txt and keeps the last good copy during an outage. Search is by words in the document's language (`shortcut:` no semantic search).
 
 ### OpenStreetMap: OnWheels and native accessibility tags (`osm`)
+
+**Not registered for now:** the public Overpass server is too busy to rely on. To bring the two datasets back, rename `osm/*/registration.parked.json` to `registration.json` and run `make register`.
 
 `src-osm` answers each search with one Overpass query and each detail with one call to the OSM API. It keeps nothing beyond a 30-minute in-memory cache and adds the ODbL attribution to every response, so OSM is queried live, not republished. Two sub-APIs, two catalog entries:
 - **`onwheels`** (`/onwheels/`) returns the features the [OnWheels map](https://mapcomplete.org/onwheels) asks contributors to measure (entrances, kerbs, toilets, lifts, reception desks, disabled parking), with lengths in metres. Its detail says whether the last edit was made with OnWheels: the OSM changeset carries `theme=onwheels`.
