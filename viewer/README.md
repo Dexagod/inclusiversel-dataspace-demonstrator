@@ -90,8 +90,11 @@ unknown paths, unsupported query parameters, arbitrary target URLs and upstream
 redirects. Responses are bounded at 16 MiB with a 45-second upstream timeout.
 Errors are isolated per service, and questions are not written to request logs.
 The same-origin proxy removes any need to add CORS to the existing services.
-Metadata and retrieved text are rendered as text; outgoing links accept only
-credential-free HTTP(S) URLs. No authentication keys or private exports are used.
+Metadata and retrieved passages are rendered as text. The collapsed Permanent
+context section renders Markdown headings, lists, links, tables, quotes and code
+using a locally bundled MIT-licensed markdown-it parser. Raw HTML stays literal,
+images display their alt text, and outgoing links accept only credential-free
+HTTP(S) URLs. No authentication keys or private exports are used.
 
 ## Verification
 
@@ -101,7 +104,7 @@ make -C viewer check
 
 Tests use local HTTP stubs and fictional records only. They cover the proxy
 allowlist, forbidden writes, path/URL injection, error/timeout/redirect handling,
-DCAT media types, question forwarding, filtering and safe links. They do not
+DCAT media types, question forwarding, filtering, Markdown formatting and safe links. They do not
 contact public sites or require a running data space.
 
 For browser QA against the same fictional data, run

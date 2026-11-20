@@ -1,4 +1,5 @@
 import {list, safeURL, filterDatasets, filterDocuments, searchParams} from './model.mjs';
+import {renderMarkdown} from './markdown.mjs';
 
 const $ = id => document.getElementById(id);
 const state = {catalogs: [], datasets: [], documents: [], selected: '', catalogReady: false, datasetsReady: false, documentsReady: false, detailRequest: 0};
@@ -208,7 +209,7 @@ async function loadVocabulary() {
   state.documents = state.documentsReady ? docs.value : [];
   const text = context.status === 'fulfilled' ? String(context.value.text || '') : '';
   $('context-summary').textContent = context.status !== 'fulfilled' ? 'Permanent context unavailable' : text ? `The agent receives this text with every vocabulary search · Updated ${date(context.value.updated_at)}` : 'No permanent context set. Run make -C sources knowledge to load it.';
-  $('context-text').textContent = text;
+  $('context-text').innerHTML = renderMarkdown(text);
   const errors = [docs, health, context].filter(r => r.status === 'rejected').map(r => errorText(r.reason));
   message('vocabulary-message', [...new Set(errors)].join(' '), 'error');
   status('vochub-status', errors.length === 0, errors.length && state.documentsReady ? 'Partial' : undefined);

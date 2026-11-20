@@ -6,7 +6,7 @@ run:
 
 test:
 	$(PYTHON) -m unittest discover -s tests -v
-	node --test tests/model.test.mjs
+	node --test tests/*.test.mjs
 
 check: test
 	node --check static/app.js

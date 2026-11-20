@@ -23,7 +23,7 @@ DATASETS = [{"id": "fictional-venues", "title": "Fictional accessible venues", "
 DOCUMENTS = [{"doc_id": "fixture-guide", "title": "Fictional accessibility terminology guide", "url": "https://example.org/guide", "kind": "pdf", "language": "en", "tags": ["criteria", "labels"], "licence": "https://example.org/licence", "ingested_at": "2026-11-16T09:00:00Z", "chunks": 12},
              {"doc_id": "fixture-schema", "title": "Fictional field documentation", "url": "https://example.org/schema", "kind": "html", "language": "fr", "tags": ["schema"], "licence": None, "chunks": 8}]
 PASSAGES = [{"doc_id": "fixture-guide", "title": DOCUMENTS[0]["title"], "url": DOCUMENTS[0]["url"], "text": "Fictional example: a recorded measurement describes one feature of a place. Missing measurements remain unknown; they do not establish accessibility.", "score": 0.7132, "page": 3, "heading": "Interpreting measurements", "language": "en", "tags": ["criteria"], "licence": DOCUMENTS[0]["licence"]}]
-CONTEXT = {"text": "Fictional rule: prefer recent, audited facts.", "updated_at": "2026-11-20T09:00:00+00:00"}
+CONTEXT = {"text": "# Fictional context\n\nPrefer **recent, audited facts**.\n\n- Keep missing measurements *unknown*.\n- Cite the [fictional guide](https://example.org/guide).\n\n## Fields\n\n| Field | Meaning |\n| --- | --- |\n| `width` | Measured width |\n\n> Fictional guidance for interface verification.", "updated_at": "2026-11-20T09:00:00+00:00"}
 
 
 class Stub(BaseHTTPRequestHandler):
@@ -95,7 +95,7 @@ class ViewerTests(unittest.TestCase):
             return response.status, response.headers, response.read()
 
     def test_assets_and_health(self):
-        for path in ["/", "/app.js", "/styles.css", "/model.mjs", "/favicon.svg", "/health"]:
+        for path in ["/", "/app.js", "/styles.css", "/model.mjs", "/markdown.mjs", "/vendor/markdown-it.mjs", "/favicon.svg", "/health"]:
             status, headers, body = self.request(path)
             self.assertEqual(status, 200)
             self.assertTrue(body)

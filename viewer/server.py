@@ -18,6 +18,8 @@ ASSETS = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
     "/model.mjs": ("model.mjs", "text/javascript; charset=utf-8"),
+    "/markdown.mjs": ("markdown.mjs", "text/javascript; charset=utf-8"),
+    "/vendor/markdown-it.mjs": ("vendor/markdown-it.mjs", "text/javascript; charset=utf-8"),
     "/styles.css": ("styles.css", "text/css; charset=utf-8"),
     "/favicon.svg": ("favicon.svg", "image/svg+xml"),
 }
