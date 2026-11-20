@@ -80,9 +80,10 @@ The reverse proxy runs on the server itself (not in Docker). It handles HTTPS an
 | --- | --- | --- |
 | `/mcp` | `127.0.0.1:8800/mcp`, the connector | none (see above) |
 | `/catalog/…` (optional) | `127.0.0.1:8001/…`, the catalog | read-only: only `GET` and `HEAD` pass |
-| anything else | nothing | 404 |
+| anything else (optional) | `127.0.0.1:8090`, the [viewer](../viewer/README.md) | read-only by design: it answers only `GET` and `HEAD`, on a fixed list of paths |
+| anything else, without the viewer | nothing | 404 |
 
-Replace `dataspace.example.org` with your host name. If you publish the catalog, set `CATALOG_BASE_URL=https://dataspace.example.org/catalog` in `.env` and run `make up`; the DCAT export is then at `https://dataspace.example.org/catalog/catalog`.
+Replace `dataspace.example.org` with your host name. To publish the viewer, start it on the server with `make -C ../viewer up` (after `make up` here); it needs the root path, because its pages and API calls use absolute paths. If you publish the catalog, set `CATALOG_BASE_URL=https://dataspace.example.org/catalog` in `.env` and run `make up`; the DCAT export is then at `https://dataspace.example.org/catalog/catalog`.
 
 **Caddy** (2.8 or later) fetches and renews the certificate itself. Put this in `/etc/caddy/Caddyfile`, then run `sudo systemctl reload caddy`:
 
@@ -100,7 +101,10 @@ dataspace.example.org {
         reverse_proxy 127.0.0.1:8001
     }
 
-    respond 404
+    # Optional: the viewer (read-only), on every other path. Without it: respond 404
+    handle {
+        reverse_proxy 127.0.0.1:8090
+    }
 }
 ```
 
@@ -140,7 +144,11 @@ server {
         proxy_pass http://127.0.0.1:8001/;
     }
 
-    location / { return 404; }
+    # Optional: the viewer (read-only), on every other path. Without it: location / { return 404; }
+    location / {
+        access_log off;   # search questions are in the query string
+        proxy_pass http://127.0.0.1:8090;
+    }
 }
 ```
 
@@ -173,7 +181,7 @@ A web-hosted agent calls the connector from its own servers, so the whole stack 
 
    Nothing else: catalog, vochub and the proxies stay on `127.0.0.1` (keep the `*_BIND` defaults and leave `SOURCE_URL_MAP` empty).
 3. **Stack:** on the server, `make up` here and `make up register` in `../sources`; put the source API keys (`ACCESLIBRE_API_KEY`) in this server's `.env`.
-4. **Reverse proxy:** use the Caddy or nginx configuration from [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). Every path other than `/mcp` (and the optional `/catalog`) returns 404.
+4. **Reverse proxy:** use the Caddy or nginx configuration from [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). Every path other than `/mcp`, the optional `/catalog` and the optional viewer returns 404.
 5. **Check** from any machine: the first call returns 200 with the server's capabilities, the second 404.
 
    ```bash

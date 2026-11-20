@@ -47,8 +47,10 @@ make -C viewer down
 ```
 
 This is an independent Compose project and container on port 8090. It does not
-modify or restart the data space or source services. The port is bound to loopback;
-this unauthenticated research demonstrator is intended for local use.
+modify or restart the data space or source services. The port is bound to loopback.
+To publish it on a server (during presentations only; it has no authentication), put
+it behind Caddy or nginx on the root path: see "Reverse proxy: Caddy or nginx" in
+[`../dataspace/README.md`](../dataspace/README.md#reverse-proxy-caddy-or-nginx).
 
 ## What the interface shows
 

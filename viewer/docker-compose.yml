@@ -2,6 +2,7 @@ name: accessibility-dataspace-viewer
 services:
   viewer:
     build: .
+    restart: unless-stopped  # come back after a reboot, like the data space
     ports:
       - "127.0.0.1:8090:8090"
     environment:
