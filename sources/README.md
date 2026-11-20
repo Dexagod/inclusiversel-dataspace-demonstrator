@@ -89,6 +89,7 @@ make -C ../dataspace up   # the data space first: the proxies join its Docker ne
 make up                   # build and start the proxies
 make register             # PUT every */registration.json to the catalog (http://localhost:8001)
 make knowledge            # optional: ingest domain-knowledge.yaml into the vocabulary hub (needs internet)
+                          # and set permanent-context.md as the hub's permanent context
 make test                 # offline unit tests of the proxies
 make e2e                  # data space + sources end to end (needs internet for IedereenOveral)
 ```

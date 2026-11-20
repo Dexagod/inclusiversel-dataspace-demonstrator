@@ -21,6 +21,8 @@ services:
     ports: ["${VOCHUB_BIND:-127.0.0.1}:8002:8000"]   # keep private: ingestion has no authentication
     environment:
       QDRANT_URL: http://vochub-vectors:6333
+      CONTEXT_FILE: /data/context.md
+    volumes: [vochub-data:/data]
     depends_on: [vochub-vectors]
 
   connector:
@@ -44,3 +46,4 @@ services:
 volumes:
   catalog-data:
   vochub-vectors:
+  vochub-data:

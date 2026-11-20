@@ -56,7 +56,7 @@ Suggestion: describe constraints as conditions over A11yJSON-like place properti
 | Option | How it works | For | Against |
 | --- | --- | --- | --- |
 | **(a) In the chatbot / client** | the user tells their assistant, or it sits in the assistant's memory or custom instructions, or a local file for Claude Code; the agent applies it when it plans calls and reads results | no change to the data space; no health data on our servers; works today with Claude and ChatGPT | not portable between assistants; the user's needs go to the LLM provider (see §3); quality depends on the agent following the skill |
-| **(b) In the connector** | per-user profile stored server-side; tools such as `search_for_me` filter and rank | consistent behaviour across clients; one place to improve matching | needs user identity, so OAuth on the MCP endpoint; we become controller of special-category data (§3); the connector stops being a stateless door; a shared bearer token (set-up B) identifies no user |
+| **(b) In the connector** | per-user profile stored server-side; tools such as `search_for_me` filter and rank | consistent behaviour across clients; one place to improve matching | needs user identity, so OAuth on the MCP endpoint; we become controller of special-category data (§3); the connector stops being a stateless door; set-up B has no authentication, so no identity at all |
 | **(c) A store the user controls** (Solid pod, credential wallet) | the profile lives in the user's pod; the client, or the connector acting for the user, reads the parts the user grants, per request | the user owns and revokes it; portable across assistants; fits the KNoWS team's Solid work and data-space thinking (sovereignty, usage policies) | needs a Solid-capable client, or connector auth to the pod; more moving parts; public chatbots can't read a pod themselves today |
 | **(d) In the sources** | — | — | no: sources must never learn who asks or why |
 
@@ -85,7 +85,7 @@ Three ways to bring a profile into an MCP interaction, in order of preference:
 ## 5. Public chatbots connecting
 
 - **What they bring.** Claude and ChatGPT have their own memory and custom instructions, so a user can already say "remember I use a 72 cm wheelchair and need a transfer toilet". Option (a) works without any change on our side.
-- **What they can't do.** They reach the connector through set-up B with one shared bearer token. The token proves access, not identity: the connector has no idea *who* is calling, so per-user state (option b) is impossible there without OAuth. The MCP specification defines OAuth-based authorization, but adding it means running an authorization server and user accounts: a product decision, not a demo tweak.
+- **What they can't do.** They reach the connector through set-up B, without authentication (ChatGPT accepts only OAuth or none). The connector has no idea *who* is calling, so per-user state (option b) is impossible there without OAuth. The MCP specification defines OAuth-based authorization, but adding it means running an authorization server and user accounts: a product decision, not a demo tweak.
 - **Why stateless is safest.** No accounts, no stored health data, and no difference in behaviour between clients beyond what the user tells their own assistant. The connector stays "the single door" from the plan, and its tools stay read-only.
 
 ## 6. Recommendation and phases

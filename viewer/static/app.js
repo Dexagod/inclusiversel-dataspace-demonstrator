@@ -203,10 +203,13 @@ function renderDocuments() {
 async function loadVocabulary() {
   $('refresh-vocabulary').disabled = true;
   message('vocabulary-message', 'Loading knowledge collection…');
-  const [docs, health] = await Promise.allSettled([api('/api/vochub/documents', true), api('/api/vochub/health')]);
+  const [docs, health, context] = await Promise.allSettled([api('/api/vochub/documents', true), api('/api/vochub/health'), api('/api/vochub/context')]);
   state.documentsReady = docs.status === 'fulfilled';
   state.documents = state.documentsReady ? docs.value : [];
-  const errors = [docs, health].filter(r => r.status === 'rejected').map(r => errorText(r.reason));
+  const text = context.status === 'fulfilled' ? String(context.value.text || '') : '';
+  $('context-summary').textContent = context.status !== 'fulfilled' ? 'Permanent context unavailable' : text ? `The agent receives this text with every vocabulary search · Updated ${date(context.value.updated_at)}` : 'No permanent context set. Run make -C sources knowledge to load it.';
+  $('context-text').textContent = text;
+  const errors = [docs, health, context].filter(r => r.status === 'rejected').map(r => errorText(r.reason));
   message('vocabulary-message', [...new Set(errors)].join(' '), 'error');
   status('vochub-status', errors.length === 0, errors.length && state.documentsReady ? 'Partial' : undefined);
   $('nav-documents').textContent = state.documentsReady ? state.documents.length : '—';

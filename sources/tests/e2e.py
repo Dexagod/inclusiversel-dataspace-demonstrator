@@ -53,6 +53,8 @@ async def main():
         tools = {t.name for t in (await mcp.list_tools()).tools}
         check(tools == {"vochub_search", "catalog_search", "catalog_get_dataset", "get_openapi",
                         "call_source_operation"}, f"connector lists the five tools")
+        vh = payload(await mcp.call_tool("vochub_search", {"question": "accessibility label", "k": 1}))
+        check(vh.get("context"), "vochub_search returns the permanent context (make knowledge sets it)")
         hits = payload(await mcp.call_tool("catalog_search", {"query": "wheelchair restaurant Ghent"}))["results"]
         check(any(h["id"] == "iedereenoveral" for h in hits), "catalog_search via MCP")
         api = payload(await mcp.call_tool("get_openapi", {"dataset_id": "pictoaccess"}))

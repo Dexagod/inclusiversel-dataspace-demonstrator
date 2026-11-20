@@ -28,6 +28,7 @@ ROUTES = {
     ("catalog", "/catalog"): {"format"},
     ("vochub", "/health"): set(),
     ("vochub", "/documents"): set(),
+    ("vochub", "/context"): set(),
     ("vochub", "/search"): {"q", "k", "language", "tag"},
 }
 

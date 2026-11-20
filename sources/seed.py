@@ -1,7 +1,8 @@
 """Set up the data space's content through its public HTTP APIs.
 
   python seed.py register    PUT every **/registration.json to the catalog (needs the source proxies running)
-  python seed.py knowledge   ingest domain-knowledge.yaml into the vocabulary hub (needs internet)
+  python seed.py knowledge   ingest domain-knowledge.yaml into the vocabulary hub (needs internet),
+                             and set permanent-context.md as the hub's permanent context
 """
 
 import os
@@ -27,7 +28,9 @@ def register() -> int:
 
 
 def knowledge() -> int:
-    failed = 0
+    r = httpx.put(f"{VOCHUB}/context", json={"text": (HERE / "permanent-context.md").read_text(encoding="utf-8")}, timeout=30)
+    print(f"{'+' if r.is_success else '!'} {r.status_code} permanent context" + ("" if r.is_success else f": {r.text[:200]}"))
+    failed = 0 if r.is_success else 1
     for entry in yaml.safe_load((HERE / "domain-knowledge.yaml").read_text(encoding="utf-8")):
         r = httpx.post(f"{VOCHUB}/documents/url", json=entry, timeout=120)
         if r.is_success:

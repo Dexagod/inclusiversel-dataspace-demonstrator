@@ -38,7 +38,8 @@ dataspace/                  generic data space (CLAUDE.md -> AGENTS.md there)
   docs/adr/                 decision records
 sources/                    everything source-specific
   docker-compose.yml        proxies; join the external network accessibility-dataspace_default
-  seed.py                   `register`: PUT */registration.json to the catalog; `knowledge`: ingest domain-knowledge.yaml
+  seed.py                   `register`: PUT */registration.json to the catalog; `knowledge`: ingest domain-knowledge.yaml and PUT permanent-context.md
+  permanent-context.md      the vochub's permanent context: returned with every vochub_search (compare sources, ask again, web search, answer layout); keep it short
   domain-knowledge.yaml     public documents for the vocabulary hub
   source-inventory.md       every source from the literature study: status, access, proxy, licence, study errors
   domain-knowledge-inventory.md  the same for vocabulary-hub documents, with each site's reuse terms
@@ -74,14 +75,14 @@ Agents connect to `http://localhost:8800/mcp` only. The proxies and the catalog 
 
 ### Deployment on a server
 
-The repository `README.md` compares the two set-ups (A: catalog, vochub and proxies on the server, connector local over SSH; B: everything on the server, connector behind HTTPS with a bearer token from `MCP_TOKEN`) and gives the clone + `rsync` steps. Details in "Running on a remote server" in `dataspace/README.md`. In short:
+The repository `README.md` compares the two set-ups (A: catalog, vochub and proxies on the server, connector local over SSH; B: everything on the server, connector open over HTTPS, online only during presentations) and gives the clone + `rsync` steps. Details in "Running on a remote server" in `dataspace/README.md`. In short:
 - **Getting it there:** `git clone`, then `rsync` the git-ignored `sources/pictoaccess/pictoaccess_dump/places/` (33 MB; the images are not used). Update with `git pull`, `make -C dataspace up`, `make -C sources up register`.
 - **Restarts:** every service has `restart: unless-stopped`; state lives on volumes (`catalog-data`, `vochub-vectors`, `be-transit-cache`).
 - **Ports:** all published ports bind to `127.0.0.1` by default (`CONNECTOR_BIND`, `CATALOG_BIND`, `VOCHUB_BIND` in `dataspace/.env`; `SOURCES_BIND` in `sources/.env`). Only port 8800 (MCP) needs to reach agents; 8001 (catalog) only for publishing DCAT, and then read-only. 8002 and 8102 to 8107 stay private.
 - **Base URL:** `CATALOG_BASE_URL` in `dataspace/.env` is the public base of every URI in the DCAT export; each URI resolves (`/catalog`, `/catalogs/{id}`, `/datasets/{id}`, `/services/{id}`, `/themes/{slug}`).
-- **Security:** only the connector authenticates: `Authorization: Bearer <MCP_TOKEN>` on every path but `/health`, when `MCP_TOKEN` is set in `dataspace/.env` (empty means open, for local use). Put HTTPS in front with a reverse proxy (Caddy and nginx configurations in "Reverse proxy: Caddy or nginx" in `dataspace/README.md`), or the connector exposes your API keys' quota and the PictoAccess snapshot to anyone.
+- **Security:** no component authenticates, on purpose (user decision 2026-11-19): the server is online only during public presentations. No secret paths, bearer tokens or basic auth. Production needs OAuth, the only option ChatGPT accepts (MCP SDK hook `auth_server_provider` / `token_verifier`). Put HTTPS in front with a reverse proxy (Caddy and nginx configurations in "Reverse proxy: Caddy or nginx" in `dataspace/README.md`), or the connector exposes your API keys' quota and the PictoAccess snapshot to anyone.
 - **Registrations** keep Docker-internal proxy URLs; that is correct on a server too.
-- **ChatGPT and other web-hosted agents** reach the connector at `https://<host>/mcp` through Caddy or nginx (only ports 443 and 80 open) with the bearer token; agents that offer only OAuth or no authentication cannot connect. Steps in "Connecting ChatGPT or another web-hosted agent" in `dataspace/README.md`.
+- **ChatGPT and other web-hosted agents** reach the connector at `https://<host>/mcp` through Caddy or nginx (only ports 443 and 80 open) without authentication. Steps in "Connecting ChatGPT or another web-hosted agent" in `dataspace/README.md`.
 
 ## Current state
 

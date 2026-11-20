@@ -5,11 +5,12 @@ import os
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 
 import httpx
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastembed import TextEmbedding
-from pydantic import AnyHttpUrl, BaseModel
+from pydantic import AnyHttpUrl, BaseModel, Field
 from qdrant_client import QdrantClient, models
 
 from extract import chunk, extract
@@ -20,6 +21,8 @@ CACHE = os.environ.get("MODEL_CACHE", None)
 COLLECTION = "chunks"
 MAX_BYTES = 50 * 1024 * 1024
 USER_AGENT = "accessibility-dataspace-demo/0.1 (open research demonstrator)"
+# One text the connector returns with every search: how to weigh and combine what the sources say.
+CONTEXT_FILE = Path(os.environ.get("CONTEXT_FILE", "data/context.md"))
 
 state = {}
 
@@ -142,3 +145,24 @@ def search(q: str = Query(..., min_length=2), k: int = Query(5, ge=1, le=50),
                                         query_filter=models.Filter(must=must) if must else None).points
     keys = ["text", "title", "url", "page", "heading", "language", "tags", "licence", "doc_id"]
     return [{"score": round(h.score, 4), **{key: h.payload.get(key) for key in keys}} for h in hits]
+
+
+class ContextIn(BaseModel):
+    text: str = Field(max_length=20_000)
+
+
+@app.get("/context", operation_id="get_context", summary="The permanent context returned with every search")
+def get_context():
+    if not CONTEXT_FILE.exists():
+        return {"text": "", "updated_at": None}
+    updated = datetime.fromtimestamp(CONTEXT_FILE.stat().st_mtime, timezone.utc).isoformat(timespec="seconds")
+    return {"text": CONTEXT_FILE.read_text(encoding="utf-8"), "updated_at": updated}
+
+
+@app.put("/context", operation_id="set_context", summary="Replace the permanent context (Markdown)")
+def set_context(body: ContextIn):
+    CONTEXT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = CONTEXT_FILE.with_suffix(".tmp")
+    tmp.write_text(body.text, encoding="utf-8")
+    tmp.replace(CONTEXT_FILE)  # atomic: readers never see half a file
+    return get_context()

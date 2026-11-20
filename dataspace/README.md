@@ -60,7 +60,6 @@ In `dataspace/.env` (read by Compose; restart with `make up` after a change):
 | `CONNECTOR_BIND` | `127.0.0.1` | Keep `127.0.0.1` when a reverse proxy on the same host forwards to the connector; `0.0.0.0` publishes port 8800 directly (only behind a firewall that allows your own addresses) |
 | `CATALOG_BIND` | `127.0.0.1` | Same, for port 8001 |
 | `VOCHUB_BIND` | `127.0.0.1` | Keep |
-| `MCP_TOKEN` | empty (no authentication) | **A long random token, e.g. from `openssl rand -hex 32`.** When set, the connector answers only requests with `Authorization: Bearer <token>` (except `/health`); restart the connector after a change |
 | `ACCESLIBRE_API_KEY` | | Source API keys, as on a laptop |
 
 In `sources/.env`: `SOURCES_BIND` (default `127.0.0.1`, keep it).
@@ -69,7 +68,9 @@ The registrations keep their Docker-internal addresses (`http://src-…:8000/`);
 
 ### HTTPS and authentication
 
-The connector checks a bearer token when `MCP_TOKEN` is set in `.env`; without it, anyone who can reach the connector can query every source with your API keys and read the PictoAccess snapshot. **Always set `MCP_TOKEN` on a server.** A reverse proxy on the server adds HTTPS, so the token never travels in clear text; see [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). The catalog has no authentication; publish it read-only.
+**The connector has no authentication in this version.** Anyone who can reach it can query every source with your API keys and read the PictoAccess snapshot. Publish it only while you need it, for example during a public presentation, and stop it afterwards (`make down`, or close ports 80 and 443). A reverse proxy on the server adds HTTPS; see [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). The catalog has no authentication either; publish it read-only.
+
+**Production needs OAuth.** Web-hosted agents such as ChatGPT accept only OAuth for MCP connectors, so a password, bearer token or secret path is not an option for them. The MCP SDK the connector uses has a hook for this (`auth_server_provider` / `token_verifier` on `MCPServer`): either the connector acts as a small OAuth server, or it checks tokens from an external provider such as Keycloak. Not built in this version.
 
 ### Reverse proxy: Caddy or nginx
 
@@ -77,7 +78,7 @@ The reverse proxy runs on the server itself (not in Docker). It handles HTTPS an
 
 | Public path | Forwards to | Protection |
 | --- | --- | --- |
-| `/mcp` | `127.0.0.1:8800/mcp`, the connector | the bearer token, checked by the connector (`MCP_TOKEN`) |
+| `/mcp` | `127.0.0.1:8800/mcp`, the connector | none (see above) |
 | `/catalog/…` (optional) | `127.0.0.1:8001/…`, the catalog | read-only: only `GET` and `HEAD` pass |
 | anything else | nothing | 404 |
 
@@ -87,7 +88,7 @@ Replace `dataspace.example.org` with your host name. If you publish the catalog,
 
 ```caddyfile
 dataspace.example.org {
-    # The connector, which checks the bearer token itself
+    # The connector (no authentication: publish only during presentations)
     handle /mcp* {
         reverse_proxy 127.0.0.1:8800
     }
@@ -103,7 +104,7 @@ dataspace.example.org {
 }
 ```
 
-Caddy passes the connector's streamed responses and the `Authorization` header through without extra settings. It writes no access log unless you add `log`.
+Caddy passes the connector's streamed responses through without extra settings. It writes no access log unless you add `log`.
 
 **nginx** needs a certificate before it starts with this file. Get one with `sudo certbot certonly --nginx -d dataspace.example.org`; certbot renews it automatically. Put this in `/etc/nginx/sites-available/dataspace`, link it into `sites-enabled/`, then run `sudo nginx -t && sudo systemctl reload nginx`:
 
@@ -127,7 +128,7 @@ server {
     proxy_buffering off;
     proxy_read_timeout 300s;
 
-    # The connector, which checks the bearer token itself
+    # The connector (no authentication: publish only during presentations)
     location /mcp {
         access_log off;   # no record of who asked what
         proxy_pass http://127.0.0.1:8800;
@@ -149,18 +150,17 @@ Open ports 80 and 443 for either proxy: 443 for the agent, and 80 for certificat
 
 ### Connecting an agent to the server
 
-Use the public MCP address with the token as a header, for example in Claude Code:
+Use the public MCP address, for example in Claude Code:
 
 ```bash
-claude mcp add --transport http accessibility-dataspace https://dataspace.example.org/mcp \
-  --header "Authorization: Bearer TOKEN"
+claude mcp add --transport http accessibility-dataspace https://dataspace.example.org/mcp
 ```
 
-In VS Code, add `"headers": {"Authorization": "Bearer TOKEN"}` next to `"url"` in the server entry. For web-hosted agents, see the next section.
+In VS Code, put the same address as `"url"` in the server entry. For web-hosted agents, see the next section.
 
 ### Connecting ChatGPT or another web-hosted agent
 
-A web-hosted agent calls the connector from its own servers, so the whole stack runs on your server and only the connector is published, over HTTPS, protected by the bearer token. The agent must be able to send a fixed `Authorization: Bearer` header; check its connector settings. An agent that offers only OAuth or no authentication cannot connect. Anyone who has the token can query every source with your API keys and read the PictoAccess snapshot: do not share it, and replace it if it leaks.
+A web-hosted agent calls the connector from its own servers, so the whole stack runs on your server and only the connector is published, over HTTPS, without authentication. Keep it online only during presentations. ChatGPT accepts only OAuth or no authentication; see [HTTPS and authentication](#https-and-authentication) for what production would need.
 
 1. **DNS:** point a name at the server's public IP, e.g. `dataspace.yourdomain.org` (certificates are not issued for a bare IP).
 2. **Ports:** open, and forward on the router if the server is behind NAT:
@@ -173,18 +173,16 @@ A web-hosted agent calls the connector from its own servers, so the whole stack 
 
    Nothing else: catalog, vochub and the proxies stay on `127.0.0.1` (keep the `*_BIND` defaults and leave `SOURCE_URL_MAP` empty).
 3. **Stack:** on the server, `make up` here and `make up register` in `../sources`; put the source API keys (`ACCESLIBRE_API_KEY`) in this server's `.env`.
-4. **Token:** generate one with `openssl rand -hex 32`, put it in `.env` as `MCP_TOKEN=…` and run `make up`.
-5. **Reverse proxy:** use the Caddy or nginx configuration from [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). Every path other than `/mcp` (and the optional `/catalog`) returns 404.
-6. **Check** from any machine: the first call returns 200 with the server's capabilities, the second 401.
+4. **Reverse proxy:** use the Caddy or nginx configuration from [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). Every path other than `/mcp` (and the optional `/catalog`) returns 404.
+5. **Check** from any machine: the first call returns 200 with the server's capabilities, the second 404.
 
    ```bash
    curl -s -o /dev/null -w "%{http_code}\n" -X POST https://dataspace.yourdomain.org/mcp \
      -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' \
-     -H 'Authorization: Bearer TOKEN' \
      -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"check","version":"0"}}}'
-   curl -s -o /dev/null -w "%{http_code}\n" https://dataspace.yourdomain.org/mcp
+   curl -s -o /dev/null -w "%{http_code}\n" https://dataspace.yourdomain.org/other
    ```
-7. **Agent:** add a custom connector with the URL `https://dataspace.yourdomain.org/mcp` and the header `Authorization: Bearer TOKEN` (or the token in a "bearer token" or "API key" field). The five tools of the connector should appear.
+6. **ChatGPT:** add a custom connector (custom MCP connectors may require developer mode) with the URL `https://dataspace.yourdomain.org/mcp` and no authentication. The five tools of the connector should appear.
 
 To also publish the DCAT catalog read-only, keep the `/catalog` block in that configuration and set `CATALOG_BASE_URL=https://dataspace.yourdomain.org/catalog`.
 
@@ -197,7 +195,7 @@ ssh -N -L 8001:127.0.0.1:8001 -L 8002:127.0.0.1:8002 user@server   # leave runni
 make -C ../sources register knowledge
 ```
 
-`CATALOG_URL` and `VOCHUB_URL` point `seed.py` and the end-to-end test elsewhere if needed; the end-to-end test also takes `MCP`, e.g. `MCP=https://dataspace.example.org/mcp` (only with `MCP_TOKEN` unset).
+`CATALOG_URL` and `VOCHUB_URL` point `seed.py` and the end-to-end test elsewhere if needed; the end-to-end test also takes `MCP`, e.g. `MCP=https://dataspace.example.org/mcp` 
 
 ## Running components separately
 
@@ -312,6 +310,8 @@ curl 'http://localhost:8002/search?q=rolstoeltoegankelijk+toilet&k=5'
 
 Supported: PDF (with page numbers), HTML and web pages (main content only), DOCX, PPTX, XLSX, CSV, Markdown, text and other formats [markitdown](https://github.com/microsoft/markitdown) reads. Documents are split on headings into chunks of up to 250 words; identical content is ingested once. The embedding model is set with the `EMBED_MODEL` build argument (default `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`; `intfloat/multilingual-e5-large` is more accurate and about ten times larger). Changing it requires `make clean`, because vector sizes differ.
 
+**Permanent context.** One Markdown text that the connector returns as `context` with every `vochub_search`, before the passages: rules that hold for every question, such as how to compare sources. Set it with `curl -X PUT http://localhost:8002/context -H 'content-type: application/json' -d '{"text": "…"}'` (at most 20,000 characters) and read it with `GET /context`. It is stored in the `vochub-data` volume. The viewer shows it on the vocabulary hub page. The demo text is `sources/permanent-context.md`, set by `make knowledge`. Keep it short: agents get it with every search.
+
 ## Connecting an agent
 
 Connect the external agent to the **`accessibility-dataspace` MCP connector**, at `http://localhost:8800/mcp` (Streamable HTTP). This single server exposes the vocabulary hub, catalog and registered source APIs. Source APIs and the catalog are REST APIs, not MCP servers; do not connect the agent to them directly.
@@ -341,7 +341,7 @@ The connector provides these tools:
 
 | Tool | Use it to |
 | --- | --- |
-| `vochub_search` | learn terms and criteria first |
+| `vochub_search` | learn terms and criteria first; also returns the permanent context (rules for every question) |
 | `catalog_search` | find sources by text, theme, area, language |
 | `catalog_get_dataset` | check licence, coverage, update frequency |
 | `get_openapi` | read a source's operations and parameters |

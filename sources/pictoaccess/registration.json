@@ -35,15 +35,19 @@
   "spatial": [
     "France",
     "Normandie",
-    "La Rochelle",
+    "Hauts-de-France",
+    "Nouvelle-Aquitaine",
+    "Centre-Val de Loire",
     "Caen",
-    "Louviers",
-    "Val-de-Reuil",
-    "Bourges",
-    "Lisieux",
     "Rouen",
     "Évreux",
-    "Lille"
+    "Lisieux",
+    "Louviers",
+    "Val-de-Reuil",
+    "Lille",
+    "La Rochelle",
+    "Limoges",
+    "Bourges"
   ],
   "update_frequency": "IRREG",
   "landing_page": "https://www.pictoaccess.fr"

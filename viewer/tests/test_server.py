@@ -23,6 +23,7 @@ DATASETS = [{"id": "fictional-venues", "title": "Fictional accessible venues", "
 DOCUMENTS = [{"doc_id": "fixture-guide", "title": "Fictional accessibility terminology guide", "url": "https://example.org/guide", "kind": "pdf", "language": "en", "tags": ["criteria", "labels"], "licence": "https://example.org/licence", "ingested_at": "2026-11-16T09:00:00Z", "chunks": 12},
              {"doc_id": "fixture-schema", "title": "Fictional field documentation", "url": "https://example.org/schema", "kind": "html", "language": "fr", "tags": ["schema"], "licence": None, "chunks": 8}]
 PASSAGES = [{"doc_id": "fixture-guide", "title": DOCUMENTS[0]["title"], "url": DOCUMENTS[0]["url"], "text": "Fictional example: a recorded measurement describes one feature of a place. Missing measurements remain unknown; they do not establish accessibility.", "score": 0.7132, "page": 3, "heading": "Interpreting measurements", "language": "en", "tags": ["criteria"], "licence": DOCUMENTS[0]["licence"]}]
+CONTEXT = {"text": "Fictional rule: prefer recent, audited facts.", "updated_at": "2026-11-20T09:00:00+00:00"}
 
 
 class Stub(BaseHTTPRequestHandler):
@@ -52,7 +53,7 @@ class Stub(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"<script>not allowed</script>")
             return
-        data = {"/health": {"status": "ok"}, "/catalogs": CATALOGS, "/datasets": DATASETS, "/documents": DOCUMENTS, "/search": [] if query.get("tag") == ["empty"] else PASSAGES}.get(path)
+        data = {"/health": {"status": "ok"}, "/catalogs": CATALOGS, "/datasets": DATASETS, "/documents": DOCUMENTS, "/context": CONTEXT, "/search": [] if query.get("tag") == ["empty"] else PASSAGES}.get(path)
         if path.startswith("/datasets/"):
             data = next((d for d in DATASETS if path.endswith('/' + d['id'])), None)
         if path == "/catalog":
@@ -102,7 +103,7 @@ class ViewerTests(unittest.TestCase):
         self.assertEqual(self.request("/", "HEAD")[2], b"")
 
     def test_metadata_and_full_registration(self):
-        for path, expected in [("/api/catalog/catalogs", CATALOGS), ("/api/catalog/datasets", DATASETS), ("/api/vochub/documents", DOCUMENTS), ("/api/catalog/datasets/fictional-venues", DATASETS[0])]:
+        for path, expected in [("/api/catalog/catalogs", CATALOGS), ("/api/catalog/datasets", DATASETS), ("/api/vochub/documents", DOCUMENTS), ("/api/vochub/context", CONTEXT), ("/api/catalog/datasets/fictional-venues", DATASETS[0])]:
             status, _, body = self.request(path)
             self.assertEqual(status, 200)
             self.assertEqual(json.loads(body), expected)
