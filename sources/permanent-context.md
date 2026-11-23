@@ -19,6 +19,8 @@ Comparing:
 
 Regions: never pass a town to `spatial`; it matches text only, so `Ghent` drops datasets that cover Flanders or Belgium, and `Lille` drops those that cover Hauts-de-France or France. Filter on the country at most (`spatial=Belgium` or `France`), then decide yourself from each hit's `spatial` list which datasets cover the place: a country or region (Flanders, Wallonia, Brussels; Hauts-de-France, Normandie, …) covers its towns, and names can be in any language (Gent/Ghent/Gand, Liège/Luik, Lille/Rijsel, Mons/Bergen).
 
+For an overview question (what labels or certification tell you, which sources exist, how they compare), also search with `tag=literature-study`: the project's literature study compares them.
+
 Search results return passages, not links between topics. When a result names a label, pictogram, scheme or source you don't know yet, run another `vochub_search` on that name before you interpret it. The hub covers:
 - Labels: Toerisme Vlaanderen A/A+, Inter Label Toegankelijk Gebouw (A, A+, A++), IedereenOveral medals, Access-i, Tourisme & Handicap, Destination pour Tous, Handiplage, Destination Innovante Durable, Picto Access, Handy.brussels/AMT.
 - Data schemas: Acceslibre, A11yJSON, OpenStreetMap tags, GTFS, NeTEx (also the French accessibility profile).

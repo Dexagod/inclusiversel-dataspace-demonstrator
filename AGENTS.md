@@ -260,7 +260,7 @@ make -C viewer check        # offline fictional fixtures; Python and Node.js 18+
   exposes licence notes, access conditions, source DCAT and root graph exports.
 - **Vocabulary and questions:** the vocabulary tab lists `/documents` and calls
   `/search` with `q`, `k`, optional `language` and `tag`. Show retrieved passages
-  with source URL, page/heading, licence, score and retrieval time; join
+  with source URL, page/heading, licence, rank and retrieval time; join
   ingestion dates from document metadata. This is RAG retrieval, not generated
   answers or live place searches. Missing metadata stays unknown. Inclusion of a
   provider's knowledge document does not imply its place API is connected.

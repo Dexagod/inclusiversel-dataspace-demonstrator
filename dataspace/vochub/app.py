@@ -165,13 +165,24 @@ def search(q: str = Query(..., min_length=2), k: int = Query(5, ge=1, le=50),
     dense = next(iter(state["embedder"].query_embed(q))).tolist()
     b = next(iter(state["keywords"].query_embed(q)))
     sparse = models.SparseVector(indices=b.indices.tolist(), values=b.values.tolist())
-    # Meaning and keywords each propose candidates; reciprocal rank fusion merges the two rankings.
-    groups = state["qdrant"].query_points_groups(
-        COLLECTION, group_by="doc_id", group_size=PER_DOC, limit=k, query_filter=flt,
+    # Meaning and keywords each propose candidates; reciprocal rank fusion merges the two rankings over all of them.
+    # The per-document limit comes after the fusion: Qdrant's grouped query ranks within each document instead.
+    fused = state["qdrant"].query_points(
+        COLLECTION, query_filter=flt, limit=max(60, k * 6),
         prefetch=[models.Prefetch(query=dense, using="dense", limit=100, filter=flt),
                   models.Prefetch(query=sparse, using="bm25", limit=100, filter=flt)],
-        query=models.FusionQuery(fusion=models.Fusion.RRF)).groups
-    hits = sorted((h for g in groups for h in g.hits), key=lambda h: h.score, reverse=True)[:k]
+        query=models.FusionQuery(fusion=models.Fusion.RRF)).points
+    per_doc: dict[str, int] = {}
+    hits, skipped = [], []
+    for h in fused:
+        doc = h.payload.get("doc_id")
+        if per_doc.get(doc, 0) < PER_DOC:
+            per_doc[doc] = per_doc.get(doc, 0) + 1
+            hits.append(h)
+        else:
+            skipped.append(h)
+    # The limit is a preference: with too few documents (e.g. a tag that selects one), the next best passages fill up
+    hits = sorted(hits[:k] + skipped[:max(0, k - len(hits))], key=lambda h: h.score, reverse=True)
     keys = ["text", "title", "url", "page", "heading", "language", "tags", "licence", "doc_id"]
     return [{"score": round(h.score, 4), **{key: h.payload.get(key) for key in keys}} for h in hits]
 
