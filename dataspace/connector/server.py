@@ -1,8 +1,10 @@
 """MCP connector: the single, read-only door between a user agent and the data space."""
 
 import asyncio
+import functools
 import json
 import os
+import time
 from datetime import datetime, timezone
 from urllib.parse import urlencode
 
@@ -20,6 +22,8 @@ SOURCE_URL_MAP = parse_url_map(os.environ.get("SOURCE_URL_MAP", ""))
 CREDENTIALS_FILE = os.environ.get("CREDENTIALS_FILE", "config/credentials.yaml")
 TIMEOUT = float(os.environ.get("SOURCE_TIMEOUT_S", "20"))
 MAX_CHARS = int(os.environ.get("MAX_RESPONSE_CHARS", "20000"))
+# One JSON line per tool call on stdout. Off by default: the arguments hold the users' questions.
+CALL_LOG = os.environ.get("CALL_LOG", "").lower() in {"1", "true", "yes"}
 
 mcp = MCPServer("accessibility-dataspace", version="0.1.0",
                 instructions="Read-only access to an accessibility data space. Workflow: vochub_search, "
@@ -51,12 +55,49 @@ async def _spec(dataset: dict) -> dict:
         return yaml.safe_load(r.text)
 
 
+def _summary(tool: str, result) -> dict:
+    """The part of a tool result worth logging: never the data itself."""
+    if not isinstance(result, dict):
+        return {}
+    out = {"chars": len(json.dumps(result, ensure_ascii=False, default=str))}
+    if "results" in result:
+        out["results"] = len(result["results"])
+    if tool == "call_source_operation":
+        out.update({k: v for k, v in (("status", result.get("provenance", {}).get("status")),
+                                      ("truncated", result.get("truncated")), ("error", result.get("error"))) if v})
+    elif "error" in result:
+        out["error"] = result["error"]
+    return out
+
+
+def logged(fn):
+    """Log each call of a tool when CALL_LOG is set: start time, tool, arguments, duration, size of the answer."""
+    @functools.wraps(fn)
+    async def wrapper(*args, **kwargs):
+        if not CALL_LOG:
+            return await fn(*args, **kwargs)
+        start, t0 = datetime.now(timezone.utc).isoformat(timespec="milliseconds"), time.perf_counter()
+        entry = {"call_log": 1, "start": start, "tool": fn.__name__, "args": kwargs}
+        try:
+            result = await fn(*args, **kwargs)
+            entry.update(_summary(fn.__name__, result))
+            return result
+        except Exception as e:
+            entry["exception"] = f"{type(e).__name__}: {e}"[:300]
+            raise
+        finally:
+            entry["ms"] = round((time.perf_counter() - t0) * 1000)
+            print(json.dumps(entry, ensure_ascii=False, default=str), flush=True)
+    return wrapper
+
+
 @mcp.custom_route("/health", methods=["GET"])
 async def health(_request):
     return JSONResponse({"status": "ok"})
 
 
 @mcp.tool()
+@logged
 async def vochub_search(question: str, k: int = 5, language: str | None = None, tag: str | None = None) -> dict:
     """Search the vocabulary hub for domain knowledge (terminology, accessibility criteria, how each source rates them).
     Use this FIRST, before looking for data. Returns `context`, rules that hold for every question (how to compare
@@ -68,6 +109,7 @@ async def vochub_search(question: str, k: int = 5, language: str | None = None, 
 
 
 @mcp.tool()
+@logged
 async def catalog_search(query: str = "", theme: str | None = None, spatial: str | None = None,
                          language: str | None = None) -> dict:
     """Find datasets in the data space that could answer the question. Filter by theme slug, covered area
@@ -78,12 +120,14 @@ async def catalog_search(query: str = "", theme: str | None = None, spatial: str
 
 
 @mcp.tool()
+@logged
 async def catalog_get_dataset(id: str) -> dict:
     """Full catalog record of one dataset: licence, coverage, update frequency, publisher, access note."""
     return await _dataset(id)
 
 
 @mcp.tool()
+@logged
 async def get_openapi(dataset_id: str, full: bool = False) -> dict:
     """Learn how to query one dataset: a condensed list of its read operations and parameters
     (full=true returns the whole OpenAPI document). Never guess parameters; read them here."""
@@ -92,6 +136,7 @@ async def get_openapi(dataset_id: str, full: bool = False) -> dict:
 
 
 @mcp.tool()
+@logged
 async def call_source_operation(dataset_id: str, operation_id: str, params: dict | None = None) -> dict:
     """Run one read operation of a dataset's API, using operation_id and parameter names from get_openapi.
     The connector adds the configured API key itself. Returns the source JSON plus provenance to cite."""

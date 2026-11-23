@@ -62,6 +62,7 @@ In `dataspace/.env` (read by Compose; restart with `make up` after a change):
 | `CATALOG_BIND` | `127.0.0.1` | Same, for port 8001 |
 | `VOCHUB_BIND` | `127.0.0.1` | Keep |
 | `ACCESLIBRE_API_KEY`, `TOEVLA_API_TOKEN` | | Source API keys, as on a laptop |
+| `CALL_LOG` | `0` | `1` logs every tool call of the connector (see [Logging tool calls](#logging-tool-calls)); it records the users' questions, so switch it on only to analyse |
 
 In `sources/.env`: `SOURCES_BIND` (default `127.0.0.1`, keep it).
 
@@ -405,12 +406,23 @@ The connector provides these tools:
 | `get_openapi` | read a source's operations and parameters |
 | `call_source_operation` | run a read-only operation; parameters are checked against the OpenAPI and the API key is added |
 
+## Logging tool calls
+
+To see what an agent asks and where the time goes, set `CALL_LOG=1` in `.env` and restart the connector (`docker compose up -d connector`; for one session also `CALL_LOG=1 docker compose up -d connector`). It then writes one JSON line per tool call to its log: start time, tool, arguments, duration in ms, size of the answer in characters, and for source calls the HTTP status, an error, and whether the answer was cut off. The returned data itself is never logged, nor the API keys (they are added after the arguments are logged).
+
+```bash
+make calls             # every logged call, grouped per question
+make calls SINCE=30m   # only the last 30 minutes
+```
+
+`make calls` groups calls that follow each other within two minutes into one block (usually one question) and shows per call the **gap**: the time since the previous call ended, which is the agent thinking or searching the web. Per block it gives the time inside the tools against the time between calls, and how often each source operation was called. Note that the log holds the users' questions; the reverse proxy examples deliberately log nothing, so switch `CALL_LOG` off again after analysing. The log lives with the container: recreating the connector (`docker compose up -d connector` after a change, or `make down`) deletes it, so run `make calls` first.
+
 ## Layout
 
 ```text
 catalog/          registration API, DCAT builder (rdflib), search
 vochub/           extraction (PyMuPDF, trafilatura, markitdown), chunking, embeddings (fastembed), Qdrant
-connector/        MCP server; openapi_calls.py holds validation and key injection
+connector/        MCP server; openapi_calls.py holds validation and key injection; calls.py summarises the call log
 config/           credentials.yaml: the connector's per-dataset API keys (references to env vars only)
 docs/adr/         decisions (0001 sub-catalogs ... 0007 vocabulary hub)
 ```

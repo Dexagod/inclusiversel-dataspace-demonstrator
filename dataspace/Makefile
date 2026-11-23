@@ -1,7 +1,7 @@
 PY := uv run --python 3.12
 COMPONENTS := catalog connector vochub
 
-.PHONY: up up-catalog up-vochub up-connector down check test logs clean
+.PHONY: calls up up-catalog up-vochub up-connector down check test logs clean
 
 up:            ## start the stack
 	@test -f .env || cp .env.example .env
@@ -26,6 +26,9 @@ test:          ## unit and contract tests of every component, offline
 check: test    ## the gate: tests plus a compose build
 	docker compose config -q
 	docker compose build
+
+calls:         ## summary of the connector's logged tool calls (needs CALL_LOG=1 in .env); SINCE=30m limits it
+	docker compose logs --no-log-prefix $(if $(SINCE),--since $(SINCE),) connector | python3 connector/calls.py
 
 logs:
 	docker compose logs -f

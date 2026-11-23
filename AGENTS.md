@@ -71,6 +71,7 @@ make -C sources public      # the same without private sources and licence-restr
 make -C sources register    # only: register all sources in the catalog over HTTP
 make -C sources knowledge   # only: ingest domain knowledge and the permanent context (needs internet)
 make -C dataspace check     # offline tests of catalog, connector, vochub + compose build
+make -C dataspace calls     # summary of the connector's tool calls (needs CALL_LOG=1 in dataspace/.env)
 make -C sources test        # offline tests of the proxies
 make -C sources e2e         # end to end (live IedereenOveral call, needs internet)
 ```

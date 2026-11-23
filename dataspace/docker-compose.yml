@@ -36,6 +36,7 @@ services:
       VOCHUB_URL: ${VOCHUB_URL:-http://vochub:8000}
       SOURCE_URL_MAP: ${SOURCE_URL_MAP:-}
       CREDENTIALS_FILE: /config/credentials.yaml
+      CALL_LOG: ${CALL_LOG:-0}  # 1: one JSON line per tool call (make calls); holds the users' questions
     extra_hosts: ["host.docker.internal:host-gateway"]  # reach SSH tunnels on the host (Linux; built in on Docker Desktop)
     volumes:
       - ./config:/config:ro
