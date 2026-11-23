@@ -80,10 +80,10 @@ The reverse proxy runs on the server itself (not in Docker). It handles HTTPS an
 | --- | --- | --- |
 | `/mcp` | `127.0.0.1:8800/mcp`, the connector | none (see above) |
 | `/catalog/…` (optional) | `127.0.0.1:8001/…`, the catalog | read-only: only `GET` and `HEAD` pass |
-| anything else (optional) | `127.0.0.1:8090`, the [viewer](../viewer/README.md) | read-only by design: it answers only `GET` and `HEAD`, on a fixed list of paths |
-| anything else, without the viewer | nothing | 404 |
+| `/viewer/…` (optional) | `127.0.0.1:8090/…`, the [viewer](../viewer/README.md) | read-only by design: it answers only `GET` and `HEAD`, on a fixed list of paths |
+| anything else | nothing | 404 |
 
-Replace `dataspace.example.org` with your host name. To publish the viewer, start it on the server with `make -C ../viewer up` (after `make up` here); it needs the root path, because its pages and API calls use absolute paths. If you publish the catalog, set `CATALOG_BASE_URL=https://dataspace.example.org/catalog` in `.env` and run `make up`; the DCAT export is then at `https://dataspace.example.org/catalog/catalog`.
+Replace `dataspace.example.org` with your host name. To publish the viewer, start it on the server with `make -C ../viewer up` (after `make up` here); it uses relative paths, so it works under `/viewer/` (the proxy strips the prefix) or at the root. If you publish the catalog, set `CATALOG_BASE_URL=https://dataspace.example.org/catalog` in `.env` and run `make up`; the DCAT export is then at `https://dataspace.example.org/catalog/catalog`.
 
 **Caddy** (2.8 or later) fetches and renews the certificate itself. Put this in `/etc/caddy/Caddyfile`, then run `sudo systemctl reload caddy`:
 
@@ -101,9 +101,14 @@ dataspace.example.org {
         reverse_proxy 127.0.0.1:8001
     }
 
-    # Optional: the viewer (read-only), on every other path. Without it: respond 404
-    handle {
+    # Optional: the viewer (read-only) under /viewer/
+    redir /viewer /viewer/ 308
+    handle_path /viewer/* {
         reverse_proxy 127.0.0.1:8090
+    }
+
+    handle {
+        respond 404
     }
 }
 ```
@@ -144,11 +149,14 @@ server {
         proxy_pass http://127.0.0.1:8001/;
     }
 
-    # Optional: the viewer (read-only), on every other path. Without it: location / { return 404; }
-    location / {
+    # Optional: the viewer (read-only) under /viewer/
+    location = /viewer { return 301 /viewer/; }
+    location /viewer/ {
         access_log off;   # search questions are in the query string
-        proxy_pass http://127.0.0.1:8090;
+        proxy_pass http://127.0.0.1:8090/;
     }
+
+    location / { return 404; }
 }
 ```
 

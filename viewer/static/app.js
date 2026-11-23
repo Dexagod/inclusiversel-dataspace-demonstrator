@@ -120,7 +120,7 @@ function renderDatasets() {
 async function loadCatalog() {
   $('refresh-catalog').disabled = true;
   message('catalog-message', 'Loading catalog metadata…');
-  const results = await Promise.allSettled([api('/api/catalog/catalogs', true), api('/api/catalog/datasets', true), api('/api/catalog/health')]);
+  const results = await Promise.allSettled([api('api/catalog/catalogs', true), api('api/catalog/datasets', true), api('api/catalog/health')]);
   state.catalogReady = results[0].status === 'fulfilled';
   state.datasetsReady = results[1].status === 'fulfilled';
   state.catalogs = state.catalogReady ? results[0].value : [];
@@ -143,7 +143,7 @@ async function openDataset(id) {
   $('dataset-detail').replaceChildren(el('h2', {id: 'detail-title', text: 'Loading registration…'}));
   if (!dialog.open) dialog.showModal();
   try {
-    const d = await api(`/api/catalog/datasets/${encodeURIComponent(id)}`);
+    const d = await api(`api/catalog/datasets/${encodeURIComponent(id)}`);
     if (request !== state.detailRequest) return;
     const raw = el('details', {}, el('summary', {text: 'Full registration JSON'}), el('pre', {text: JSON.stringify(d, null, 2)}));
     const dcat = d.source_dcat?.turtle ? el('details', {}, el('summary', {text: 'Imported publisher DCAT (Turtle)'}), el('pre', {text: d.source_dcat.turtle})) : null;
@@ -204,7 +204,7 @@ function renderDocuments() {
 async function loadVocabulary() {
   $('refresh-vocabulary').disabled = true;
   message('vocabulary-message', 'Loading knowledge collection…');
-  const [docs, health, context] = await Promise.allSettled([api('/api/vochub/documents', true), api('/api/vochub/health'), api('/api/vochub/context')]);
+  const [docs, health, context] = await Promise.allSettled([api('api/vochub/documents', true), api('api/vochub/health'), api('api/vochub/context')]);
   state.documentsReady = docs.status === 'fulfilled';
   state.documents = state.documentsReady ? docs.value : [];
   const text = context.status === 'fulfilled' ? String(context.value.text || '') : '';
@@ -239,7 +239,7 @@ async function search(event) {
   $('search-results').replaceChildren();
   message('search-message', 'Searching the vocabulary hub…');
   try {
-    const hits = await api(`/api/vochub/search?${params}`, true);
+    const hits = await api(`api/vochub/search?${params}`, true);
     const retrieved = date(new Date().toISOString());
     $('results-meta').textContent = `${hits.length} passages · Retrieved ${retrieved}`;
     message('search-message', hits.length ? 'Passages are ranked by semantic similarity. A similarity score is not a confidence rating; check the cited context.' : 'No passages were returned. Try a broader question, remove a language or topic filter, or check that documents have been ingested.');

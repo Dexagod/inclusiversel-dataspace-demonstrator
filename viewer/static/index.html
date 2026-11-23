@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Explore the accessibility data space: integrated DCAT catalogs, source metadata and cited vocabulary search.">
   <title>Accessibility data space · Explorer</title>
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css">
-  <script type="module" src="/app.js"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="brand" href="#catalog"><img src="/favicon.svg" alt="" width="38" height="38"><span>Accessibility<span class="brand-sub">DATA SPACE EXPLORER</span></span></a>
+    <a class="brand" href="#catalog"><img src="favicon.svg" alt="" width="38" height="38"><span>Accessibility<span class="brand-sub">DATA SPACE EXPLORER</span></span></a>
     <div class="header-note"><span class="dot"></span>KNoWS · Ghent University<span class="research-tag">Research demonstrator</span></div>
   </header>
   <div class="app-shell">
@@ -30,7 +30,7 @@
         <div class="page-heading"><div><p class="eyebrow">DISCOVER THE DATA SPACE</p><h1 id="catalog-heading">Metadata broker</h1><p class="intro">One view of the catalogs, publishers and APIs connected to the data space.</p></div><button class="button secondary" id="refresh-catalog"><span aria-hidden="true">↻</span> Refresh</button></div>
         <div id="catalog-message" role="status" aria-live="polite"></div>
         <div class="metrics" id="catalog-metrics" aria-label="Catalog statistics"></div>
-        <div class="section-heading"><div><p class="eyebrow">CATALOG NETWORK</p><h2>Explore the collections</h2></div><div class="export-links"><a href="/api/catalog/catalog?format=turtle" download="catalog.ttl">Turtle <span aria-hidden="true">↓</span></a><a href="/api/catalog/catalog?format=jsonld" download="catalog.jsonld">JSON-LD <span aria-hidden="true">↓</span></a></div></div>
+        <div class="section-heading"><div><p class="eyebrow">CATALOG NETWORK</p><h2>Explore the collections</h2></div><div class="export-links"><a href="api/catalog/catalog?format=turtle" download="catalog.ttl">Turtle <span aria-hidden="true">↓</span></a><a href="api/catalog/catalog?format=jsonld" download="catalog.jsonld">JSON-LD <span aria-hidden="true">↓</span></a></div></div>
         <div id="catalog-cards" class="catalog-grid"></div>
         <section class="panel dataset-panel" aria-labelledby="datasets-heading">
           <div class="panel-heading"><div><h2 id="datasets-heading">Registered datasets <span class="count-label" id="dataset-count">—</span></h2><p class="muted small" id="catalog-selection">Across all catalogs</p></div><button class="text-button" id="clear-filters">Reset filters</button></div>
