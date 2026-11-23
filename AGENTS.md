@@ -36,7 +36,8 @@ dataspace/                  generic data space (CLAUDE.md -> AGENTS.md there)
   connector/                MCP server, five read-only tools; openapi_calls.py validates and adds keys :8800/mcp
   config/credentials.yaml   connector's API keys per dataset id (env var references only)
   docs/adr/                 decision records: 0001 sub-catalogs, 0002 sources outside, 0003 mobility catalogs and source DCAT,
-                            0004 schemas in DCAT, 0005 documents as datasets, 0006 assessment, 0007 vocabulary hub
+                            0004 schemas in DCAT, 0005 documents as datasets, 0006 assessment, 0007 vocabulary hub,
+                            0008 evidence per record
 sources/                    everything source-specific
   docker-compose.yml        proxies; join the external network accessibility-dataspace_default
   seed.py                   `register`: PUT */registration.json to the catalog; `knowledge`: ingest domain-knowledge.yaml and PUT permanent-context.md
@@ -49,7 +50,7 @@ sources/                    everything source-specific
   pictoaccess/              snapshot API over the local PictoAccess export (+ pictoaccess_export.py)  :8103
   acceslibre/               registration only: Acceslibre's own API is used directly
   be-transit/               Belgian stops: daily snapshot of STIB, TEC and De Lijn GTFS + iRail station facilities :8104
-  toerismevlaanderen/       Toerisme Vlaanderen linked open data (SPARQL), cached in memory, A-labels :8106
+  toerismevlaanderen/       Toerisme Vlaanderen linked open data: daily export, queried locally (pyoxigraph), A-labels :8106
   documents/                web pages and PDFs as datasets: one documents/<id>/registration.json each, outline/search/section :8107
   osm/                      OpenStreetMap live (OnWheels features + native accessibility tags), polite Overpass use :8105
                             (parked: registrations renamed registration.parked.json, see "Catalog and sources")
@@ -111,7 +112,7 @@ The repository `README.md` compares the two set-ups (A: catalog, vochub and prox
 | `stib-stops`, `tec-stops`, `delijn-stops` | belgium-mobility | `src-be-transit` | daily snapshot of the operators' static GTFS: wheelchair value per stop | CC BY 4.0, attribution "Source: <operator> – Open Data – <date>" |
 | `irail-stations` | belgium-mobility | `src-be-transit` | daily snapshot of iRail's station facilities (ramp, lift, induction loop, platform height) | repository CC0, but lift/escalator data from OSM (ODbL); some fields date from June 2023 |
 | `zon-zee-zorgeloos` | belgium | `src-documents` | Inter's web page on accessible beaches per coastal town, served as sections (outline, word search, full section) that keep the town as heading; refetched daily, with document dates | vlaanderen.be disclaimer: free reuse |
-| `toerismevlaanderen` | belgium | `src-toerismevlaanderen` | 1,039 tourist places with accessibility information from Toerisme Vlaanderen's SPARQL, loaded every 6 h; A / A+ labels, groups catered for, texts per topic (nl, en); topics often misfiled in the source, the API says so | no licence published; Toerisme Vlaanderen asked for the integration; licence being discussed |
+| `toerismevlaanderen` | belgium | `src-toerismevlaanderen` | 1,039 tourist places with accessibility information from Toerisme Vlaanderen's daily export (not its SPARQL endpoint, which times out on big queries since Nov 2026), loaded daily and kept on a volume; A / A+ labels, groups catered for, texts per topic (nl, en); topics often misfiled in the source, the API says so | no licence published; Toerisme Vlaanderen asked for the integration; licence being discussed |
 | `toevla` | belgium | external: https://toevla-api.rubendedecker.be (registration only, `sources/toevla/`) | archived ToeVla database, ~7,600 places screened on site, mostly 2010-2015; bearer token (`TOEVLA_API_TOKEN`), photos as open URLs; detailed screening per section via `getInrichtingAccessibility` (outline, then `?section=`), for about half of the dossiers; personal data and unrelated tables removed 2026-11-23 (no phone or email) | no licence; Toerisme Vlaanderen asked for the integration |
 | `onwheels`, `osm-accessibility` | root catalog (no sub-catalog; Belgium and Hauts-de-France) | `src-osm` | **not registered** (removed 2026-11-19; registrations parked as `registration.parked.json`, code and tests kept): the public Overpass server was full for a whole night of polite retries, so searches returned 503. Rename the files back and `make register` once a private Overpass instance (`OVERPASS_URL`) or access to the OnWheels API is arranged | ODbL, "© OpenStreetMap contributors"; not republished |
 | `liege-`, `brabant-wallon-`, `marche-en-famenne-`, `la-louviere-`, `databusters-pmr-parking` | belgium-mobility | ODWB Explore API directly | live; disabled parking spaces | CC BY, except Marche (publisher metadata conflicts) and La Louvière (not specified) |
@@ -169,6 +170,8 @@ Done:
 - Source assessment (`certified`, `official`, `self_declared`, `crowd_sourced`) in every registration ([ADR 0006](dataspace/docs/adr/0006-assessment-methods.md)); permanent context; hybrid hub search with summaries ([ADR 0007](dataspace/docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md)).
 - IedereenOveral split into four datasets (food and drink, toilets incl. Changing Places, museums, parking), as on its website; the combined dataset was removed from the catalog.
 - ToeVla archive connected (2026-11-23), with personal data removed from its database first.
+- Evidence per record ([ADR 0008](dataspace/docs/adr/0008-evidence-per-record.md)): `records` blocks in the registrations of Acceslibre, IedereenOveral (4), PictoAccess, Tourisme & Handicap, Toerisme Vlaanderen and ToeVla; the connector returns a link, basis, by whom and date per record. IedereenOveral search hits now carry `confirmed_by_inter`.
+- Connector call log (`CALL_LOG=1`, `make -C dataspace calls`).
 - Viewer, published under `/viewer/`.
 - `make e2e`.
 - MCP client snippets for Claude Code and VS Code in the data space README (part of 3.6).

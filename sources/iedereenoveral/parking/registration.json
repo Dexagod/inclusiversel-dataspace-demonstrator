@@ -45,5 +45,23 @@
       "crowd_sourced"
     ],
     "note": "Parking spaces can be added by anyone on IedereenOveral ('voeg info toe'); none is confirmed by Inter."
+  },
+  "records": {
+    "at": [
+      "places"
+    ],
+    "name": [
+      "name"
+    ],
+    "url": [
+      "source_url"
+    ],
+    "date": [
+      "updated_at"
+    ],
+    "default": {
+      "method": "crowd_sourced",
+      "by": "a visitor, on IedereenOveral"
+    }
   }
 }

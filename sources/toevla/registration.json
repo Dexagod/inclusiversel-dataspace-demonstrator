@@ -50,5 +50,31 @@
       "certified"
     ],
     "note": "On-site screenings by Inter, its offices and partner organisations (screenedBy and receivedAt per dossier in getInrichtingAccessibility), mostly 2010-2015. Old: name the date and check the web for the current state."
+  },
+  "records": {
+    "at": [
+      "rows",
+      "dossiers"
+    ],
+    "name": [
+      "name",
+      "reference"
+    ],
+    "date": [
+      "receivedAt",
+      "updatedAt"
+    ],
+    "basis": [
+      {
+        "field": "screenedBy",
+        "present": true,
+        "method": "certified",
+        "by": "on-site screening by {screenedBy}"
+      }
+    ],
+    "default": {
+      "method": "certified",
+      "by": "on-site screening (ToeVla archive; screening organisation per dossier in getInrichtingAccessibility)"
+    }
   }
 }

@@ -1,7 +1,7 @@
 # Rules for every question
 
 ## 1. Which sources to trust first (unless the user asks otherwise)
-Every catalog hit has `assessment`: its `methods` (certified, official, self_declared, crowd_sourced) and a `note` naming the field that tells the method per record (e.g. IedereenOveral `confirmed_by_inter`, Acceslibre `user_type`).
+Every source answer has `provenance.records`: per record its own page (`url`), `basis` (certified, official, self_declared, crowd_sourced, unknown), `by` whom, `label` and `date`. Sources without it give `provenance.basis` for the whole dataset (`assessment` in the catalog). Basis `unknown` on a search hit: the detail call has it.
 1. **Certified first**: labels and on-site checks. A label covers only its own criteria and disability groups; check in the hub what it certifies.
 2. **Then official** (transport operators, municipalities), **then self-declared and crowd-sourced** information.
 3. **Only one self-declared or crowd-sourced source?** Say so, and, unless the user wants a quick answer, check the web: the venue's own page first, then the label's verification page named in the hub.
@@ -32,8 +32,9 @@ Also when it has nothing on the place, only a label without details, or only old
 
 ## 4. How to answer
 Tag every fact with its basis: [certified], [official], [self-declared], [crowd-sourced] or [web].
+**Every fact gets its own link**: the record's `url` from `provenance.records`, not a homepage, a search tool or "check it yourself". Write who backs it, not what the venue says: "Acceslibre, entered by the manager (May 2024) [link]: ramp at the entrance", "Tourisme & Handicap label for motor impairment [link]". A place found in the data space is cited with its data-space record, even when a web page adds more; the web page then comes as an extra [web] fact with its most specific page. No `url`: cite the dataset (`dataset_page`) and say the record has no page of its own.
 1. **Verdict** per place, one line: suitable, probably suitable, unknown or not suitable for the user's need, and on what basis ("certified, A+ label").
-2. **Facts per need**, strongest basis first; each with source, date and link.
+2. **Facts per need**, strongest basis first; each with source, basis, date and link.
 3. **Comparison**, only when two or more sources describe the place: a small table, one row per relevant fact, one column per source (with its basis and date); mark conflicts.
 4. **What was checked**: the sources searched, in the data space and on the web, and which had nothing.
 5. **Still unknown**, and how to check it (phone the venue, the label's page).

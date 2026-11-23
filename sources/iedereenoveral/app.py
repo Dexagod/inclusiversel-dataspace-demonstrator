@@ -3,6 +3,7 @@
 Live proxy: every call goes upstream; only the reference tables are cached.
 """
 
+import asyncio
 import json
 import os
 import time
@@ -19,6 +20,7 @@ LOOKUP_TTL_S = int(os.environ.get("LOOKUP_TTL_S", str(6 * 3600)))
 USER_AGENT = "accessibility-dataspace-demo/0.1 (open research demonstrator)"
 LICENCE = None  # shortcut: reuse terms not yet confirmed with Inter; set the licence URL once known
 LICENCE_NOTE = "Reuse terms not yet confirmed with Inter, the operator of IedereenOveral."
+CONFIRMED_MAX = 500  # shortcut: hits are marked confirmed from at most this many checked places; raise if searches grow
 Medal = Literal["gold", "silver", "bronze", "ok", "none"]
 
 _lookups: dict = {}
@@ -114,9 +116,22 @@ def build(prefix: str, places: str, kinds: list[str]) -> FastAPI:
             params["valuation_filter"] = json.dumps([lk.medal_ids[m] for m in medal])
         if confirmed_by_inter:
             params["confirmed_by_inter_filter"] = "true"
-        raw = await upstream("location", params)
+        if confirmed_by_inter:
+            raw = await upstream("location", params)
+            confirmed, complete = {i.get("slug") for i in raw.get("items") or []}, True
+        else:  # search hits do not say whether Inter checked a place: ask the same search with that filter too
+            raw, checked = await asyncio.gather(upstream("location", params), upstream("location", {
+                **params, "confirmed_by_inter_filter": "true", "current_page": 1, "items_per_page": CONFIRMED_MAX}))
+            confirmed = {i.get("slug") for i in checked.get("items") or []}
+            complete = (checked.get("itemsTotal") or 0) <= CONFIRMED_MAX
+        places = []
+        for i in raw.get("items") or []:
+            hit = summary(i, lk)
+            # true or false; null when more than CONFIRMED_MAX places match and this one was not among them
+            hit["confirmed_by_inter"] = True if i.get("slug") in confirmed else (False if complete else None)
+            places.append(hit)
         return {"total": raw.get("itemsTotal"), "page": raw.get("curPage"), "pages": raw.get("pageTotal"),
-                "places": [summary(i, lk) for i in raw.get("items") or []], "provenance": provenance()}
+                "places": places, "provenance": provenance()}
 
     @sub.get("/places/{place_id}", operation_id=f"{prefix}_get_place",
              summary="Accessibility details of one place",

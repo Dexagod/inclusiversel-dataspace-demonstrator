@@ -53,5 +53,42 @@
       "official"
     ],
     "note": "Per place, user_type tells who entered it: public (anyone), gestionnaire (the venue's manager), system (imported; see sources, e.g. service_public). accessibilite.commentaire.labels lists labels the contributor claims; they are not verified here, so check Tourisme & Handicap labels in the tourisme-handicap dataset. updated_at is the last edit."
+  },
+  "records": {
+    "at": [
+      "results"
+    ],
+    "name": [
+      "nom"
+    ],
+    "url": [
+      "web_url"
+    ],
+    "date": [
+      "updated_at"
+    ],
+    "basis": [
+      {
+        "field": "user_type",
+        "equals": "gestionnaire",
+        "method": "self_declared",
+        "by": "the venue's manager, on Acceslibre"
+      },
+      {
+        "field": "user_type",
+        "equals": "public",
+        "method": "crowd_sourced",
+        "by": "an Acceslibre contributor"
+      },
+      {
+        "field": "user_type",
+        "equals": "system",
+        "method": "official",
+        "by": "imported by Acceslibre from a public dataset (see sources)"
+      }
+    ],
+    "default": {
+      "method": "unknown"
+    }
   }
 }

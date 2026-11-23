@@ -1,4 +1,4 @@
-"""Offline tests: the SPARQL endpoint is replaced by fictional result rows."""
+"""Offline tests: the export download is replaced by fictional result rows, or by a tiny fictional export."""
 
 import httpx
 import pytest
@@ -42,17 +42,19 @@ TEXTS = [
 
 
 @pytest.fixture
-def upstream(monkeypatch):
+def upstream(monkeypatch, tmp_path):
     state = {"fail": False, "calls": 0}
 
-    def fake(query):
+    def fake():
         state["calls"] += 1
         if state["fail"]:
             raise httpx.ConnectError("down")
-        return PLACES if "?key" in query else TEXTS
+        return PLACES, TEXTS, {"export": "https://lod/export", "export_modified": "2026-11-23T02:16:28Z", "categories": {}}
 
-    monkeypatch.setattr(tv, "sparql", fake)
-    tv._data.update(places=None, next_refresh=0.0, loaded_at=None)
+    monkeypatch.setattr(tv, "fetch_rows", fake)
+    monkeypatch.setattr(tv, "DATA_DIR", tmp_path)
+    tv._data.update(places=None, next_refresh=0.0, loaded_at=None, export=None, export_modified=None, categories={})
+    tv.refresh()
     return state
 
 
@@ -100,17 +102,56 @@ def test_detail_falls_back_to_the_other_language(upstream):
     assert client.get("/places/9").status_code == 404
 
 
-def test_loaded_once_and_old_data_survives_a_failed_refresh(upstream):
-    client.get("/places")
-    client.get("/places/1")
-    assert upstream["calls"] == 2  # two queries, one load
-    tv._data["next_refresh"] = 0.0
+def test_old_data_survives_a_failed_refresh(upstream):
     upstream["fail"] = True
+    with pytest.raises(httpx.ConnectError):
+        tv.refresh()
     assert client.get("/places/1").status_code == 200  # old data served
-    assert tv._data["next_refresh"] > 0
+    assert client.get("/places").json()["provenance"]["export_modified"] == "2026-11-23T02:16:28Z"
 
 
-def test_unreachable_without_data_is_503(upstream):
-    upstream["fail"] = True
+def test_no_data_yet_is_503(upstream):
+    tv._data["places"] = None
     r = client.get("/places")
     assert r.status_code == 503 and r.headers["retry-after"] == "60"
+
+
+def test_a_restart_serves_the_saved_places(upstream):
+    tv._data.update(places=None, next_refresh=0.0)
+    tv.load_cache()
+    assert client.get("/places/1").json()["a_label"] == "A+"
+    assert tv._data["next_refresh"] > 0  # fresh enough: no reload right away
+
+
+EXPORT = """<http://lod/p1> <http://www.w3.org/ns/adms#identifier> <http://lod/i1> .
+<http://lod/i1> <http://www.w3.org/2004/02/skos/core#notation> "1" .
+<http://lod/p1> <http://schema.org/name> "Museum Fictief"@nl .
+<http://lod/p1> <http://purl.org/dc/terms/type> <http://lod/c/museum> .
+<http://lod/p1> <http://www.w3.org/ns/locn#geometry> <http://lod/g1> .
+<http://lod/g1> <http://www.w3.org/2003/01/geo/wgs84_pos#lat> "51.05" .
+<http://lod/g1> <http://www.w3.org/2003/01/geo/wgs84_pos#long> "3.72" .
+<http://lod/p1> <http://schema.org/contactPoint> <http://lod/cp1> .
+<http://lod/cp1> <http://xmlns.com/foaf/0.1/page> <https://example.org/> .
+<http://lod/a1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://linked.toerismevlaanderen.be/vocabularies/accessibility/AccessibilityInformation> .
+<http://lod/a1> <http://purl.org/dc/terms/subject> <http://lod/p1> .
+<http://lod/a1> <http://linked.toerismevlaanderen.be/vocabularies/accessibility/informationAboutEntrances> "Gelijkvloers."@nl . <http://lod/a1> <http://linked.toerismevlaanderen.be/vocabularies/accessibility/supportForDeaf> "true" .
+<http://lod/p2> <http://www.w3.org/ns/adms#identifier> <http://lod/i2> .
+<http://lod/i2> <http://www.w3.org/2004/02/skos/core#notation> "2" .
+<http://lod/p2> <http://schema.org/telephone> "no accessibility information" .
+"""
+
+
+def test_export_is_filtered_and_queried_locally(tmp_path):
+    lines = EXPORT.splitlines()
+    kept = [line for line in lines if tv.keep(line)]
+    assert len(kept) == len(lines) - 1  # the telephone line is dropped
+    path = tmp_path / "export.nt"
+    path.write_text("\n".join(kept) + "\n", encoding="utf-8")
+    rows, texts, concepts = tv.query_export(path)
+    got = {(r["id"]["value"], r["key"]["value"], r["value"]["value"]) for r in rows}
+    assert {("1", "name", "Museum Fictief"), ("1", "lat", "51.05"), ("1", "website", "https://example.org/"),
+            ("1", "category_concept", "http://lod/c/museum")} <= got
+    assert not any(r["id"]["value"] == "2" for r in rows)  # no accessibility information: not a place
+    assert concepts == {"http://lod/c/museum"}
+    assert {(t["p"]["value"].rsplit("/", 1)[-1], t["o"]["value"], t["o"].get("xml:lang")) for t in texts} == {
+        ("informationAboutEntrances", "Gelijkvloers.", "nl"), ("supportForDeaf", "true", None)}

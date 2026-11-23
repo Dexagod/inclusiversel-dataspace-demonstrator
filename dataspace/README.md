@@ -321,6 +321,7 @@ curl -X PUT http://localhost:8001/datasets/my-source -H 'content-type: applicati
 | `landing_page`, `contact_email`, `access_note` | no | `access_note` tells consumers how to get a key |
 | `catalog` | no | sub-catalog, see below |
 | `assessment` | no, but agents rank sources by it | how the facts were collected: `methods` from `certified` (a label or on-site check by an independent body), `official` (the owner or operator: transport operator, municipality, government), `self_declared` (the venue itself), `crowd_sourced` (anyone can edit); and a `note` naming the field that tells the method per record. Shown in search results; exported as `dct:provenance` ([ADR 0006](docs/adr/0006-assessment-methods.md)) |
+| `records` | no, but agents cite each record with it | where the records sit in an answer and which fields give each record's own page, date and basis (`at`, `name`, `url`, `date`, `basis` rules, `default`); the connector turns it into `provenance.records` with a link and a basis per record ([ADR 0008](docs/adr/0008-evidence-per-record.md)) |
 | `conforms_to` | no | published schemas, data models or vocabularies the data follows (`url`, `title`); exported as `dct:conformsTo` ([ADR 0004](docs/adr/0004-schemas-in-dcat.md)) |
 | `distributions` | no | further distributions besides the API (`url`, `media_type`, `title`), e.g. the web page or PDF a document dataset reads; exported as `dcat:Distribution` with `dcat:mediaType` ([ADR 0005](docs/adr/0005-documents-as-datasets.md)) |
 | `source_dcat_url` | no | the publisher's own DCAT for this dataset; copied into the catalog and linked with `dct:source` ([ADR 0003](docs/adr/0003-mobility-catalogs-source-dcat-optional-keys.md)) |
@@ -404,7 +405,7 @@ The connector provides these tools:
 | `catalog_search` | find sources by text, theme, area, language |
 | `catalog_get_dataset` | check licence, coverage, update frequency |
 | `get_openapi` | read a source's operations and parameters |
-| `call_source_operation` | run a read-only operation; parameters are checked against the OpenAPI and the API key is added |
+| `call_source_operation` | run a read-only operation; parameters are checked against the OpenAPI and the API key is added. Provenance lists per record its own page, basis (certified, official, self-declared, crowd-sourced), by whom and date ([ADR 0008](docs/adr/0008-evidence-per-record.md)) |
 
 ## Logging tool calls
 
@@ -422,9 +423,10 @@ make calls SINCE=30m   # only the last 30 minutes
 ```text
 catalog/          registration API, DCAT builder (rdflib), search
 vochub/           extraction (PyMuPDF, trafilatura, markitdown), chunking, embeddings (fastembed), Qdrant
-connector/        MCP server; openapi_calls.py holds validation and key injection; calls.py summarises the call log
+connector/        MCP server; openapi_calls.py holds validation and key injection; evidence.py builds the per-record
+                  evidence from a registration's `records`; calls.py summarises the call log
 config/           credentials.yaml: the connector's per-dataset API keys (references to env vars only)
-docs/adr/         decisions (0001 sub-catalogs ... 0007 vocabulary hub)
+docs/adr/         decisions (0001 sub-catalogs ... 0008 evidence per record)
 ```
 
 ## Limits of this version

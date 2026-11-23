@@ -42,5 +42,23 @@
       "self_declared"
     ],
     "note": "Mapped with the Toegankelijkheidswijzer, a tool of the Agentschap Binnenlands Bestuur and Inter, presumably by the museum or municipality itself (not confirmed); no place is confirmed by Inter. The full information is on the museum's own website (linked in place details)."
+  },
+  "records": {
+    "at": [
+      "places"
+    ],
+    "name": [
+      "name"
+    ],
+    "url": [
+      "source_url"
+    ],
+    "date": [
+      "updated_at"
+    ],
+    "default": {
+      "method": "self_declared",
+      "by": "the museum or municipality, with the Toegankelijkheidswijzer"
+    }
   }
 }

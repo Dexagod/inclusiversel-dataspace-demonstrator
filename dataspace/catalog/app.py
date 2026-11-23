@@ -44,6 +44,39 @@ class Assessment(BaseModel):
     note: str = Field(min_length=1, description="Which field tells the method per record, and what a label covers")
 
 
+RecordMethod = Literal["certified", "official", "self_declared", "crowd_sourced", "unknown"]
+
+
+class Basis(BaseModel):
+    method: RecordMethod
+    by: str | None = Field(default=None, description="Who checked or stated it; plain text, {field} placeholders allowed")
+    label: str | None = Field(default=None, description="The label or certificate, e.g. 'Tourisme & Handicap: {handicaps_attribues}'")
+    note: str | None = None
+
+
+class BasisRule(Basis):
+    field: str = Field(min_length=1, description="Dotted path in a record, e.g. 'confirmed_by_inter'")
+    equals: str | bool | int | None = Field(default=None, description="The rule applies when the field has this value")
+    present: bool = Field(default=False, description="The rule applies when the field is filled in")
+
+    @model_validator(mode="after")
+    def _condition(self):
+        if self.equals is None and not self.present:
+            raise ValueError("a basis rule needs 'equals' or 'present': true")
+        return self
+
+
+class Records(BaseModel):
+    """Where a source answer keeps its records, and which fields give each record's page, date and basis (ADR 0008)."""
+    at: list[str] = Field(default=[], description="Dotted paths to the records in an answer (a list, or one "
+                                                  "record under a key), tried in order; otherwise the answer itself is one record")
+    name: list[str] = Field(min_length=1, description="Field(s) holding the record's name, first filled one wins")
+    url: list[str] = Field(default=[], description="Field(s) or templates ('https://x.org/{slug}') for the record's own page")
+    date: list[str] = Field(default=[], description="Field(s) holding when the record was assessed or last changed")
+    basis: list[BasisRule] = Field(default=[], description="First matching rule gives the record's basis")
+    default: Basis | None = Field(default=None, description="Basis when no rule matches")
+
+
 class Distribution(BaseModel):
     url: AnyHttpUrl = Field(description="Where the file or page is published, e.g. the original PDF")
     media_type: str = Field(pattern=r"^[a-z]+/[a-z0-9.+-]+$", description="IANA media type, e.g. application/pdf, text/html")
@@ -68,6 +101,8 @@ class Registration(BaseModel):
                                         "source data follows; exported as dct:conformsTo on the dataset")
     distributions: list[Distribution] = Field(default=[], description="Further distributions besides the API, e.g. "
                                               "the web page or PDF the API reads; exported as dcat:Distribution")
+    records: Records | None = Field(default=None, description="Per-record evidence: where the records are, their own "
+                                                              "page, date and basis; the connector adds it to provenance (ADR 0008)")
     assessment: Assessment | None = Field(default=None, description="How the facts were collected; exported as "
                                           "dct:provenance. Agents use it to rank sources, so fill it in")
     keywords: list[str] = []

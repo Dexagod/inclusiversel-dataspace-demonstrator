@@ -45,5 +45,31 @@
       "crowd_sourced"
     ],
     "note": "Per place, confirmed_by_inter (in place details; search filter confirmed_by_inter=true) means an Inter accessibility advisor checked the information; the website shows an Inter icon for these places. Other places were added by visitors or the venue itself. The medal is computed from the questionnaire answers, not a label."
+  },
+  "records": {
+    "at": [
+      "places"
+    ],
+    "name": [
+      "name"
+    ],
+    "url": [
+      "source_url"
+    ],
+    "date": [
+      "updated_at"
+    ],
+    "basis": [
+      {
+        "field": "confirmed_by_inter",
+        "equals": true,
+        "method": "certified",
+        "by": "an Inter accessibility advisor"
+      }
+    ],
+    "default": {
+      "method": "crowd_sourced",
+      "by": "a visitor or the venue, on IedereenOveral"
+    }
   }
 }

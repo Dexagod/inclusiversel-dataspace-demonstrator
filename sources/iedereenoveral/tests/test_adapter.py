@@ -111,3 +111,20 @@ def test_category_sub_apis(client, lk):
     assert {op["operationId"] for item in spec["paths"].values() for op in item.values()} == {
         "iedereenoveral_parking_search_places", "iedereenoveral_parking_get_place",
         "iedereenoveral_parking_facets", "iedereenoveral_parking_about"}
+
+
+def test_search_marks_places_inter_confirmed(client, monkeypatch):
+    async def upstream(path, params=None):
+        if path == "location" and params.get("confirmed_by_inter_filter"):
+            return {"items": [], "itemsTotal": 0}  # none of the hits was checked by Inter
+        return fixture(path)
+
+    monkeypatch.setattr(adapter, "upstream", upstream)
+    hit = client.get("/places", params={"town": "Ghent"}).json()["places"][0]
+    assert hit["confirmed_by_inter"] is False
+    monkeypatch.setattr(adapter, "upstream", lambda path, params=None: _same(fixture(path)))
+    assert client.get("/places", params={"town": "Ghent"}).json()["places"][0]["confirmed_by_inter"] is True
+
+
+async def _same(value):
+    return value

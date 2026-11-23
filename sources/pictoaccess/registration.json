@@ -56,5 +56,24 @@
       "self_declared"
     ],
     "note": "Places are assessed with PictoAccess's self-diagnosis tool ('outil d'auto-diagnostic'), usually by the owner or the local authority; users can add opinions. The assessment date is accessibility.updated_at in place details."
+  },
+  "records": {
+    "at": [
+      "places",
+      "place"
+    ],
+    "name": [
+      "name"
+    ],
+    "url": [
+      "url"
+    ],
+    "date": [
+      "assessed_at"
+    ],
+    "default": {
+      "method": "self_declared",
+      "by": "the venue or local authority, with PictoAccess's self-assessment tool"
+    }
   }
 }

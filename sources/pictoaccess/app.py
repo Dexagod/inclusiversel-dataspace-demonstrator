@@ -67,7 +67,9 @@ def summary(p: dict) -> dict:
             "address": loc["address"], "postal_code": loc["postal_code"], "city": loc["city"],
             "country": country_code(p), "latitude": loc["latitude"], "longitude": loc["longitude"],
             "categories": [c["name"] for c in p["categories"]], "groups": [b["name"] for b in p["brands"]],
-            "accessibility": levels(p), "has_questionnaire": bool((p.get("referential") or {}).get("readable"))}
+            "accessibility": levels(p), "has_questionnaire": bool((p.get("referential") or {}).get("readable")),
+            # the date the accessibility levels were assessed, and the place's own page on pictoaccess.fr
+            "assessed_at": (p.get("accessibility") or {}).get("updated_at"), "url": f"{SITE}/cards/{p['slug']}" if p.get("slug") else None}
 
 
 def provenance(p: dict | None = None) -> dict:

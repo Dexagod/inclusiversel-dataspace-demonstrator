@@ -5,6 +5,7 @@
   assessment:
     methods: [certified]
     note: "Every record holds the French state label Tourisme & Handicap; droit_d_utilisation_du_label 'actif' means the label is currently valid. handicap_moteur, handicap_visuel, handicap_auditif and handicap_mental say which disability families the label covers."
+  records: {"at": ["results"], "name": ["nom_du_professionnel"], "url": ["site_web"], "basis": [{"field": "droit_d_utilisation_du_label", "equals": "actif", "method": "certified", "by": "Tourisme & Handicap (French state label)", "label": "Tourisme & Handicap: {handicaps_attribues}"}], "default": {"method": "unknown", "note": "the Tourisme & Handicap label is not active"}}
   portal: data.economie.gouv.fr
   dataset_id: etablissements-labellises-tourisme-et-handicap
   catalog: france

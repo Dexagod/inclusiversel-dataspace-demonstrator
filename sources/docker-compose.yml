@@ -32,6 +32,7 @@ services:
     build: ./toerismevlaanderen
     restart: unless-stopped
     ports: ["${SOURCES_BIND:-127.0.0.1}:8106:8000"]
+    volumes: [toerismevlaanderen-cache:/data]  # the places of the last daily export; a restart serves them at once
 
   # Documents as datasets: published web pages and PDFs, served as sections (one sub-API per documents/<id>/).
   src-documents:
@@ -48,6 +49,7 @@ services:
       OVERPASS_URL: ${OVERPASS_URL:-https://overpass-api.de/api/interpreter}
 
 volumes:
+  toerismevlaanderen-cache:
   be-transit-cache:
 
 networks:

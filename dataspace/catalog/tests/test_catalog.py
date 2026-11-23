@@ -168,3 +168,16 @@ def test_every_catalog_uri_resolves(client):
     for u in sorted(uris):
         assert client.get(u[len(base):]).status_code == 200, u
     assert client.get("/services/nope").status_code == 404
+
+
+def test_records_evidence_is_validated_and_returned(client):
+    records = {"at": ["places"], "name": ["name"], "url": ["https://example.org/{id}"],
+               "basis": [{"field": "checked", "equals": True, "method": "certified", "by": "an auditor"}],
+               "default": {"method": "crowd_sourced"}}
+    assert client.put("/datasets/test-places", json={**REG, "records": records}).status_code in (200, 201)
+    stored = client.get("/datasets/test-places").json()["records"]
+    assert stored["basis"][0]["by"] == "an auditor" and stored["default"]["method"] == "crowd_sourced"
+    no_condition = {**records, "basis": [{"field": "checked", "method": "certified"}]}
+    assert client.put("/datasets/test-places", json={**REG, "records": no_condition}).status_code == 422
+    bad_method = {**records, "default": {"method": "trusted"}}
+    assert client.put("/datasets/test-places", json={**REG, "records": bad_method}).status_code == 422

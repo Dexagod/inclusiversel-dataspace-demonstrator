@@ -13,6 +13,7 @@ import yaml
 from mcp.server.mcpserver import MCPServer
 from starlette.responses import JSONResponse
 
+from evidence import records
 from openapi_calls import CallError, build_request, condense, load_credentials, parse_url_map, reachable
 
 CATALOG = os.environ.get("CATALOG_URL", "http://localhost:8001").rstrip("/")
@@ -33,8 +34,9 @@ mcp = MCPServer("accessibility-dataspace", version="0.1.0",
                              "tools. Start from the websites, labels and verification pages named in the "
                              "vochub passages, and interpret what you find with that same domain knowledge "
                              "(what a label certifies, who assessed it, what it does not cover). Missing data "
-                             "means unknown, not absent. Cite provenance for every claim and say whether it "
-                             "came from the data space or from an external source.")
+                             "means unknown, not absent. Cite every claim with the record's own page (url in "
+                             "provenance.records), say who backs it (its basis: certified, official, self-declared, "
+                             "crowd-sourced), and whether it came from the data space or from an external source.")
 
 
 async def _get_json(url: str, **params):
@@ -139,7 +141,10 @@ async def get_openapi(dataset_id: str, full: bool = False) -> dict:
 @logged
 async def call_source_operation(dataset_id: str, operation_id: str, params: dict | None = None) -> dict:
     """Run one read operation of a dataset's API, using operation_id and parameter names from get_openapi.
-    The connector adds the configured API key itself. Returns the source JSON plus provenance to cite."""
+    The connector adds the configured API key itself. Returns the source JSON plus provenance to cite.
+    provenance.records lists, per record in the answer: name, url (the record's own page: cite this link for
+    every fact from that record), basis (certified, official, self_declared, crowd_sourced or unknown), by whom,
+    label, and date. Sources without per-record evidence give provenance.basis for the whole dataset instead."""
     dataset = await _dataset(dataset_id)
     cred = load_credentials(CREDENTIALS_FILE).get(dataset_id)
     secret = cred["api_key"] if cred else None
@@ -149,7 +154,8 @@ async def call_source_operation(dataset_id: str, operation_id: str, params: dict
         async with httpx.AsyncClient(timeout=TIMEOUT, follow_redirects=False) as c:
             r = await c.request(method, url, params=query, headers=headers)
     except (CallError, httpx.HTTPError) as e:
-        return {"error": str(e).replace(secret, "***") if secret else str(e)}
+        msg = str(e) if isinstance(e, CallError) else f"{type(e).__name__}: {e}".rstrip(": ")  # timeouts have no text
+        return {"error": msg.replace(secret, "***") if secret else msg}
 
     shown_query = {k: ("***" if secret and secret in str(v) else v) for k, v in query.items()}
     try:
@@ -158,11 +164,15 @@ async def call_source_operation(dataset_id: str, operation_id: str, params: dict
         body = r.text
     text = json.dumps(body, ensure_ascii=False)
     truncated = len(text) > MAX_CHARS
+    spec = dataset.get("records")
+    evidence = ({"records": records(body, spec)} if spec and r.is_success
+                else {"basis": dataset["assessment"]} if dataset.get("assessment") else {})
     return {
         "provenance": {
             "dataset_id": dataset_id, "source": dataset["title"], "publisher": dataset["publisher"]["name"],
             "licence": dataset["licence"], "request_url": url + ("?" + urlencode(shown_query, doseq=True) if shown_query else ""),
             "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "status": r.status_code,
+            **({"dataset_page": dataset["landing_page"]} if dataset.get("landing_page") else {}), **evidence,
         },
         "data": text[:MAX_CHARS] if truncated else body,
         **({"truncated": True, "hint": "Response cut; narrow the query or lower 'limit'."} if truncated else {}),

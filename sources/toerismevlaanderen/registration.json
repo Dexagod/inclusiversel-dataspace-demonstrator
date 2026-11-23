@@ -3,7 +3,7 @@
   "id": "toerismevlaanderen",
   "catalog": "belgium",
   "title": "Toerisme Vlaanderen: accessibility of tourist places in Flanders and Brussels",
-  "description": "Accessibility information about about a thousand tourist places in Flanders and Brussels (museums, restaurants, youth hostels, hotels, holiday homes, tourist offices, nature areas, attractions) from Toerisme Vlaanderen's linked open data. Includes the official accessibility labels A and A+ (awarded after an audit), flags for the groups a place caters for (motor, visual, blind, auditive, deaf, mental, autism, allergies), and texts per topic (entrance, route and levels, toilets, rooms, parking) in Dutch and English, with coordinates. Refreshed every six hours.",
+  "description": "Accessibility information about about a thousand tourist places in Flanders and Brussels (museums, restaurants, youth hostels, hotels, holiday homes, tourist offices, nature areas, attractions) from Toerisme Vlaanderen's linked open data. Includes the official accessibility labels A and A+ (awarded after an audit), flags for the groups a place caters for (motor, visual, blind, auditive, deaf, mental, autism, allergies), and texts per topic (entrance, route and levels, toilets, rooms, parking) in Dutch and English, with coordinates. Refreshed daily from Toerisme Vlaanderen's own export of its linked data.",
   "publisher": {
     "name": "Toerisme Vlaanderen",
     "url": "https://www.toerismevlaanderen.be"
@@ -71,5 +71,32 @@
       "official"
     ],
     "note": "a_label A or A+ is the Toerisme Vlaanderen accessibility label (about 400 places). Other places carry accessibility information registered with Toerisme Vlaanderen, without a label; how it was collected is not stated per place."
+  },
+  "records": {
+    "at": [
+      "results"
+    ],
+    "name": [
+      "name"
+    ],
+    "url": [
+      "url"
+    ],
+    "date": [
+      "modified"
+    ],
+    "basis": [
+      {
+        "field": "a_label",
+        "present": true,
+        "method": "certified",
+        "by": "Toerisme Vlaanderen, after a screening",
+        "label": "Toerisme Vlaanderen accessibility label {a_label}"
+      }
+    ],
+    "default": {
+      "method": "official",
+      "by": "registered with Toerisme Vlaanderen; how it was collected is not stated"
+    }
   }
 }
