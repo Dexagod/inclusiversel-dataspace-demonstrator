@@ -63,7 +63,7 @@ Last checked: **2026-11-23**. Checked with live, read-only requests, and against
 
 **Licence knowingly disregarded (decided 2026-11-18):** nine ingested documents come from sites whose terms forbid or limit reproduction; they are the rows marked **Restricted**. They stay in the hub because the hub is used only in local tests and closed demos, never published.
 - Each one has the tag `licence-restricted` in `domain-knowledge.yaml` and in the hub.
-- **A public deployment must leave them out:** drop the tagged entries from `domain-knowledge.yaml` before `make knowledge`, or delete the tagged documents from the hub (`GET /documents`, then `DELETE /documents/{doc_id}`).
+- **A public deployment must leave them out:** run `make public` in `sources/` instead of `make full`; it skips the tagged entries and removes them from the hub if an earlier `make full` added them.
 - A new document with restrictive terms may be added the same way: tag it `licence-restricted` and mark its row **Restricted** here.
 
 This applies only to vocabulary-hub documents. Data sources still need their licence or the publisher's permission. Access-i data in particular stays blocked until Access-i approves.

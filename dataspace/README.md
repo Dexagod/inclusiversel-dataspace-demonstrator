@@ -34,21 +34,22 @@ The first build downloads the embedding model (about 220 MB) into the vochub ima
 
 ## Running on a remote server
 
-The stack runs the same way on a server. Clone the repository there, copy the PictoAccess place files (git-ignored) into `sources/pictoaccess/pictoaccess_dump/places/` (see the [repository README](../README.md#deploy-to-a-server) for the `rsync` command), then run `make up` in `dataspace/` and `make up register` in `sources/`. The repository README compares the three set-ups: connector on your machine, ChatGPT, or password-protected.
+The stack runs the same way on a server. Clone the repository there, copy the PictoAccess place files (git-ignored) into `sources/pictoaccess/pictoaccess_dump/places/` (see the [repository README](../README.md#deploy-to-a-server) for the `rsync` command), then run `make up` in `dataspace/` and `make up public` in `sources/` (`make up full` if the connector is not published; see [Public and full content](../sources/README.md#public-and-full-content)). The [repository README](../README.md#deploy-to-a-server) compares the two set-ups: A, the connector on your machine (keys stay local), and B, everything on the server with the connector published for ChatGPT and other web-hosted agents, without authentication and online only during presentations.
 
 - **By default every port is bound to `127.0.0.1`**, so nothing is reachable from outside until you open it on purpose. The services reach each other over Docker's network, not over these ports.
 - **Every service restarts after a reboot** (`restart: unless-stopped`); registrations, vectors and the transit cache are on Docker volumes and survive. Stop the stack for good with `make down`.
 - **First start:** building vochub downloads the embedding model (about 220 MB); the transit proxy then downloads about 300 MB of timetables, and its calls return 503 until that is done.
-- **Updating:** `git pull`, then `make up` here and `make up register` in `../sources`. Registering again is safe: each entry is replaced, and copied source DCAT is fetched again.
+- **Updating:** `git pull`, then `make up` here and `make up public` (or `make up full`) in `../sources`. Loading again is safe: each entry is replaced, and copied source DCAT is fetched again.
 
 ### Ports
 
 | Port | Service | Open to the outside? |
 | --- | --- | --- |
-| **8800** | connector, MCP endpoint `/mcp` | **Yes: this is the only port an agent needs.** Put it behind HTTPS and authentication (see below) |
+| **8800** | connector, MCP endpoint `/mcp` | **Yes: this is the only port an agent needs.** Publish it through a reverse proxy with HTTPS; it has no authentication (see below) |
 | 8001 | catalog: DCAT export, search, SPARQL, registration | Optional, to publish the DCAT catalog. It also serves `POST`/`PUT`/`DELETE /datasets` without authentication, so expose only `GET` (see below) |
 | 8002 | vocabulary hub | No. Ingestion has no authentication; reach it through an SSH tunnel |
 | 8102 to 8107 | source proxies (in `../sources`) | No. The catalog and connector call them over the Docker network, and the PictoAccess proxy serves non-public data |
+| 8090 | [viewer](../viewer/README.md) (separate Compose project) | Optional, read-only, through the reverse proxy under `/viewer/` |
 
 ### Settings
 
@@ -64,13 +65,42 @@ In `dataspace/.env` (read by Compose; restart with `make up` after a change):
 
 In `sources/.env`: `SOURCES_BIND` (default `127.0.0.1`, keep it).
 
-The registrations keep their Docker-internal addresses (`http://src-…:8000/`); that is correct on a server too, because only the catalog and connector call them. Those addresses do appear in the DCAT export as the `dcat:endpointURL` of the proxied datasets; outside parties use the data through the connector.
+The registrations keep their Docker-internal addresses (`http://src-…:8000/`); that is correct on a server too, because only the catalog and connector call them. Those addresses do appear in the DCAT export and in the viewer as the `dcat:endpointURL` of the proxied datasets, where they do not open from a browser. That is on purpose: the proxies are not published, and the connector is the only way in, so every call is checked against the source's OpenAPI and gets its API key in one place. Sources with their own public API (Acceslibre, the open data portals, ToeVla) show a public address.
+
+### Sources on the same server
+
+A source API hosted on the same machine as the data space, under a public name (such as the ToeVla API), may be unreachable from inside the containers: the request goes to the server's own public address and the router does not send it back in (no hairpin NAT). Registering then fails with `422 openapi_url could not be fetched or parsed:` and an empty reason (a connection timeout), because the catalog fetches the OpenAPI at registration; the connector would fail the same way on every call.
+
+Fix it on that server only, with a `docker-compose.override.yml` next to `docker-compose.yml` (Compose reads it automatically; do not commit it), which resolves the name to the address the reverse proxy listens on:
+
+```yaml
+services:
+  catalog:
+    extra_hosts: ["toevla-api.example.org:192.168.1.55"]
+  connector:
+    extra_hosts: ["toevla-api.example.org:192.168.1.55", "host.docker.internal:host-gateway"]
+```
+
+Use the address from `sudo ss -ltnp '( sport = :443 )'`: `host-gateway` works when the proxy listens on all interfaces, the LAN address when it is bound to one (as Caddy is next to Tailscale). Then `make up` and `make register` in `../sources`. If the LAN address changes, update the file. `SOURCE_URL_MAP` is no alternative here: only the connector reads it, not the catalog.
 
 ### HTTPS and authentication
 
 **The connector has no authentication in this version.** Anyone who can reach it can query every source with your API keys and read the PictoAccess snapshot. Publish it only while you need it, for example during a public presentation, and stop it afterwards (`make down`, or close ports 80 and 443). A reverse proxy on the server adds HTTPS; see [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). The catalog has no authentication either; publish it read-only.
 
+**The data space's own endpoints have no secret paths, tokens or passwords, on purpose** (decision of 2026-11-19): the server is online only during public presentations. A source's own API may still require a key or token; the connector adds it (see [API keys for sources](#api-keys-for-sources)).
+
 **Production needs OAuth.** Web-hosted agents such as ChatGPT accept only OAuth for MCP connectors, so a password, bearer token or secret path is not an option for them. The MCP SDK the connector uses has a hook for this (`auth_server_provider` / `token_verifier` on `MCPServer`): either the connector acts as a small OAuth server, or it checks tokens from an external provider such as Keycloak. Not built in this version.
+
+### Licence-restricted documents in a published hub
+
+Whatever the data space holds is readable by anyone who reaches the connector: every source through `call_source_operation`, every hub passage through `vochub_search`. Some content is meant for local use and closed demos only: documents whose site forbids reproduction (tagged `licence-restricted`, see the [domain-knowledge inventory](../sources/domain-knowledge-inventory.md)) and data sources marked `"visibility": "private"` in their registration. Before publishing the connector, load the public set instead of the full one, in `../sources`:
+
+```bash
+make public   # only what may be published; removes private sources and restricted documents if present
+make full     # everything, for local use and closed demos
+```
+
+Either switches a running data space to that set. Details in [Public and full content](../sources/README.md#public-and-full-content).
 
 ### Reverse proxy: Caddy or nginx
 
@@ -188,7 +218,7 @@ A web-hosted agent calls the connector from its own servers, so the whole stack 
    | 22/tcp | SSH | administration |
 
    Nothing else: catalog, vochub and the proxies stay on `127.0.0.1` (keep the `*_BIND` defaults and leave `SOURCE_URL_MAP` empty).
-3. **Stack:** on the server, `make up` here and `make up register` in `../sources`; put the source API keys (`ACCESLIBRE_API_KEY`, `TOEVLA_API_TOKEN`) in this server's `.env`.
+3. **Stack:** on the server, `make up` here and `make up public` in `../sources` (the connector is published, so no private sources or restricted documents); put the source API keys (`ACCESLIBRE_API_KEY`, `TOEVLA_API_TOKEN`) in this server's `.env`.
 4. **Reverse proxy:** use the Caddy or nginx configuration from [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). Every path other than `/mcp`, the optional `/catalog` and the optional viewer returns 404.
 5. **Check** from any machine: the first call returns 200 with the server's capabilities, the second 404.
 
@@ -228,7 +258,7 @@ make up             # everything on one machine (default)
 
 The connector holds the source API keys and is what your agent talks to, so running it locally keeps the keys on your machine. It needs three things on the server: the catalog, the vocabulary hub, and the source proxies (their registered addresses, such as `http://src-pictoaccess:8000/`, only resolve on the server).
 
-1. On the server: `make up-catalog up-vochub` here, then `make up register` in `../sources`. Keep every port bound to `127.0.0.1`.
+1. On the server: `make up-catalog up-vochub` here, then `make up full` in `../sources` (nothing is published in this set-up). Keep every port bound to `127.0.0.1`.
 2. On the laptop, open an SSH tunnel to the five ports and leave it running:
    ```bash
    ssh -N -L 8001:127.0.0.1:8001 -L 8002:127.0.0.1:8002 \
@@ -283,13 +313,13 @@ curl -X PUT http://localhost:8001/datasets/my-source -H 'content-type: applicati
 | `licence` | yes* | licence URL; *may be left out only while terms are unknown, with `licence_note` saying so |
 | `endpoint_url` | yes | base URL; OpenAPI paths are appended to it |
 | `openapi_url` | yes | OpenAPI 3.x, JSON or YAML |
-| `keywords`, `themes`, `spatial` | no | improve search; themes are slugs |
+| `keywords`, `themes`, `spatial` | no | improve search (see below); themes are slugs. Write keywords in Dutch, French and English. `spatial` lists the country, the regions and the main towns covered, with their names in the local languages (Gent, Ghent, Gand) |
 | `languages` | no | `nl`, `fr`, `en`, `de` |
 | `update_frequency` | no | `CONT`, `DAILY`, `WEEKLY`, `MONTHLY`, `QUARTERLY`, `ANNUAL`, `IRREG`, `UNKNOWN` |
 | `licence_note` | no | reuse conditions in words |
 | `landing_page`, `contact_email`, `access_note` | no | `access_note` tells consumers how to get a key |
 | `catalog` | no | sub-catalog, see below |
-| `assessment` | no, but agents rank sources by it | how the facts were collected: `methods` from `certified` (a label or on-site check by an independent body), `official` (the owner or operator: transport operator, municipality, government), `self_declared` (the venue itself), `crowd_sourced` (anyone can edit); and a `note` naming the field that tells the method per record. Shown in search results; exported as `dct:provenance` |
+| `assessment` | no, but agents rank sources by it | how the facts were collected: `methods` from `certified` (a label or on-site check by an independent body), `official` (the owner or operator: transport operator, municipality, government), `self_declared` (the venue itself), `crowd_sourced` (anyone can edit); and a `note` naming the field that tells the method per record. Shown in search results; exported as `dct:provenance` ([ADR 0006](docs/adr/0006-assessment-methods.md)) |
 | `conforms_to` | no | published schemas, data models or vocabularies the data follows (`url`, `title`); exported as `dct:conformsTo` ([ADR 0004](docs/adr/0004-schemas-in-dcat.md)) |
 | `distributions` | no | further distributions besides the API (`url`, `media_type`, `title`), e.g. the web page or PDF a document dataset reads; exported as `dcat:Distribution` with `dcat:mediaType` ([ADR 0005](docs/adr/0005-documents-as-datasets.md)) |
 | `source_dcat_url` | no | the publisher's own DCAT for this dataset; copied into the catalog and linked with `dct:source` ([ADR 0003](docs/adr/0003-mobility-catalogs-source-dcat-optional-keys.md)) |
@@ -297,6 +327,8 @@ curl -X PUT http://localhost:8001/datasets/my-source -H 'content-type: applicati
 When a provider's own API is hard for an agent to use (huge responses, numeric ids, no descriptions), put a thin adapter in front of it and register the adapter instead; [../sources/iedereenoveral](../sources/iedereenoveral/README.md) is an example.
 
 Datasets belong to a sub-catalog through the optional `catalog` field: `belgium`, `france`, `belgium-mobility` or `france-mobility`. In the DCAT export both are `dcat:Catalog`s linked from the root catalog with `dcat:catalog`; `GET /catalogs` lists them with their dataset ids, and `GET /datasets?catalog=france` filters search ([ADR](docs/adr/0001-country-sub-catalogs.md)).
+
+**How search works.** `GET /datasets?q=` (and the connector's `catalog_search`) scans every registration in memory: a dataset scores one point for each query word (longer than two letters) found inside its title, description, keywords, themes, spatial names or publisher. No meaning, no stemming, no accent folding, so "wheelchair" does not find "rolstoel" and "Liege" does not find "Liège". The filters `theme`, `spatial` (text inside a `spatial` name), `language` and `catalog` narrow the list first. The permanent context therefore tells agents to search in Dutch, French and English, and to filter at most on the country: deciding which dataset covers a town is left to the agent, which knows that Flanders covers Gent ([Vocabulary hub](#vocabulary-hub)). `shortcut: word matching over a few dozen datasets; add a search index or embeddings when the catalog grows to hundreds.`
 
 Other calls: `POST /datasets` (create only), `DELETE /datasets/{id}`, `GET /datasets?q=&theme=&spatial=&language=`, `GET /catalog?format=turtle|jsonld`, `GET /catalogs/{id}`, `/services/{id}` and `/themes/{slug}` (DCAT description of each URI in the export), `GET /services/{id}/openapi.json` (the OpenAPI copy), `GET|POST /sparql`. Registrations are stored on the `catalog-data` volume.
 
@@ -319,10 +351,12 @@ Restart the connector after changing `.env` (`docker compose up -d connector`); 
 
 ## Vocabulary hub
 
+The hub holds domain knowledge: what labels, pictograms, criteria and data standards mean, as cited passages. It does not hold the catalog's dataset metadata; agents find datasets with `catalog_search`. Loading dataset descriptions into the hub as well was considered and left out for now: it would duplicate the catalog and need re-ingesting after every registration. The demo documents, including the project's literature study, are listed in [`../sources/domain-knowledge.yaml`](../sources/domain-knowledge.yaml) and loaded with `make knowledge` in `../sources`; decisions in [ADR 0007](docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md).
+
 ```bash
-curl -F file=@guide.pdf -F language=nl -F tags=criteria http://localhost:8002/documents
+curl -F file=@guide.pdf -F language=nl -F tags=criteria -F summary="Inter's guide to ..." http://localhost:8002/documents
 curl -X POST http://localhost:8002/documents/url -H 'content-type: application/json' \
-     -d '{"url": "https://access-i.be/en/?p=1453", "language": "en", "tags": ["access-i"]}'
+     -d '{"url": "https://access-i.be/en/?p=1453", "language": "en", "tags": ["access-i"], "summary": "Access-i audits places ..."}'
 curl 'http://localhost:8002/search?q=rolstoeltoegankelijk+toilet&k=5'
 ```
 
@@ -334,7 +368,7 @@ Supported: PDF (with page numbers; the PDF's table of contents gives each page i
 
 **After changing the chunking or the search:** the vectors live in the Qdrant collection `passages`. Delete it (or run `make clean`) and run `make knowledge` again. An older collection `chunks` (meaning-only vectors) is no longer read and can be deleted. The embedding model is set with the `EMBED_MODEL` build argument (default `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`; `intfloat/multilingual-e5-large` is more accurate, reads 512 tokens and is about ten times larger). Changing it requires `make clean`, because vector sizes differ.
 
-**Permanent context.** One Markdown text that the connector returns as `context` with every `vochub_search`, before the passages: rules that hold for every question, such as how to compare sources. Set it with `curl -X PUT http://localhost:8002/context -H 'content-type: application/json' -d '{"text": "…"}'` (at most 20,000 characters) and read it with `GET /context`. It is stored in the `vochub-data` volume. The viewer shows it on the vocabulary hub page. The demo text is `sources/permanent-context.md`, set by `make knowledge`. Keep it short: agents get it with every search.
+**Permanent context** ([ADR 0007](docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md)). One Markdown text that the connector returns as `context` with every `vochub_search`, before the passages: rules that hold for every question, such as how to compare sources. Set it with `curl -X PUT http://localhost:8002/context -H 'content-type: application/json' -d '{"text": "…"}'` (at most 20,000 characters) and read it with `GET /context`. It is stored in the `vochub-data` volume. The viewer shows it on the vocabulary hub page. The demo text is [`sources/permanent-context.md`](../sources/permanent-context.md), set by `make knowledge`. Keep it short: agents get it with every search.
 
 ## Connecting an agent
 
@@ -365,7 +399,7 @@ The connector provides these tools:
 
 | Tool | Use it to |
 | --- | --- |
-| `vochub_search` | learn terms and criteria first; also returns the permanent context (rules for every question) |
+| `vochub_search` | learn terms and criteria first; returns `{context, results}`: the permanent context (rules for every question) and the passages |
 | `catalog_search` | find sources by text, theme, area, language |
 | `catalog_get_dataset` | check licence, coverage, update frequency |
 | `get_openapi` | read a source's operations and parameters |
@@ -378,13 +412,12 @@ catalog/          registration API, DCAT builder (rdflib), search
 vochub/           extraction (PyMuPDF, trafilatura, markitdown), chunking, embeddings (fastembed), Qdrant
 connector/        MCP server; openapi_calls.py holds validation and key injection
 config/           credentials.yaml: the connector's per-dataset API keys (references to env vars only)
-docs/adr/         decisions
-legacy/           previous Node.js prototype, kept for reference
+docs/adr/         decisions (0001 sub-catalogs ... 0007 vocabulary hub)
 ```
 
 ## Limits of this version
 
-No authentication or usage policies between components; the connector trusts the catalog. No call budget per question yet. See the project plan for the roadmap.
+No authentication or usage policies between components; the connector trusts the catalog. No call budget per question yet. Catalog search matches words, not meaning; the vocabulary hub uses a small model without a reranker. Open work is listed in [../AGENTS.md](../AGENTS.md#open-work); the project plan keeps the full roadmap.
 
 ## Licence
 

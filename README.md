@@ -5,8 +5,12 @@ A small, runnable data space for accessibility information in Belgium and France
 | Folder | What it is | Details |
 | --- | --- | --- |
 | [`dataspace/`](dataspace/) | the generic data space: catalog (broker), vocabulary hub, MCP connector | [README](dataspace/README.md) |
-| [`sources/`](sources/) | everything source-specific: proxies, catalog registrations, domain-knowledge seed, end-to-end test | [README](sources/README.md) |
-| [`AGENTS.md`](AGENTS.md) | status, rules, known source quirks, open work, golden questions | for coding agents and maintainers |
+| [`sources/`](sources/) | everything source-specific: proxies, catalog registrations, domain knowledge and the permanent context for the vocabulary hub, end-to-end test | [README](sources/README.md) |
+| [`viewer/`](viewer/) | read-only web interface over the catalog and the vocabulary hub, for people (agents use the connector) | [README](viewer/README.md) |
+| [`AGENTS.md`](AGENTS.md) | status, rules, decisions, known source quirks, open work, golden questions | for coding agents and maintainers |
+| [`sources/source-inventory.md`](sources/source-inventory.md), [`sources/domain-knowledge-inventory.md`](sources/domain-knowledge-inventory.md) | every source and document from the literature study (`literatuurstudie.pdf`): added, candidate, blocked or skipped, with licences | source of truth for what is in and why |
+| [`user-profiles.md`](user-profiles.md) | analysis of personal needs and preferences (not built) | read before adding anything profile-related |
+| [`dataspace/docs/adr/`](dataspace/docs/adr/) | decision records for the data space's contracts | |
 
 Requirements: Docker with Compose, [uv](https://docs.astral.sh/uv/), and for PictoAccess its export in `sources/pictoaccess/pictoaccess_dump/places/` (not in git; see below).
 
@@ -14,7 +18,7 @@ Requirements: Docker with Compose, [uv](https://docs.astral.sh/uv/), and for Pic
 
 ```bash
 make -C dataspace up             # catalog, vocabulary hub, connector (first build downloads a ~220 MB model)
-make -C sources up register      # source proxies, then register every source in the catalog
+make -C sources up full          # source proxies, then register every source and load every document
 claude mcp add --transport http accessibility-dataspace http://localhost:8800/mcp
 ```
 
@@ -42,11 +46,13 @@ rsync -a sources/pictoaccess/pictoaccess_dump/places/ \
 
 Set-up B needs a reverse proxy on the server. Ready-made configurations for Caddy and nginx are in [Reverse proxy: Caddy or nginx](dataspace/README.md#reverse-proxy-caddy-or-nginx).
 
-Then set `dataspace/.env` (`make up` creates it from `.env.example`): source API keys such as `ACCESLIBRE_API_KEY`, and `CATALOG_BASE_URL` if you publish the DCAT catalog. All settings and ports are listed in [Running on a remote server](dataspace/README.md#running-on-a-remote-server).
+Then set `dataspace/.env` (`make up` creates it from `.env.example`): source API keys (`ACCESLIBRE_API_KEY`, `TOEVLA_API_TOKEN`), and `CATALOG_BASE_URL` if you publish the DCAT catalog. Then load the content: `make -C sources public` on a published server (set-up B), `make -C sources full` elsewhere ([Public and full content](sources/README.md#public-and-full-content)). All settings and ports are listed in [Running on a remote server](dataspace/README.md#running-on-a-remote-server).
 
-To update a running server: `git pull`, then `make -C dataspace up` and `make -C sources up register` (registering again is safe; it replaces each entry).
+To update a running server: `git pull`, then `make -C dataspace up`, `make -C sources up`, and `make -C sources public` (or `full`); loading again is safe, it replaces each entry. After a change to the vocabulary hub's chunking or search, also load the knowledge again (see [Vocabulary hub](dataspace/README.md#vocabulary-hub)).
 
-No component authenticates its callers. In set-up B the connector is open to anyone with its address, so keep it online only during presentations. Production needs OAuth: web-hosted agents such as ChatGPT accept nothing else. Never publish the vocabulary hub, the catalog's write endpoints or the PictoAccess proxy.
+If a source's API runs on the same server, containers may not reach it through the server's own public address; see [Sources on the same server](dataspace/README.md#sources-on-the-same-server).
+
+No component authenticates its callers. In set-up B the connector is open to anyone with its address, so keep it online only during presentations. Production needs OAuth: web-hosted agents such as ChatGPT accept nothing else. Never publish the vocabulary hub, the catalog's write endpoints or the PictoAccess proxy. In set-up B everything in the data space is readable through the connector, so load it with `make -C sources public`: it leaves out the private sources and the licence-restricted documents ([Public and full content](sources/README.md#public-and-full-content)).
 
 ## Licence
 

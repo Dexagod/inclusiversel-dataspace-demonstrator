@@ -10,7 +10,7 @@ Domain knowledge (labels, schemas, procedures) has its own file: [domain-knowled
 
 **Keep this file current.** When you add, block or skip a source, update its row and the "Last checked" date. Write down a licence only when you have read it on the publisher's own page, and link that page. "Not stated" is a valid answer; a guess is not. These licence readings come from the publishers' pages and are not legal advice.
 
-Last checked: **2026-11-19** (Toerisme Vlaanderen, OpenStreetMap; the rest 2026-11-18). Checked with live, read-only requests to the publishers' pages and APIs, and in the code and registrations in this folder.
+Last checked: **2026-11-23** (ToeVla; IedereenOveral split 2026-11-20; Toerisme Vlaanderen, OpenStreetMap 2026-11-19; the rest 2026-11-18). Checked with live, read-only requests to the publishers' pages and APIs, and in the code and registrations in this folder.
 
 ## Legend
 
@@ -25,7 +25,7 @@ Last checked: **2026-11-19** (Toerisme Vlaanderen, OpenStreetMap; the rest 2026-
 
 | Source | Area | Study § | Status | Access | Integration | Key | Licence or terms |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| IedereenOveral | Flanders, Brussels | 2.2.3 | **Added** | API (undocumented Xano backend of the website) | Proxy (live) `iedereenoveral/` | no | not stated; to confirm with Inter |
+| IedereenOveral | Flanders, Brussels | 2.2.3 | **Added** (`iedereenoveral-food-and-drink`, `-toilets`, `-museums`, `-parking`) | API (undocumented Xano backend of the website) | Proxy (live) `iedereenoveral/`, one sub-API per kind of place, as on the website | no | not stated; to confirm with Inter |
 | PictoAccess | France | 2.2.1 | **Added** | dataset: full export provided by PictoAccess; open subset on data.gouv.fr | Proxy (snapshot) `pictoaccess/` | (export by token) | demonstrator use agreed; open subset [ODbL](https://www.data.gouv.fr/datasets/donnees-daccessibilite-des-etablissements-partenaires-picto-access) |
 | Acceslibre | France | 2.2.2 | **Added** | API with [OpenAPI](https://acceslibre.beta.gouv.fr/api/openapi); dataset on data.gouv.fr | Direct | yes (on request) | dataset: [Licence Ouverte 2.0](https://www.data.gouv.fr/datasets/accessibilite-des-etablissements-recevant-du-public-erp-pour-les-personnes-en-situation-de-handicap); API spec states none |
 | Tourisme & Handicap label list | France | 3.2.5 | **Added** (`tourisme-handicap`) | API (Opendatasoft Explore, data.economie.gouv.fr); dataset on data.gouv.fr | Direct | no | not stated on either portal (data.gouv.fr: `notspecified`) |
@@ -48,7 +48,7 @@ Last checked: **2026-11-19** (Toerisme Vlaanderen, OpenStreetMap; the rest 2026-
 | More Opendatasoft datasets | BE, FR | 2.1.2 | **Candidate** | API (Explore) | Direct (add to `opendatasoft/datasets.yaml`) | no | per dataset |
 | Navigeer en Parkeer (Inter) | West Flanders | 2.6.3 | **Candidate** (ask Inter) | dataset (GPS files after a Microsoft Forms request) | Proxy (snapshot) | form | not stated |
 | OpenRouteService | worldwide | 2.5.5 | **Candidate** (low priority) | API (wheelchair profile) | Direct or adapter | yes (free plan) | not checked; a report says `api.openrouteservice.org` closes Nov 2026 (unconfirmed) |
-| Toegankelijkheidswijzer | Flanders (museums) | 2.2.4 | **Skipped** (covered by IedereenOveral) | website widget | None | – | not stated; Inter says the data now feeds [IedereenOveral](https://www.vlaanderen.be/inter/overheden-en-professionelen/iedereenoveral/toegankelijkheidsinfo-over-musea) |
+| Toegankelijkheidswijzer | Flanders (museums) | 2.2.4 | **Skipped** (covered by `iedereenoveral-museums`) | website widget | None | – | not stated; Inter says the data now feeds [IedereenOveral](https://www.vlaanderen.be/inter/overheden-en-professionelen/iedereenoveral/toegankelijkheidsinfo-over-musea) |
 | Tourisme & Handicap Hauts-de-France 2022 | Hauts-de-France | 2.3.3 | **Skipped** (duplicate) | dataset on data.gouv.fr | None | no | `notspecified` |
 | AccessNow | worldwide | 2.2.6 | **Skipped** | website, app | None | – | "All rights reserved"; terms page did not render |
 | Accessible.net | France | 2.2.7 | **Skipped** | website | None | – | not stated |

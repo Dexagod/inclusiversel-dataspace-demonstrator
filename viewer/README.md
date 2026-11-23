@@ -37,6 +37,8 @@ Configuration is via process environment; the viewer does **not** read `.env`:
 `python3 viewer/server.py --host 127.0.0.1 --port 8091` also selects the listener.
 Use a modern browser with JavaScript enabled. Node.js 18+ is needed only for tests.
 
+On a server the viewer is published under `/viewer/`, e.g. https://dataspace.example.org/viewer/.
+
 ## Run in Docker
 
 With the data space's `accessibility-dataspace_default` network already present:
@@ -65,7 +67,9 @@ it behind Caddy or nginx under `/viewer/` (its paths are relative, so the root w
   source URL and licence. Ingestion dates are joined from the document list by ID;
   retrieval time is recorded in the interface. Missing metadata stays explicit.
 
-Search calls the hub's existing `/search` endpoint. This is the retrieval stage of
+Search calls the hub's existing `/search` endpoint, which combines meaning and
+keyword search and returns at most two passages per document ([ADR 0007](../dataspace/docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md)).
+A document's summary appears as a passage with the heading "Summary". This is the retrieval stage of
 RAG, **not an LLM-generated answer**. The score only orders the passages; it is not a confidence percentage.
 Search does not query source place APIs, resolve a journey, or verify current
 accessibility. A knowledge document about Access-i, for example, does not mean an
@@ -75,7 +79,11 @@ Access-i place source has been integrated. Existing and newly registered dataset
 Root DCAT links export the complete graph. There is no per-sub-catalog export
 endpoint in the current broker; selecting a catalog filters the dataset list.
 API/OpenAPI links preserve registered addresses, including Docker service names
-that may not resolve from the host browser. No addresses are guessed or rewritten.
+such as `http://src-iedereenoveral:8000/food-and-drink/` that do not open from a
+browser. That is by design: the source proxies are not published, and agents reach
+them only through the connector, which runs on the same Docker network (see the
+note under "Settings" in [`../dataspace/README.md`](../dataspace/README.md#settings)).
+No addresses are guessed or rewritten.
 
 ## Boundaries and HTTP access
 

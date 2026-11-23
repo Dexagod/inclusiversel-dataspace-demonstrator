@@ -1,7 +1,7 @@
 PY := uv run --python 3.12
 TESTED := iedereenoveral pictoaccess be-transit osm toerismevlaanderen documents
 
-.PHONY: up down test register knowledge e2e
+.PHONY: up down test register knowledge full public e2e
 
 up:            ## start the source proxies (the data space must be up: make -C ../dataspace up)
 	docker compose up --build -d --wait
@@ -17,6 +17,12 @@ register:      ## register every */registration.json in the catalog over HTTP
 
 knowledge:     ## ingest domain-knowledge.yaml into the vocabulary hub over HTTP (needs internet)
 	$(PY) --with httpx --with pyyaml python seed.py knowledge
+
+full:          ## everything: all data sources and all documents (local use, closed demos)
+	$(PY) --with httpx --with pyyaml python seed.py full
+
+public:        ## only what may be published: no private sources, no licence-restricted documents (removes them if present)
+	$(PY) --with httpx --with pyyaml python seed.py public
 
 e2e:           ## data space + sources end to end (after up and register)
 	$(PY) --with "mcp>=2.3,<3" --with httpx python tests/e2e.py

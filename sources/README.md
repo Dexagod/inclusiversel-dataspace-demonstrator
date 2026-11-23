@@ -1,6 +1,6 @@
 # Data sources for the accessibility data space
 
-Everything that is specific to a data source: proxies (adapters) in front of providers' APIs, their catalog registrations, per-source notes, and the domain knowledge loaded into the vocabulary hub. The data space in [../dataspace](../dataspace/README.md) knows nothing about them; they reach it only through its HTTP APIs (catalog `PUT /datasets/{id}`, vocabulary hub `POST /documents/url`).
+Everything that is specific to a data source: proxies (adapters) in front of providers' APIs, their catalog registrations, per-source notes, and the domain knowledge loaded into the vocabulary hub. The data space in [../dataspace](../dataspace/README.md) knows nothing about them; they reach it only through its HTTP APIs (catalog `PUT /datasets/{id}`; vocabulary hub `POST /documents/url`, `POST /documents` and `PUT /context`), as decided in [ADR 0002](../dataspace/docs/adr/0002-sources-outside-the-data-space.md).
 
 | Source | Catalog | How it is served | Notes |
 | --- | --- | --- | --- |
@@ -35,7 +35,9 @@ Update them when a source or document changes status.
 
 `toevla/registration.json` registers the archived ToeVla database (about 7,600 screened places, mostly 2010-2015) straight at its public URL; there is no proxy here. `getInrichtingAccessibility` gives an outline of the newest dossier, then the answers of one section (`?section=WC`), each under the connector's 20 KB limit; places without a detailed screening only have `basisScreening` in `getInrichting`. The API asks for a bearer token (`API_TOKEN` on the API side); the connector sends it from `TOEVLA_API_TOKEN` in `dataspace/.env` (entry `toevla` in `config/credentials.yaml`). `/openapi.json`, `/docs` and the photos (`/api/images/...`) stay open, so registering needs no token and photo links work in a browser. Personal data (first and last names, phone, mobile, email, fax, staff user names, national register numbers) was removed from the archive database on 2026-11-23; job titles, person roles in dossiers and the screening organisations were kept.
 
-On the server that also runs the ToeVla API, the connector can skip the round trip through the public URL. Both run in Docker, so `localhost:3100` inside the connector container is the connector itself, and a port published on `127.0.0.1` of the host is not reachable from other containers either. Put the connector on the ToeVla container's Docker network and map the URL to the container name, e.g. `SOURCE_URL_MAP=https://toevla-api.rubendedecker.be/=http://<toevla-container>:3100/`. Without that, the public URL just works.
+The archive itself is hosted outside this repository, by the project owner: a small Express API over the cleaned MySQL database. Its viewer for people (behind basic authentication) calls the same API through Caddy, which adds the bearer token server-side, so the token never reaches a browser.
+
+**On the server that also runs the ToeVla API**, the catalog and connector containers cannot reach `toevla-api.rubendedecker.be` through the server's own public address (registering fails with an empty `422`). The fix is a server-only `docker-compose.override.yml`; see [Sources on the same server](../dataspace/README.md#sources-on-the-same-server). Elsewhere, the public URL just works.
 
 ### Toerisme Vlaanderen (`toerismevlaanderen`)
 
@@ -89,14 +91,51 @@ When in doubt, the agent gets a 503 with `Retry-After` instead of a query being 
 
 Agents call them with operation `getRecords`, the portal's `dataset_id` (given in the description), and an ODSQL `where`.
 
+## Domain knowledge and the permanent context
+
+Two files feed the vocabulary hub; `make knowledge` loads both.
+
+**[`domain-knowledge.yaml`](domain-knowledge.yaml)** lists the documents: label and certification schemes, data standards (Acceslibre, A11yJSON, OpenStreetMap, GTFS, NeTEx with the French accessibility profile), services and procedures, and the project's own literature study (`../literatuurstudie.pdf`). Each entry has:
+
+| Key | Meaning |
+| --- | --- |
+| `url` or `file` | a web page or online document the hub fetches, or a file in this repository that is uploaded (path relative to this folder) |
+| `title`, `language`, `tags` | shown with every passage; `tags` can filter a search |
+| `summary` | a few sentences on what the document is, for whom and where; indexed as a passage of its own, so broad questions find the document ([ADR 0007](../dataspace/docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md)). Write one for every entry; without it the hub uses the page's own description, if any |
+| `licence` | optional licence URL or note |
+
+Documents whose site forbids reproduction carry the tag `licence-restricted`: allowed locally and in closed demos only, never in a published hub; `make public` leaves them out ([Public and full content](#public-and-full-content)). The status and terms of every document are in [domain-knowledge-inventory.md](domain-knowledge-inventory.md); update it with each change. gtfs.org refuses automated requests, so its pages come from its GitHub repository as Markdown.
+
+**[`permanent-context.md`](permanent-context.md)** is the hub's permanent context: one short text the connector returns with every `vochub_search`. It holds the rules that apply to every question:
+1. **Which sources to trust first**, by each dataset's `assessment`: certified, then official, then self-declared and crowd-sourced; with only one weak source, say so and check the web (the venue's own page first); with several, compare the facts side by side, with dates. Unknown is not "no".
+2. **Search the catalog in Dutch, French and English**, and leave regions to the agent: filter on the country at most, and decide from each dataset's `spatial` list whether it covers the town (Flanders covers Gent; names differ per language). Ask the hub again about any label or scheme a passage mentions (the hub has no graph of related topics); the text lists what the hub covers.
+3. **Search the web** when the data space has nothing, only a label without details, or only old data.
+4. **How to answer**: tag each fact with its basis ([certified], [official], [self-declared], [crowd-sourced], [web]); a verdict per place, facts per need, a comparison table only with two or more sources, what was checked, and what is still unknown.
+
+Keep it short (now about 600 words): it travels with every search. Change it, then `make knowledge` (or `PUT /context`); the viewer shows the current text.
+
+## Public and full content
+
+The data space is loaded in one of two sets:
+
+| Command | Data sources | Vocabulary hub | Use it for |
+| --- | --- | --- | --- |
+| `make full` | all | all documents, also those tagged `licence-restricted` | local use, closed demos |
+| `make public` | all except those whose `registration.json` says `"visibility": "private"` | all except the `licence-restricted` ones | a server whose connector is published (set-up B) |
+
+Both also set the permanent context. Each command switches a running data space to its set: `make public` removes private datasets from the catalog and restricted documents from the hub if a `make full` added them; `make full` adds them back. `seed.py` drops the `visibility` field before registering, so it never reaches the catalog.
+
+Private now: `toevla` (an archive kept for demos only while ToeVla is offline) and `toerismevlaanderen` (no licence published yet). PictoAccess and IedereenOveral come from project partners and are public. The permanent context still lists the restricted labels as hub topics; in the public set the agent finds less about them and searches the web.
+
 ## Run
 
 ```bash
 make -C ../dataspace up   # the data space first: the proxies join its Docker network
 make up                   # build and start the proxies
-make register             # PUT every */registration.json to the catalog (http://localhost:8001)
-make knowledge            # optional: ingest domain-knowledge.yaml (web pages, plus files such as literatuurstudie.pdf) into the vocabulary hub
-                          # and set permanent-context.md as the hub's permanent context
+make full                 # register every source and load every document (or: make public, see above)
+make register             # only the sources: PUT every */registration.json to the catalog (http://localhost:8001)
+make knowledge            # only the documents: domain-knowledge.yaml (web pages, plus files such as literatuurstudie.pdf)
+                          # and permanent-context.md as the hub's permanent context
 make test                 # offline unit tests of the proxies
 make e2e                  # data space + sources end to end (needs internet for IedereenOveral)
 ```
@@ -109,7 +148,7 @@ Settings for the proxies go in `sources/.env` (read by Compose): `SOURCES_BIND` 
 
 ## API keys
 
-Keys are held by the data space's connector, not by the sources: entries in `../dataspace/config/credentials.yaml` refer to variables in `../dataspace/.env`. For Acceslibre, set `ACCESLIBRE_API_KEY` there (request a key at https://acceslibre.beta.gouv.fr/contact/api_key) and run `docker compose up -d connector` in `../dataspace`.
+Keys are held by the data space's connector, not by the sources: entries in `../dataspace/config/credentials.yaml` refer to variables in `../dataspace/.env`. For Acceslibre, set `ACCESLIBRE_API_KEY` there (request a key at https://acceslibre.beta.gouv.fr/contact/api_key); for ToeVla, `TOEVLA_API_TOKEN` (from the API's owner). Then run `docker compose up -d connector` in `../dataspace`.
 
 ## Checking with an agent
 
@@ -122,7 +161,8 @@ The agent should find `iedereenoveral-food-and-drink` (or another kind) through 
 ## Adding a source
 
 1. If the provider's API is hard for an agent to use (huge responses, numeric ids, no descriptions), write an adapter in `<id>/` with its own OpenAPI, and add it to `docker-compose.yml`. Otherwise register the provider's API directly, as for Acceslibre.
-2. Write `<id>/registration.json` (fields: see "Publishing a dataset" in the data space README). If the data follows a published schema, data model or vocabulary (GTFS, an OSLO model, the publisher's own vocabulary), list it in `conforms_to`: the DCAT export links it with `dct:conformsTo`, next to the API's OpenAPI document ([ADR 0004](../dataspace/docs/adr/0004-schemas-in-dcat.md)). Link only URLs you have opened. Fill in `assessment` (how the facts were collected, and which field marks certified records): the permanent context tells agents to prefer certified sources.
+2. Write `<id>/registration.json` (fields: see "Publishing a dataset" in the data space README). If the data follows a published schema, data model or vocabulary (GTFS, an OSLO model, the publisher's own vocabulary), list it in `conforms_to`: the DCAT export links it with `dct:conformsTo`, next to the API's OpenAPI document ([ADR 0004](../dataspace/docs/adr/0004-schemas-in-dcat.md)). Link only URLs you have opened. Write `keywords` in Dutch, French and English, and list in `spatial` the country, the regions and the main towns, with their local names: catalog search matches words literally (see "How search works" in the data space README). Fill in `assessment` (how the facts were collected, and which field marks certified records): the permanent context tells agents to prefer certified sources ([ADR 0006](../dataspace/docs/adr/0006-assessment-methods.md)).
 3. If it needs a key, add an entry to `../dataspace/config/credentials.yaml`.
-4. `make up register`.
-5. Update its row in [source-inventory.md](source-inventory.md).
+4. If it may not be published (no licence yet, demo-only), add `"visibility": "private"` to the registration ([Public and full content](#public-and-full-content)).
+5. `make up register`.
+6. Update its row in [source-inventory.md](source-inventory.md).

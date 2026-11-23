@@ -2,7 +2,7 @@
 
 A small, runnable data space for accessibility information. Publishers register their APIs in a DCAT catalog, a vocabulary hub holds domain knowledge, and an MCP connector lets a user agent find a source, read its OpenAPI and query it. Research demonstrator of the KNoWS team (Ghent University). No authentication between components in v1.
 
-This file is the working version of `Accessibility Data Space Demonstrator — Project Plan & Todo List.md` (Nov 12, 2026), updated with the work done since (status as of Nov 16, 2026). The plan keeps the full rationale, the source landscape and the risk table. Where the two disagree, this file wins.
+This file is the working version of `Accessibility Data Space Demonstrator — Project Plan & Todo List.md` (Nov 12, 2026), updated with the work done since (status as of Nov 23, 2026). The plan keeps the full rationale, the source landscape and the risk table. Where the two disagree, this file wins.
 
 ## Rules
 
@@ -21,7 +21,7 @@ This file is the working version of `Accessibility Data Space Demonstrator — P
   Read them before you pick or add a source or document. When you add, block or skip one, update its row and the "Last checked" date in the same change.
 - **Vocabulary-hub documents may disregard their site's licence, visibly.** The hub is used only locally and in closed demos.
   - A document whose terms restrict reproduction gets the tag `licence-restricted` in `sources/domain-knowledge.yaml` and is marked **Restricted** in the inventory.
-  - A public deployment leaves all tagged documents out.
+  - A public deployment leaves all tagged documents out; set-up B counts, because `vochub_search` makes every passage readable. `make -C sources public` does this (and leaves out data sources marked `"visibility": "private"`: `toevla`, `toerismevlaanderen`); `make -C sources full` loads everything.
   - This exception covers hub documents only, never data sources.
 - **Done means green.** A task is done when `make check` passes in `dataspace/`, `make test` passes in `sources/`, and, for changes that cross components, `make e2e` passes in `sources/`.
 
@@ -35,7 +35,8 @@ dataspace/                  generic data space (CLAUDE.md -> AGENTS.md there)
   vochub/                   document ingestion, chunking, multilingual embeddings (fastembed), Qdrant :8002
   connector/                MCP server, five read-only tools; openapi_calls.py validates and adds keys :8800/mcp
   config/credentials.yaml   connector's API keys per dataset id (env var references only)
-  docs/adr/                 decision records
+  docs/adr/                 decision records: 0001 sub-catalogs, 0002 sources outside, 0003 mobility catalogs and source DCAT,
+                            0004 schemas in DCAT, 0005 documents as datasets, 0006 assessment, 0007 vocabulary hub
 sources/                    everything source-specific
   docker-compose.yml        proxies; join the external network accessibility-dataspace_default
   seed.py                   `register`: PUT */registration.json to the catalog; `knowledge`: ingest domain-knowledge.yaml and PUT permanent-context.md
@@ -51,8 +52,13 @@ sources/                    everything source-specific
   toerismevlaanderen/       Toerisme Vlaanderen linked open data (SPARQL), cached in memory, A-labels :8106
   documents/                web pages and PDFs as datasets: one documents/<id>/registration.json each, outline/search/section :8107
   osm/                      OpenStreetMap live (OnWheels features + native accessibility tags), polite Overpass use :8105
+                            (parked: registrations renamed registration.parked.json, see "Catalog and sources")
+  toevla/                   registration only: the archived ToeVla API, hosted by the project owner (bearer token)
   opendatasoft/             11 open datasets forwarded live from Opendatasoft portals; registrations generated
                             from the portals' metadata by make_registrations.py (datasets.yaml lists them)
+viewer/                     read-only web interface over catalog and vochub, for people (:8090, published under /viewer/)
+user-profiles.md            analysis of personal needs and preferences (not built)
+literatuurstudie.pdf        the project's literature study (Dutch); loaded into the vochub by `make knowledge`
 ```
 
 ## Commands
@@ -60,8 +66,10 @@ sources/                    everything source-specific
 ```bash
 make -C dataspace up        # data space (catalog, vochub, connector); starts empty
 make -C sources up          # source proxies (needs the data space network)
-make -C sources register    # register all sources in the catalog over HTTP
-make -C sources knowledge   # optional: ingest domain knowledge (needs internet)
+make -C sources full        # register all sources and load all documents (local, closed demos)
+make -C sources public      # the same without private sources and licence-restricted documents (published server)
+make -C sources register    # only: register all sources in the catalog over HTTP
+make -C sources knowledge   # only: ingest domain knowledge and the permanent context (needs internet)
 make -C dataspace check     # offline tests of catalog, connector, vochub + compose build
 make -C sources test        # offline tests of the proxies
 make -C sources e2e         # end to end (live IedereenOveral call, needs internet)
@@ -76,12 +84,15 @@ Agents connect to `http://localhost:8800/mcp` only. The proxies and the catalog 
 ### Deployment on a server
 
 The repository `README.md` compares the two set-ups (A: catalog, vochub and proxies on the server, connector local over SSH; B: everything on the server, connector open over HTTPS, online only during presentations) and gives the clone + `rsync` steps. Details in "Running on a remote server" in `dataspace/README.md`. In short:
-- **Getting it there:** `git clone`, then `rsync` the git-ignored `sources/pictoaccess/pictoaccess_dump/places/` (33 MB; the images are not used). Update with `git pull`, `make -C dataspace up`, `make -C sources up register`.
+- **Getting it there:** `git clone`, then `rsync` the git-ignored `sources/pictoaccess/pictoaccess_dump/places/` (33 MB; the images are not used). Update with `git pull`, `make -C dataspace up`, `make -C sources up public` (set-up B) or `up full`.
 - **Restarts:** every service has `restart: unless-stopped`; state lives on volumes (`catalog-data`, `vochub-vectors`, `be-transit-cache`).
 - **Ports:** all published ports bind to `127.0.0.1` by default (`CONNECTOR_BIND`, `CATALOG_BIND`, `VOCHUB_BIND` in `dataspace/.env`; `SOURCES_BIND` in `sources/.env`). Only port 8800 (MCP) needs to reach agents; 8001 (catalog) only for publishing DCAT, and then read-only. 8002 and 8102 to 8107 stay private.
 - **Base URL:** `CATALOG_BASE_URL` in `dataspace/.env` is the public base of every URI in the DCAT export; each URI resolves (`/catalog`, `/catalogs/{id}`, `/datasets/{id}`, `/services/{id}`, `/themes/{slug}`).
-- **Security:** no component authenticates, on purpose (user decision 2026-11-19): the server is online only during public presentations. No secret paths, bearer tokens or basic auth. Production needs OAuth, the only option ChatGPT accepts (MCP SDK hook `auth_server_provider` / `token_verifier`). Put HTTPS in front with a reverse proxy (Caddy and nginx configurations in "Reverse proxy: Caddy or nginx" in `dataspace/README.md`), or the connector exposes your API keys' quota and the PictoAccess snapshot to anyone.
-- **Registrations** keep Docker-internal proxy URLs; that is correct on a server too.
+- **Security:** no component of the data space authenticates, on purpose (user decision 2026-11-19): the server is online only during public presentations. No secret paths, bearer tokens or basic auth on the data space's endpoints (a source's own API may still need a key or token, which the connector adds, e.g. ToeVla). Production needs OAuth, the only option ChatGPT accepts (MCP SDK hook `auth_server_provider` / `token_verifier`). Put HTTPS in front with a reverse proxy (Caddy and nginx configurations in "Reverse proxy: Caddy or nginx" in `dataspace/README.md`), or the connector exposes your API keys' quota and the PictoAccess snapshot to anyone.
+- **Registrations** keep Docker-internal proxy URLs (`http://src-…:8000/`); that is correct on a server too. The viewer and the DCAT export show them, and they do not open from a browser, by design: the connector is the only way in, so every call is validated and gets its key in one place.
+- **A source on the same server** under a public name (ToeVla) is unreachable from the containers without hairpin NAT; registering fails with an empty `422`. Fix with a server-only `docker-compose.override.yml` (`extra_hosts`), described in "Sources on the same server" in `dataspace/README.md`. `SOURCE_URL_MAP` does not help: the catalog does not read it.
+- **Viewer:** published under `/viewer/` (relative paths; the reverse proxy strips the prefix).
+- **Vochub after an update:** a change to chunking or search needs `make -C sources knowledge` again (collection `passages`, [ADR 0007](dataspace/docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md)).
 - **ChatGPT and other web-hosted agents** reach the connector at `https://<host>/mcp` through Caddy or nginx (only ports 443 and 80 open) without authentication. Steps in "Connecting ChatGPT or another web-hosted agent" in `dataspace/README.md`.
 
 ## Current state
@@ -105,6 +116,14 @@ The repository `README.md` compares the two set-ups (A: catalog, vochub and prox
 | `liege-`, `brabant-wallon-`, `marche-en-famenne-`, `la-louviere-`, `databusters-pmr-parking` | belgium-mobility | ODWB Explore API directly | live; disabled parking spaces | CC BY, except Marche (publisher metadata conflicts) and La Louvière (not specified) |
 
 The catalog has four DCAT sub-catalogs, linked from the root with `dcat:catalog`: `belgium`, `france`, and, for transport and parking, `belgium-mobility` and `france-mobility` ([ADR 0001](dataspace/docs/adr/0001-country-sub-catalogs.md), [ADR 0003](dataspace/docs/adr/0003-mobility-catalogs-source-dcat-optional-keys.md)). Datasets forwarded from open data portals carry the publisher's original DCAT, copied in through `source_dcat_url` and linked with `dct:source`. You can list them with `GET /catalogs` and filter search with `GET /datasets?catalog=`. Adding a country means adding one entry to `CATALOGS` in `dataspace/catalog/dcat.py`.
+
+### Vocabulary hub and catalog search
+
+- **Hub contents** (Nov 23, 2026): 35 documents, about 2,100 passages, listed in `sources/domain-knowledge.yaml` and `sources/domain-knowledge-inventory.md`: labels and certification schemes, data standards (Acceslibre, A11yJSON, OSM, GTFS, NeTEx incl. the French accessibility profile v2.4), services, and the literature study (393 passages, headings from its table of contents). Every document has a `summary`, indexed as its own passage.
+- **Search** combines meaning (multilingual MiniLM, 128 tokens, so chunks of at most 60 words with title and heading in front) and keywords (BM25 without stemming), fused with reciprocal rank fusion, at most 2 passages per document ([ADR 0007](dataspace/docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md)). Before, "label" returned 18 passages of one page and a 700-passage report crowded out the rest. Still weak: abstract questions such as "how do certification methods work?" miss the literature study's section 3.2; see open work 12.
+- **Permanent context:** `sources/permanent-context.md`, returned with every `vochub_search` (trust order by `assessment`, multilingual catalog search, regions left to the agent, ask the hub again, web search, answer layout). Shown in the viewer.
+- **Decided: dataset metadata stays out of the hub.** Agents find datasets with `catalog_search`; ingesting registrations into the hub would duplicate the catalog and need re-ingesting after every registration. Left out for now.
+- **Catalog search** is a linear scan over the registrations: one point per query word (longer than two letters) found in title, description, keywords, themes, spatial or publisher; no stemming or accent folding. Hence keywords in three languages, and the permanent context's rule to search in Dutch, French and English and to filter on the country at most. Which dataset covers which town is left to the agent, which knows that Flanders covers Gent.
 
 ### Facts learned about the sources
 
@@ -146,6 +165,10 @@ Done:
 - PictoAccess proxy over a token-based export rather than a crawler (1.4, 2.7).
 - Acceslibre connected directly through its own API, with no CSV fallback (1.1, 2.4).
 - Sources split out of the data space, with seeding over HTTP.
+- Source assessment (`certified`, `official`, `self_declared`, `crowd_sourced`) in every registration ([ADR 0006](dataspace/docs/adr/0006-assessment-methods.md)); permanent context; hybrid hub search with summaries ([ADR 0007](dataspace/docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md)).
+- IedereenOveral split into four datasets (food and drink, toilets incl. Changing Places, museums, parking), as on its website; the combined dataset was removed from the catalog.
+- ToeVla archive connected (2026-11-23), with personal data removed from its database first.
+- Viewer, published under `/viewer/`.
 - `make e2e`.
 - MCP client snippets for Claude Code and VS Code in the data space README (part of 3.6).
 
@@ -183,7 +206,7 @@ Open questions for the project lead (from the plan, still open): contacts at Int
 
 | # | Question | Expected behaviour with the current sources |
 | --- | --- | --- |
-| 1 | Is there a restaurant in Ghent with a wheelchair-accessible toilet? (EN) | IedereenOveral only; toilet details with provenance |
+| 1 | Is there a restaurant in Ghent with a wheelchair-accessible toilet? (EN) | `iedereenoveral-food-and-drink`, toilet details with provenance, Inter-confirmed places first; `toevla` may add older screenings, which the answer dates |
 | 2 | Welke cafés in Leuven zijn rolstoeltoegankelijk? (NL) | vochub maps the term; IedereenOveral |
 | 3 | Quels musées à Lille sont accessibles en fauteuil roulant ? (FR) | Acceslibre (`commune=Lille&activite=musee`: 8 museums, e.g. Maison natale Charles de Gaulle with a separate accessible entrance); PictoAccess has 65 places in Lille but no museum, which the answer says; answer in French |
 | 4 | Which tourist sites in Namur suit blind visitors? (EN) | needs Access-i (not connected, awaiting approval): until then, say no source in the data space covers Wallonia; an external search is labelled as such |
@@ -217,7 +240,7 @@ An adapter's OpenAPI is written for a language-model reader:
 ## Data space viewer
 
 `viewer/` is a separate, read-only web interface for the metadata broker and
-vocabulary hub. It has a standard-library Python server, buildless HTML/CSS/JS,
+vocabulary hub, published on a server under `/viewer/` (its paths are relative). It has a standard-library Python server, buildless HTML/CSS/JS,
 its own Compose project and offline tests. See [viewer/README.md](viewer/README.md).
 
 ```bash
