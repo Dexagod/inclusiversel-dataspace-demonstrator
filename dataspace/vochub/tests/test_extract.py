@@ -10,11 +10,24 @@ par exemple une rampe amovible ou un accompagnement du personnel sur place.</p><
 
 
 def test_chunk_keeps_heading_path_and_page():
-    md = "# Toilets\n\nDoor 90 cm.\n\n## Grab rails\n\nBoth sides.\n\n# Entrance\n\nLevel."
+    md = ("# Toilets\n\nThe door is 90 cm wide.\n\n## Grab rails\n\nGrab rails on both sides of the toilet.\n\n"
+          "# Entrance\n\nThe entrance is level, without steps.")
     out = chunk([Section(md, page=3)])
     assert [(c["heading"], c["text"]) for c in out] == [
-        ("Toilets", "Door 90 cm."), ("Toilets > Grab rails", "Both sides."), ("Entrance", "Level.")]
+        ("Toilets", "The door is 90 cm wide."), ("Toilets > Grab rails", "Grab rails on both sides of the toilet."),
+        ("Entrance", "The entrance is level, without steps.")]
     assert {c["page"] for c in out} == {3}
+
+
+def test_chunk_drops_pieces_without_content():
+    out = chunk([Section("14"), Section("| 0:1 | Type of contenu : |"),
+                 Section("Bronnen\n\nDe labels worden toegekend na een audit ter plaatse.", page=2)])
+    assert [c["text"] for c in out] == ["Bronnen\n\nDe labels worden toegekend na een audit ter plaatse."]
+
+
+def test_chunk_starts_from_section_path():
+    out = chunk([Section("Het A-label bestaat in twee niveaus: A en A+.", page=5, path=["3. Labels", "3.1 A-label"])])
+    assert out[0]["heading"] == "3. Labels > 3.1 A-label"
 
 
 def test_chunk_splits_long_text():
@@ -35,9 +48,13 @@ def test_pdf_pages():
     doc = pymupdf.open()
     for t in ["Eerste pagina over rolstoelen.", "Tweede pagina over toiletten."]:
         doc.new_page().insert_text((72, 72), t)
+    doc.set_toc([[1, "1. Rolstoelen", 1], [2, "1.1 Toiletten", 2]])
+    doc.set_metadata({"subject": "Een studie over toegankelijkheid."})
     ex = extract(doc.tobytes(), "application/octet-stream", "x.bin")
     assert ex.kind == "pdf" and [s.page for s in ex.sections] == [1, 2]
     assert "toiletten" in ex.sections[1].text
+    assert [s.path for s in ex.sections] == [["1. Rolstoelen"], ["1. Rolstoelen", "1.1 Toiletten"]]
+    assert ex.description == "Een studie over toegankelijkheid."
 
 
 def test_markitdown_formats():

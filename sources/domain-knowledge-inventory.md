@@ -9,7 +9,7 @@ Data sources have their own file: [source-inventory.md](source-inventory.md). Th
 
 **Keep this file current.** When you add or remove an entry in `domain-knowledge.yaml`, update its row and the "Last checked" date. The hub stores text passages of each document and cites them back to the URL. That is a copy, so check the site's terms before adding a document. Write down terms only when you have read them on the site itself, and link that page. These readings are not legal advice.
 
-Last checked: **2026-11-18**. Checked with live, read-only requests, and against the 29 documents in the local hub.
+Last checked: **2026-11-23**. Checked with live, read-only requests, and against the 35 documents in the local hub.
 
 ## Legend
 
@@ -17,7 +17,7 @@ Last checked: **2026-11-18**. Checked with live, read-only requests, and against
 | --- | --- |
 | **Status** | **Ingested**: in `domain-knowledge.yaml` and in the hub. **Candidate**: could be added; next step given. **Skipped**: not added; reason given |
 | **Form** | HTML page, PDF, schema (documentation of a data model), RDF |
-| **Into the hub by** | **URL**: `make knowledge` fetches it. **Upload**: the site blocks automated fetches, so upload the file with `POST /documents` |
+| **Into the hub by** | **URL**: `make knowledge` fetches it. **File**: a `file:` entry in `domain-knowledge.yaml`, uploaded from this repository by `make knowledge`. **Upload**: the site blocks automated fetches, so upload the file with `POST /documents` |
 | **Terms** | **Open**: an open licence or explicit free reuse. **Not stated**: no terms found. **Restricted**: terms limit or forbid reproduction; kept for local tests and closed demos only, tagged `licence-restricted` (see below) |
 | **Passages** | number of chunks in the hub; 1 or 2 usually means the page held little text |
 
@@ -25,35 +25,41 @@ Last checked: **2026-11-18**. Checked with live, read-only requests, and against
 
 | Document | Kind | Form | Passages | Terms |
 | --- | --- | --- | --- | --- |
-| [Acceslibre field documentation](https://acceslibre.beta.gouv.fr/contrib/documentation/) | criteria | HTML | 11 | Open: [Licence Ouverte 2.0](https://acceslibre.beta.gouv.fr/mentions-legales) |
-| [Acceslibre data schema](https://schema.data.gouv.fr/MTES-MCT/acceslibre-schema/latest.html) | schema | HTML | 12 | Open: Licence Ouverte 2.0 (site footer) |
-| [Acceslibre ERP base schema](https://schema.data.gouv.fr/MTES-MCT/acceslibre-erp-base/) | schema | HTML | 12 | Open: Licence Ouverte 2.0 |
-| [IedereenOveral for professionals](https://www.vlaanderen.be/inter/overheden-en-professionelen/iedereenoveral) | source description | HTML | 5 | Open: [free reuse](https://www.vlaanderen.be/over-vlaanderenbe/disclaimer) |
-| [Inter screening (IedereenOveral medals)](https://www.vlaanderen.be/inter/toolbox-toegankelijke-steden-en-gemeenten/toerisme/screening-bezienswaardigheden-horeca-en-handelszaken) | label, criteria | HTML | 8 | Open (vlaanderen.be) |
-| [Inter Label Toegankelijk Gebouw](https://www.vlaanderen.be/inter/overheden-en-professionelen/werken-aan-toegankelijke-gebouwen/label-toegankelijk-gebouw) | label | HTML | 10 | Open (vlaanderen.be) |
-| [Changing Places](https://www.vlaanderen.be/inter/mensen-met-een-handicap/changing-places) | procedure | HTML | 2 | Open (vlaanderen.be) |
-| [Navigeer en parkeer](https://www.vlaanderen.be/inter/mensen-met-een-handicap/navigeer-en-parkeer) | procedure | HTML | 6 | Open (vlaanderen.be) |
-| [Iedereen fietst](https://www.vlaanderen.be/inter/mensen-met-een-handicap/iedereen-fietst) | procedure | HTML | 5 | Open (vlaanderen.be) |
-| [Zon, zee, zorgeloos](https://www.vlaanderen.be/inter/mensen-met-een-handicap/zon-zee-zorgeloos) | procedure | HTML | 36 | Open (vlaanderen.be) |
-| [Accessible events on UiTinVlaanderen](https://www.vlaanderen.be/inter/mensen-met-een-handicap/agenda-toegankelijke-evenementen/toegankelijke-evenementen-op-uitinvlaanderen) | procedure | HTML | 1 (mostly menu text) | Open (vlaanderen.be) |
-| [Inter evaluation: plan vs. built](https://publicaties.vlaanderen.be/view-file/69606) | evaluation | PDF, 116 pp | 216 | Probably open (vlaanderen.be disclaimer); unverified for publicaties.vlaanderen.be |
-| [Destination pour Tous](https://www.entreprises.gouv.fr/priorites-et-actions/proximite-et-territoires/renforcer-le-secteur-du-tourisme/destination-pour-tous) | label | HTML | 7 | Open: etalab-2.0 (site footer) |
-| [A11yJSON](https://sozialhelden.github.io/a11yjson/) | schema | HTML | 5 | Open: MIT ([repository](https://github.com/sozialhelden/a11yjson/blob/main/LICENSE)) |
-| [OSM accessibility tagging](https://wiki.openstreetmap.org/wiki/Disabilities) | schema | HTML | 21 | Open: [CC BY-SA 2.0](https://wiki.openstreetmap.org/wiki/Wiki_content_license) |
-| [Registre public d'accessibilité](https://handicap.gouv.fr/registre-daccessibilite-obligatoire-un-guide-pour-les-erp) | legislation | HTML | 3 | Not checked (site under maintenance, HTTP 503, on 2026-11-18) |
-| [GTFS pathways](https://gtfs.org/documentation/schedule/examples/pathways/) | schema | HTML | 8 | Not stated (the GTFS specification repository is Apache 2.0) |
-| [NeTEx accessibility white paper](https://transmodel-cen.eu/wp-content/uploads/2024/07/08.NeTEx-Accessibility-WhitePaper_1.06.pdf) | schema | PDF, 11 pp | 15 | Not stated |
-| [Handiplage label](https://handiplage.fr/) | label | HTML | 9 | Not stated |
-| [Picto Access pictograms (Limoges press release)](https://limoges.fr/sites/default/files/espace_presse/2025/CP%20Picto%20Access%2003%202025-1.pdf) | label | PDF | 2 | Not checked |
-| [Access-i: what it is and how places are audited](https://access-i.be/en/?p=1453) | criteria | HTML | 3 | **Restricted**: [prior permission by e-mail](https://access-i.be/en/mentions-legales/) |
-| [Access-i: what certification means](https://access-i.be/en/faqs/ca-veut-dire-quoi-etre-certifie-par-access-i/) | label | HTML | 1 | **Restricted**: as above |
-| [Tourisme & Handicap (Atout France)](https://www.atout-france.fr/fr/tourisme-et-handicap) | label | HTML | 1 | **Restricted, conflicting**: footer says etalab-2.0, [mentions légales](https://www.atout-france.fr/fr/informations/mentions-legales) forbid reproduction without written permission |
-| [Destination Innovante Durable](https://france-congres-evenements.org/did-label/) | label | HTML | 5 | **Restricted**: [personal, non-commercial use only](https://france-congres-evenements.org/mentions-legales/) |
-| [Toerisme Vlaanderen labels A and A+](https://toerismevlaanderen.be/nl/kwaliteit/inclusie/toegankelijkheid/a-label) | label | HTML | 7 | **Restricted**: "all rights reserved", [disclaimer](https://toerismevlaanderen.be/nl/legal-disclaimer) gives no reuse right |
-| [Handy.brussels pictograms](https://handy.brussels/en/amt-concept/pictogrammes/) | label | HTML | 1 | **Restricted**: "© AMT Concept – all rights reserved" |
-| [VisitFlanders accessible travel](https://www.visitflanders.com/en/travel-information/accessibility) | procedure | HTML | 5 | **Restricted**: [no storing or reproducing without written consent](https://www.visitflanders.com/en/disclaimer) |
-| [VisitWallonia: specific needs](https://visitwallonia.be/fr-be/3/je-suis/voyageur-a-besoins-specifiques) | procedure | HTML | 5 | **Restricted**: consultation only (site CGU) |
-| [Routen accessible routes](https://www.routen.be/toegankelijkheid) | procedure | HTML | 8 | **Restricted**: "alle rechten voorbehouden" |
+| [Acceslibre field documentation](https://acceslibre.beta.gouv.fr/contrib/documentation/) | criteria | HTML | 44 | Open: [Licence Ouverte 2.0](https://acceslibre.beta.gouv.fr/mentions-legales) |
+| [Acceslibre data schema](https://schema.data.gouv.fr/MTES-MCT/acceslibre-schema/latest.html) | schema | HTML | 26 | Open: Licence Ouverte 2.0 (site footer) |
+| [Acceslibre ERP base schema](https://schema.data.gouv.fr/MTES-MCT/acceslibre-erp-base/) | schema | HTML | 26 | Open: Licence Ouverte 2.0 |
+| [IedereenOveral for professionals](https://www.vlaanderen.be/inter/overheden-en-professionelen/iedereenoveral) | source description | HTML | 8 | Open: [free reuse](https://www.vlaanderen.be/over-vlaanderenbe/disclaimer) |
+| [Inter screening (IedereenOveral medals)](https://www.vlaanderen.be/inter/toolbox-toegankelijke-steden-en-gemeenten/toerisme/screening-bezienswaardigheden-horeca-en-handelszaken) | label, criteria | HTML | 10 | Open (vlaanderen.be) |
+| [Inter Label Toegankelijk Gebouw](https://www.vlaanderen.be/inter/overheden-en-professionelen/werken-aan-toegankelijke-gebouwen/label-toegankelijk-gebouw) | label | HTML | 20 | Open (vlaanderen.be) |
+| [Changing Places](https://www.vlaanderen.be/inter/mensen-met-een-handicap/changing-places) | procedure | HTML | 4 | Open (vlaanderen.be) |
+| [Navigeer en parkeer](https://www.vlaanderen.be/inter/mensen-met-een-handicap/navigeer-en-parkeer) | procedure | HTML | 10 | Open (vlaanderen.be) |
+| [Iedereen fietst](https://www.vlaanderen.be/inter/mensen-met-een-handicap/iedereen-fietst) | procedure | HTML | 7 | Open (vlaanderen.be) |
+| [Zon, zee, zorgeloos](https://www.vlaanderen.be/inter/mensen-met-een-handicap/zon-zee-zorgeloos) | procedure | HTML | 44 | Open (vlaanderen.be) |
+| [Accessible events on UiTinVlaanderen](https://www.vlaanderen.be/inter/mensen-met-een-handicap/agenda-toegankelijke-evenementen/toegankelijke-evenementen-op-uitinvlaanderen) | procedure | HTML | 3 | Open (vlaanderen.be) |
+| [Inter evaluation: plan vs. built](https://publicaties.vlaanderen.be/view-file/69606) | evaluation | PDF, 116 pp | 712 | Probably open (vlaanderen.be disclaimer); unverified for publicaties.vlaanderen.be |
+| [Destination pour Tous](https://www.entreprises.gouv.fr/priorites-et-actions/proximite-et-territoires/renforcer-le-secteur-du-tourisme/destination-pour-tous) | label | HTML | 12 | Open: etalab-2.0 (site footer) |
+| [A11yJSON](https://sozialhelden.github.io/a11yjson/) | schema | HTML | 9 | Open: MIT ([repository](https://github.com/sozialhelden/a11yjson/blob/main/LICENSE)) |
+| [OSM accessibility tagging](https://wiki.openstreetmap.org/wiki/Disabilities) | schema | HTML | 31 | Open: [CC BY-SA 2.0](https://wiki.openstreetmap.org/wiki/Wiki_content_license) |
+| [Registre public d'accessibilité](https://handicap.gouv.fr/registre-daccessibilite-obligatoire-un-guide-pour-les-erp) | legislation | HTML | 9 | Not checked (site under maintenance, HTTP 503, on 2026-11-18) |
+| [GTFS pathways](https://raw.githubusercontent.com/MobilityData/gtfs.org/main/docs/en/documentation/schedule/examples/pathways.md) | schema | Markdown (gtfs.org refuses automated requests; same page from its GitHub repository) | 30 | Not stated (the GTFS specification repository is Apache 2.0) |
+| [NeTEx accessibility white paper](https://transmodel-cen.eu/wp-content/uploads/2024/07/08.NeTEx-Accessibility-WhitePaper_1.06.pdf) | schema | PDF, 11 pp | 45 | Not stated |
+| [Handiplage label](https://handiplage.fr/) | label | HTML | 11 | Not stated |
+| [Picto Access pictograms (Limoges press release)](https://limoges.fr/sites/default/files/espace_presse/2025/CP%20Picto%20Access%2003%202025-1.pdf) | label | PDF | 8 | Not checked |
+| [Access-i: what it is and how places are audited](https://access-i.be/en/?p=1453) | criteria | HTML | 14 | **Restricted**: [prior permission by e-mail](https://access-i.be/en/mentions-legales/) |
+| [Access-i: what certification means](https://access-i.be/en/faqs/ca-veut-dire-quoi-etre-certifie-par-access-i/) | label | HTML | 2 | **Restricted**: as above |
+| [Tourisme & Handicap (Atout France)](https://www.atout-france.fr/fr/tourisme-et-handicap) | label | HTML | 4 | **Restricted, conflicting**: footer says etalab-2.0, [mentions légales](https://www.atout-france.fr/fr/informations/mentions-legales) forbid reproduction without written permission |
+| [Destination Innovante Durable](https://france-congres-evenements.org/did-label/) | label | HTML | 13 | **Restricted**: [personal, non-commercial use only](https://france-congres-evenements.org/mentions-legales/) |
+| [Toerisme Vlaanderen labels A and A+](https://toerismevlaanderen.be/nl/kwaliteit/inclusie/toegankelijkheid/a-label) | label | HTML | 10 | **Restricted**: "all rights reserved", [disclaimer](https://toerismevlaanderen.be/nl/legal-disclaimer) gives no reuse right |
+| [Handy.brussels pictograms](https://handy.brussels/en/amt-concept/pictogrammes/) | label | HTML | 4 | **Restricted**: "© AMT Concept – all rights reserved" |
+| [VisitFlanders accessible travel](https://www.visitflanders.com/en/travel-information/accessibility) | procedure | HTML | 15 | **Restricted**: [no storing or reproducing without written consent](https://www.visitflanders.com/en/disclaimer) |
+| [VisitWallonia: specific needs](https://visitwallonia.be/fr-be/3/je-suis/voyageur-a-besoins-specifiques) | procedure | HTML | 10 | **Restricted**: consultation only (site CGU) |
+| [Routen accessible routes](https://www.routen.be/toegankelijkheid) | procedure | HTML | 12 | **Restricted**: "alle rechten voorbehouden" |
+| Literature study (`literatuurstudie.pdf`, this repository) | label, criteria, schema, source description | PDF, 86 pp, file entry | 393 | Own work of this project |
+| [GTFS accessibility features](https://raw.githubusercontent.com/MobilityData/gtfs.org/main/docs/en/getting-started/features/accessibility.md) | schema | Markdown (gtfs.org repository) | 11 | Not stated (the GTFS specification repository is Apache 2.0) |
+| [GTFS pathways and levels](https://raw.githubusercontent.com/MobilityData/gtfs.org/main/docs/en/getting-started/features/pathways.md) | schema | Markdown (gtfs.org repository) | 22 | Not stated (as above) |
+| [Profil NeTEx accessibilité France v2.4](https://normes.transport.data.gouv.fr/normes/netex/accessibilite/) | schema | HTML, about 20,000 words | 394 | Not checked |
+| [Données d'accessibilité et Acceslibre Mobilités](https://www.ecologie.gouv.fr/politiques-publiques/donnees-daccessibilite-acceslibre-mobilites) | legislation, schema | HTML | 114 | Not checked (government site) |
+| [Schéma des politiques des données d'accessibilité (2025)](https://www.ecologie.gouv.fr/sites/default/files/documents/2025%2006%20Schema%20Politiques%20des%20donn%C3%A9es%20accessibilit%C3%A9_0.pdf) | legislation | PDF, 1 page (diagram) | 7 | Not checked (government site) |
 
 **Licence knowingly disregarded (decided 2026-11-18):** nine ingested documents come from sites whose terms forbid or limit reproduction; they are the rows marked **Restricted**. They stay in the hub because the hub is used only in local tests and closed demos, never published.
 - Each one has the tag `licence-restricted` in `domain-knowledge.yaml` and in the hub.

@@ -95,7 +95,7 @@ Agents call them with operation `getRecords`, the portal's `dataset_id` (given i
 make -C ../dataspace up   # the data space first: the proxies join its Docker network
 make up                   # build and start the proxies
 make register             # PUT every */registration.json to the catalog (http://localhost:8001)
-make knowledge            # optional: ingest domain-knowledge.yaml into the vocabulary hub (needs internet)
+make knowledge            # optional: ingest domain-knowledge.yaml (web pages, plus files such as literatuurstudie.pdf) into the vocabulary hub
                           # and set permanent-context.md as the hub's permanent context
 make test                 # offline unit tests of the proxies
 make e2e                  # data space + sources end to end (needs internet for IedereenOveral)

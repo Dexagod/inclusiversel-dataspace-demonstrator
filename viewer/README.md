@@ -61,12 +61,12 @@ it behind Caddy or nginx under `/viewer/` (its paths are relative, so the root w
 - **Vocabulary hub:** all ingested documents, their tags, language, chunk count,
   source URL, ingestion date and licence. Ask a question in any supported embedding
   language; choose the result count and optional document-language/topic filters.
-  Results retain the exact returned excerpts, rank, similarity, page/heading,
+  Results retain the exact returned excerpts, rank, score, page/heading,
   source URL and licence. Ingestion dates are joined from the document list by ID;
   retrieval time is recorded in the interface. Missing metadata stays explicit.
 
 Search calls the hub's existing `/search` endpoint. This is the retrieval stage of
-RAG, **not an LLM-generated answer**. Similarity is not a confidence percentage.
+RAG, **not an LLM-generated answer**. The score only orders the passages; it is not a confidence percentage.
 Search does not query source place APIs, resolve a journey, or verify current
 accessibility. A knowledge document about Access-i, for example, does not mean an
 Access-i place source has been integrated. Existing and newly registered datasets

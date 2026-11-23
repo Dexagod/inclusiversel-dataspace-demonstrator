@@ -21,7 +21,8 @@ Regions: never pass a town to `spatial`; it matches text only, so `Ghent` drops 
 
 Search results return passages, not links between topics. When a result names a label, pictogram, scheme or source you don't know yet, run another `vochub_search` on that name before you interpret it. The hub covers:
 - Labels: Toerisme Vlaanderen A/A+, Inter Label Toegankelijk Gebouw (A, A+, A++), IedereenOveral medals, Access-i, Tourisme & Handicap, Destination pour Tous, Handiplage, Destination Innovante Durable, Picto Access, Handy.brussels/AMT.
-- Data schemas: Acceslibre, A11yJSON, OpenStreetMap tags, GTFS, NeTEx.
+- Data schemas: Acceslibre, A11yJSON, OpenStreetMap tags, GTFS, NeTEx (also the French accessibility profile).
+- Overview: the project's literature study (Dutch), which compares sources, labels and certification methods.
 - Practical topics: Changing Places toilets, parking, adapted bicycles, beaches (Zon Zee Zorgeloos), events (UiT), VisitFlanders, VisitWallonia, accessible routes.
 
 ## 3. Search the web when the data space falls short

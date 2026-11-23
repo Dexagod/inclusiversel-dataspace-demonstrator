@@ -7,123 +7,185 @@
 #   http://datatourisme.fr/ontology/core/                    an RDF ontology, not readable text
 - url: https://acceslibre.beta.gouv.fr/contrib/documentation/
   title: Acceslibre field documentation
+  summary: "Acceslibre's documentation of every accessibility field it records for French buildings open to the public (ERP): transport, parking, outside path, entrance, reception, toilets and rooms, with per field its meaning, data type and allowed values."
   language: fr
   tags: [acceslibre, criteria]
 - url: https://schema.data.gouv.fr/MTES-MCT/acceslibre-schema/latest.html
   title: Acceslibre data schema
+  summary: "The French public data schema (schema.data.gouv.fr) for accessibility information about buildings open to the public (ERP), used by Acceslibre: the field names, types and allowed values for exchanging this data."
   language: fr
   tags: [acceslibre, schema]
 - url: https://www.vlaanderen.be/inter/overheden-en-professionelen/iedereenoveral
   title: IedereenOveral for governments and professionals
+  summary: "Inter's background page on IedereenOveral, the platform for accessibility information across Flanders: what it is used for, the categories and types of locations on it, and for which types anyone can add information."
   language: nl
   tags: [iedereenoveral]
 - url: https://access-i.be/en/?p=1453
   title: "Access-i: what it is and how places are audited"
+  summary: "Access-i in Wallonia and Brussels: places are audited on site, and each gets an information sheet on access-i.be listing its strengths and points of attention per type of disability."
   language: en
   tags: [access-i, criteria, licence-restricted]
 - url: https://limoges.fr/sites/default/files/espace_presse/2025/CP%20Picto%20Access%2003%202025-1.pdf
   title: Picto Access pictogram scheme (Limoges press release)
+  summary: "Press release of the City of Limoges on Picto Access, a French scheme that rates public buildings with a pictogram per type of disability in three levels: green A (accessible on one's own), yellow B (with some help), red C (not accessible)."
   language: fr
   tags: [pictoaccess, criteria]
 
 # --- From the literature study (literatuurstudie.pdf), section 3: labels and certification ---
 - url: https://www.vlaanderen.be/inter/toolbox-toegankelijke-steden-en-gemeenten/toerisme/screening-bezienswaardigheden-horeca-en-handelszaken
   title: "Inter screening of attractions, hospitality and shops (IedereenOveral medals)"
+  summary: "Inter's on-site screening by an accessibility expert of the tourist attractions, hospitality and shops in a municipality; the results are published on IedereenOveral."
   language: nl
   tags: [iedereenoveral, inter, criteria, label]
 - url: https://toerismevlaanderen.be/nl/kwaliteit/inclusie/toegankelijkheid/a-label
   title: Toerisme Vlaanderen accessibility labels A and A+
+  summary: "Toerisme Vlaanderen's accessibility label for tourist accommodation, in two levels: A (accessible) and A+ (comfortable and independent access to the essential parts). New screenings are suspended since the Toegankelijk Vlaanderen database went offline."
   language: nl
   tags: [toerismevlaanderen, label, criteria, licence-restricted]
 - url: https://www.vlaanderen.be/inter/overheden-en-professionelen/werken-aan-toegankelijke-gebouwen/label-toegankelijk-gebouw
   title: Inter Label Toegankelijk Gebouw (A, A+, A++)
+  summary: "Inter's quality label for accessible buildings (offices, town halls, culture and sports venues) in three levels: A, A+ and A++. A label committee decides after an assessment; projects can be supported from design to construction."
   language: nl
   tags: [inter, label, buildings]
 - url: https://access-i.be/en/faqs/ca-veut-dire-quoi-etre-certifie-par-access-i/
   title: "Access-i: what does certification mean"
+  summary: "What an Access-i certification means: accessibility information about the place is available on access-i.be, with strengths and points of attention per type of disability."
   language: en
   tags: [access-i, label, certification, licence-restricted]
 - url: https://www.atout-france.fr/fr/tourisme-et-handicap
   title: Tourisme & Handicap state label (Atout France)
+  summary: "Tourisme & Handicap, the French state label for accessible tourism, created in 2003 and run by Atout France since 2024: tourist venues are certified per type of disability after an assessment."
   language: fr
   tags: [tourisme-handicap, label, certification, licence-restricted]
 - url: https://www.entreprises.gouv.fr/priorites-et-actions/proximite-et-territoires/renforcer-le-secteur-du-tourisme/destination-pour-tous
   title: Destination pour Tous destination label
+  summary: "Destination pour Tous, the French state label for accessible tourist destinations: a whole town or area where residents and visitors with a disability can stay inclusively."
   language: fr
   tags: [destination-pour-tous, label, destination]
 - url: https://handiplage.fr/
   title: Handiplage beach accessibility label
+  summary: "Handiplage, a French label for accessible beaches since 2000, in levels: level 1 asks for a supervised beach, a first-aid post nearby and reserved parking; higher levels add equipment and help to reach the water."
   language: fr
   tags: [handiplage, label, beaches]
 - url: https://handicap.gouv.fr/registre-daccessibilite-obligatoire-un-guide-pour-les-erp
   title: Registre public d'accessibilité - guide for ERP
+  summary: "The French rule that every building open to the public (ERP) keeps a public accessibility register informing visitors about its accessibility, with the ministry's guide and templates."
   language: fr
   tags: [registre-accessibilite, legislation, erp]
 - url: https://france-congres-evenements.org/did-label/
   title: Destination Innovante Durable label
+  summary: "Destination Innovante Durable, a French label from France Congrès et Evénements for cities committed to eco-responsible tourism and events."
   language: fr
   tags: [did, label, destination, licence-restricted]
 - url: https://handy.brussels/en/amt-concept/pictogrammes/
   title: Handy.brussels / AMT Concept pictograms
+  summary: "The pictograms of Handy.brussels / AMT Concept in Brussels: accessibility types (Type I is fully accessible) and icons for parking, mobility impaired pedestrians, blind and visually impaired, deaf and hearing impaired, mental disability and adapted toilets."
   language: en
   tags: [handy-brussels, pictograms, criteria, licence-restricted]
 
 # --- Literature study: data standards and schemas ---
 - url: https://schema.data.gouv.fr/MTES-MCT/acceslibre-erp-base/
   title: Acceslibre ERP base schema
+  summary: "The schema.data.gouv.fr schema for the accessibility of buildings open to the public (ERP) in its base form, the starting point of the Acceslibre data model."
   language: fr
   tags: [acceslibre, schema]
 - url: https://sozialhelden.github.io/a11yjson/
   title: A11yJSON accessibility data standard
+  summary: "A11yJSON, an open standard based on GeoJSON for exchanging accessibility information about places, amenities such as elevators and escalators, sanitary facilities, media and policies."
   language: en
   tags: [a11yjson, schema]
 - url: https://wiki.openstreetmap.org/wiki/Disabilities
   title: OpenStreetMap accessibility tagging (Disabilities)
+  summary: "OpenStreetMap's tags for disabled users: wheelchair=yes/limited/no, ramps, tactile paving, tactile maps, acoustic traffic signals, wheelchair toilets and related tags."
   language: en
   tags: [openstreetmap, schema, tagging]
-- url: https://gtfs.org/documentation/schedule/examples/pathways/
+# gtfs.org refuses automated requests (403); the same pages come from its GitHub repository as Markdown.
+- url: https://raw.githubusercontent.com/MobilityData/gtfs.org/main/docs/en/documentation/schedule/examples/pathways.md
   title: GTFS pathways and physical accessibility
+  summary: "Worked example of GTFS pathways: how a transit feed describes a station in detail (entrances, levels, corridors, stairs, elevators, escalators) so trip planners can offer step-free routes."
   language: en
   tags: [gtfs, transport, schema]
 - url: https://transmodel-cen.eu/wp-content/uploads/2024/07/08.NeTEx-Accessibility-WhitePaper_1.06.pdf
   title: NeTEx accessibility white paper
+  summary: "CEN white paper (2015) on how NeTEx, the European standard for public transport data, describes accessibility: accessibility assessments and limitations of stops, stop places, paths and vehicles, equipment and passenger needs."
   language: en
   tags: [netex, transport, schema]
+- url: https://raw.githubusercontent.com/MobilityData/gtfs.org/main/docs/en/getting-started/features/accessibility.md
+  title: GTFS accessibility features (wheelchair boarding, accessible trips, text-to-speech)
+  summary: "How GTFS describes accessibility: wheelchair_boarding on stops (stations, entrances and boarding areas), wheelchair_accessible on trips, and text-to-speech names for stops, with sample data."
+  language: en
+  tags: [gtfs, transport, schema]
+- url: https://raw.githubusercontent.com/MobilityData/gtfs.org/main/docs/en/getting-started/features/pathways.md
+  title: GTFS pathways and levels (stations, step-free routes)
+  summary: "GTFS pathways.txt and levels.txt: how a feed describes the inside of a station as connected pathways (walkways, stairs, escalators, elevators), with pathway details, levels, traversal times and signs, so trip planners can find step-free routes."
+  language: en
+  tags: [gtfs, transport, schema]
+- url: https://normes.transport.data.gouv.fr/normes/netex/accessibilite/
+  title: Profil NeTEx accessibilité France (French NeTEx accessibility profile)
+  summary: "The French national NeTEx profile for public transport accessibility (version 2.4): the minimum required by French and European rules, how a place meets each user need, available services, equipment (access, waiting, signs, ticketing, parking) and paths."
+  language: fr
+  tags: [netex, transport, schema, france]
+- url: https://www.ecologie.gouv.fr/politiques-publiques/donnees-daccessibilite-acceslibre-mobilites
+  title: Données d'accessibilité et Acceslibre Mobilités (French transport accessibility data policy)
+  summary: "The French ministry's page on accessibility data for transport and roads: the duty since the 2019 mobility law (LOM) to collect and publish it, the NeTEx accessibility profile, the CNIG standard for roads and its links with OpenStreetMap, and Acceslibre Mobilités as a collection tool."
+  language: fr
+  tags: [netex, transport, legislation, acceslibre, france]
+- url: https://www.ecologie.gouv.fr/sites/default/files/documents/2025%2006%20Schema%20Politiques%20des%20donn%C3%A9es%20accessibilit%C3%A9_0.pdf
+  title: Schéma des politiques des données d'accessibilité (France, 2025)
+  summary: "One-page diagram (June 2025) of the French accessibility data ecosystem: the CNIG standard and the NeTEx accessibility profile as exchange format, the joint order of 28 May 2024, the national access point (PAN), the legal right to travel information, and who maintains each part."
+  language: fr
+  tags: [netex, transport, legislation, france]
 - url: https://publicaties.vlaanderen.be/view-file/69606
   title: Inter evaluation of accessibility regulation compliance (plan vs. built)
+  summary: "Inter's final report evaluating the Flemish building accessibility regulation (in force since 2010): how well building permit plans and finished buildings comply with its rules, with recommendations."
   language: nl
   tags: [inter, legislation, buildings, evaluation]
 
 # --- Literature study: operational knowledge on services and support ---
 - url: https://www.vlaanderen.be/inter/mensen-met-een-handicap/changing-places
   title: Changing Places toilets in Flanders
+  summary: "Changing Places in Flanders: extra-large public toilets for people who need more space, equipment, time or help, such as an adult changing bench and a hoist."
   language: nl
   tags: [inter, toilets, services]
 - url: https://www.vlaanderen.be/inter/mensen-met-een-handicap/navigeer-en-parkeer
   title: Navigeer en parkeer - accessible parking
+  summary: "Map of the reserved parking spaces for people with a disability in West Flanders, filterable by municipality, type, surface and dimensions, with photos and route links."
   language: nl
   tags: [inter, parking, services]
 - url: https://www.vlaanderen.be/inter/mensen-met-een-handicap/iedereen-fietst
   title: Iedereen fietst - adapted bicycles
+  summary: "Accessible cycling and walking routes in West Flanders for handbikes, wheelchair bikes, duo bikes and tandems, by Inter, the province of West Flanders and Westtoer."
   language: nl
   tags: [inter, cycling, services]
 - url: https://www.vlaanderen.be/inter/mensen-met-een-handicap/zon-zee-zorgeloos
   title: Zon, zee, zorgeloos - accessible beaches on the Belgian coast
+  summary: "Accessible beaches on the Belgian coast: in July and August most coastal towns offer adapted facilities and assistants on the beach, such as beach wheelchairs; per town what is available."
   language: nl
   tags: [inter, beaches, services]
 - url: https://www.vlaanderen.be/inter/mensen-met-een-handicap/agenda-toegankelijke-evenementen/toegankelijke-evenementen-op-uitinvlaanderen
   title: Accessible events on UiTinVlaanderen
+  summary: "How to find accessible events on UiTinVlaanderen, the Flemish events calendar, through Inter's agenda of accessible events."
   language: nl
   tags: [inter, uitinvlaanderen, events]
 - url: https://www.visitflanders.com/en/travel-information/accessibility
   title: VisitFlanders accessible travel information
+  summary: "VisitFlanders' practical accessibility information and inspiration for visitors with specific needs in Flanders: accessible city visits, attractions, walking and cycling."
   language: en
   tags: [visitflanders, tourism, services, licence-restricted]
 - url: https://visitwallonia.be/fr-be/3/je-suis/voyageur-a-besoins-specifiques
   title: VisitWallonia - travellers with specific needs
+  summary: "VisitWallonia's suggestions for accessible holidays in Wallonia per type of disability (mobility, hearing, visual, cognitive), at sites with equipment for visitors with a disability."
   language: fr
   tags: [visitwallonia, tourism, services, licence-restricted]
 - url: https://www.routen.be/toegankelijkheid
   title: Routen accessible routes
+  summary: "Accessible walking and cycling routes in East Flanders by Toerisme Oost-Vlaanderen (Routen), for people who face barriers outdoors."
   language: nl
   tags: [routen, routes, licence-restricted]
+
+# --- The project's own literature study (a file in this repository, not a web page) ---
+- file: ../literatuurstudie.pdf
+  title: "Literatuurstudie: toegankelijkheidsinformatie in Vlaanderen, Wallonië en Frankrijk"
+  summary: "The project's literature study (Dutch): sources of accessibility information in Flanders, Wallonia and France (data portals, Picto Access, Acceslibre, IedereenOveral, Access-i, tourism, transport, navigation), accessibility assessments, labels and certification, data standards, and how AI agents and a data space can integrate them."
+  language: nl
+  tags: [literature-study, label, certification, criteria, schema, transport]

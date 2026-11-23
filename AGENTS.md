@@ -40,7 +40,7 @@ sources/                    everything source-specific
   docker-compose.yml        proxies; join the external network accessibility-dataspace_default
   seed.py                   `register`: PUT */registration.json to the catalog; `knowledge`: ingest domain-knowledge.yaml and PUT permanent-context.md
   permanent-context.md      the vochub's permanent context: returned with every vochub_search (compare sources, ask again, web search, answer layout); keep it short
-  domain-knowledge.yaml     public documents for the vocabulary hub
+  domain-knowledge.yaml     documents for the vocabulary hub (`url:` or `file:`, each with a `summary`), incl. literatuurstudie.pdf
   source-inventory.md       every source from the literature study: status, access, proxy, licence, study errors
   domain-knowledge-inventory.md  the same for vocabulary-hub documents, with each site's reuse terms
   tests/e2e.py              end-to-end test of data space + sources
@@ -173,6 +173,7 @@ Pick one task, stay in one component, and meet its acceptance criteria.
 | 9 | Fix the Acceslibre `zone` mismatch: comma-join array parameters whose OpenAPI `style`/`explode` asks for it | `dataspace/connector/openapi_calls.py` | unit test: `zone=[a,b,c,d]` becomes `zone=a,b,c,d` |
 | 10 | CI running `make check` and `make -C sources test` (0.1) | repo root | green on push |
 | 11 | More sources from the literature study: take the next one from "Candidates, in suggested order" in [`sources/source-inventory.md`](sources/source-inventory.md) (DATAtourisme, Accessibility.Cloud and so on) | `sources/` | one registration each, tested through the connector; its row in the inventory updated |
+| 12 | Better retrieval in the vocabulary hub, once a demo needs it: a golden question set for search (expected document in the top 5), then a reranker on the top 30 to 50 hits (e.g. `bge-reranker-v2-m3`) and a stronger multilingual model (e.g. `bge-m3`, longer chunks) | `dataspace/vochub/` | the question set scores higher than with the current hybrid search |
 
 User profiles (personal needs and preferences) are analysed in [`user-profiles.md`](user-profiles.md): not implemented; read it before adding anything profile-related to the connector or skill.
 
@@ -236,7 +237,7 @@ make -C viewer check        # offline fictional fixtures; Python and Node.js 18+
   exposes licence notes, access conditions, source DCAT and root graph exports.
 - **Vocabulary and questions:** the vocabulary tab lists `/documents` and calls
   `/search` with `q`, `k`, optional `language` and `tag`. Show retrieved passages
-  with source URL, page/heading, licence, similarity and retrieval time; join
+  with source URL, page/heading, licence, score and retrieval time; join
   ingestion dates from document metadata. This is RAG retrieval, not generated
   answers or live place searches. Missing metadata stays unknown. Inclusion of a
   provider's knowledge document does not imply its place API is connected.

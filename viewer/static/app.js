@@ -242,12 +242,12 @@ async function search(event) {
     const hits = await api(`api/vochub/search?${params}`, true);
     const retrieved = date(new Date().toISOString());
     $('results-meta').textContent = `${hits.length} passages · Retrieved ${retrieved}`;
-    message('search-message', hits.length ? 'Passages are ranked by semantic similarity. A similarity score is not a confidence rating; check the cited context.' : 'No passages were returned. Try a broader question, remove a language or topic filter, or check that documents have been ingested.');
+    message('search-message', hits.length ? 'Passages are ranked by meaning and keywords combined, at most two per document. The score only orders them; it is not a confidence rating. Check the cited context.' : 'No passages were returned. Try a broader question, remove a language or topic filter, or check that documents have been ingested.');
     $('search-results').replaceChildren(...hits.map((hit, index) => {
       const doc = state.documents.find(d => d.doc_id === hit.doc_id);
       const location = [hit.page !== null && hit.page !== undefined ? `Page ${hit.page}` : null, hit.heading, hit.language ? language(hit.language) : null].filter(Boolean).join(' · ');
       return el('article', {class: 'result-card'},
-        el('div', {class: 'result-card-heading'}, el('span', {class: 'citation-number', text: String(index + 1).padStart(2, '0')}), el('div', {class: 'result-title'}, el('h3', {}, externalLink(hit.url, hit.title || 'Untitled source')), el('p', {class: 'muted small', text: location || 'No page or section metadata'})), Number.isFinite(hit.score) ? pill(`Similarity ${hit.score.toFixed(3)}`) : null),
+        el('div', {class: 'result-card-heading'}, el('span', {class: 'citation-number', text: String(index + 1).padStart(2, '0')}), el('div', {class: 'result-title'}, el('h3', {}, externalLink(hit.url, hit.title || 'Untitled source')), el('p', {class: 'muted small', text: location || 'No page or section metadata'})), Number.isFinite(hit.score) ? pill(`Score ${hit.score.toFixed(3)}`) : null),
         el('blockquote', {class: 'passage', text: hit.text || 'No passage text returned.'}),
         el('div', {class: 'tags'}, ...tags(hit.tags)),
         el('div', {class: 'citation-details'},
