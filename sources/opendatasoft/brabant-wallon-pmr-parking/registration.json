@@ -35,5 +35,11 @@
   ],
   "landing_page": "https://www.odwb.be/explore/dataset/stationnements-pmr-en-brabant-wallon/",
   "access_note": "Open Explore API; no key needed for reading.",
-  "licence": "https://creativecommons.org/licenses/by/4.0/"
+  "licence": "https://creativecommons.org/licenses/by/4.0/",
+  "assessment": {
+    "methods": [
+      "official"
+    ],
+    "note": "Inventory of reserved parking published by the province; date_de_derniere_modification_de_la_donnee per space."
+  }
 }

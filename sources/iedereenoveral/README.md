@@ -6,8 +6,8 @@ IedereenOveral (https://iedereen.overal.info) is Inter's platform for the access
 | --- | --- |
 | Upstream API | `https://xcli-wrwg-eljt.f2.xano.io/api:SuAo_4fA` (Xano) |
 | Upstream OpenAPI | `https://xcli-wrwg-eljt.f2.xano.io/apispec:SuAo_4fA?type=json&token=` (OpenAPI 3.0.0, 44 operations) |
-| Adapter | `src-iedereenoveral`, port 8102, OpenAPI at `/openapi.json` |
-| Catalog id | `iedereenoveral` (`registration.json`) |
+| Adapter | `src-iedereenoveral`, port 8102. The full API is at `/` (OpenAPI at `/openapi.json`); one sub-API per kind of place, as on the website, at `/food-and-drink/`, `/toilets/` (public toilets and Changing Places), `/museums/` and `/parking/`, each with its own OpenAPI and the category fixed |
+| Catalog ids | `iedereenoveral-food-and-drink`, `iedereenoveral-toilets`, `iedereenoveral-museums`, `iedereenoveral-parking` (`<kind>/registration.json`); the full API is not registered, so each kind is its own dataset |
 | Access | Public reads, no key. Writes and account routes need a user bearer token and are not exposed |
 | Licence | Not yet confirmed with Inter (`licence_note` in the registration) |
 | robots.txt | Allows all (checked 2026-11-12) |
@@ -15,17 +15,19 @@ IedereenOveral (https://iedereen.overal.info) is Inter's platform for the access
 ## Flow
 
 ```text
-agent ─MCP─▶ connector ─▶ catalog: "iedereenoveral" → endpoint + OpenAPI of the adapter
-                       ─▶ src-iedereenoveral /places, /places/{id}, /facets   (compact, described)
+agent ─MCP─▶ connector ─▶ catalog: "iedereenoveral-toilets" → endpoint + OpenAPI of /toilets/
+                       ─▶ src-iedereenoveral /toilets/places, /toilets/places/{id}, /toilets/facets   (compact, described)
                                 └─▶ Xano API /location, /location/{slug}, lookup tables (cached 6 h)
 ```
 
-1. `make register` (in `sources/`) PUTs `registration.json` to the catalog, which checks the adapter's OpenAPI.
-2. `catalog_search` finds it for words such as wheelchair, toilet, restaurant, Gent, Flanders.
-3. `get_openapi` gives four described operations: `iedereenoveral_search_places`, `iedereenoveral_get_place`, `iedereenoveral_facets`, `iedereenoveral_about`.
+1. `make register` (in `sources/`) PUTs the four `<kind>/registration.json` to the catalog, which checks each sub-API's OpenAPI.
+2. `catalog_search` finds the right kind for words such as toilet, restaurant, museum, parking, Gent, Flanders.
+3. `get_openapi` gives four described operations per kind, e.g. `iedereenoveral_toilets_search_places`, `_get_place`, `_facets`, `_about`.
+
+Museums link to their own website: their detailed information was mapped with the Toegankelijkheidswijzer (Agentschap Binnenlands Bestuur with Inter). Museums and parking spaces have no place confirmed by Inter (checked 2026-11-20); food and drink has 88 of about 430, toilets about 630 of 870.
 4. `call_source_operation` calls the adapter, which calls the Xano API live and returns compact records with provenance.
 
-No API key is configured, because the public reads need none. If Inter issues a key later, add `iedereenoveral` to `config/credentials.yaml` and pass the key on in `app.py:upstream`.
+No API key is configured, because the public reads need none. If Inter issues a key later, add the four dataset ids to `config/credentials.yaml` and pass the key on in `app.py:upstream`.
 
 ## Why an adapter, and not the raw API
 

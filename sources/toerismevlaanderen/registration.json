@@ -11,14 +11,64 @@
   "endpoint_url": "http://src-toerismevlaanderen:8000/",
   "openapi_url": "http://src-toerismevlaanderen:8000/openapi.json",
   "conforms_to": [
-    {"url": "http://linked.toerismevlaanderen.be/vocabularies/accessibility/", "title": "Toerisme Vlaanderen accessibility vocabulary (AccessibilityInformation)"},
-    {"url": "https://data.vlaanderen.be/ns/logies", "title": "OSLO Logies (Flemish application profile for tourist accommodation)"}
+    {
+      "url": "http://linked.toerismevlaanderen.be/vocabularies/accessibility/",
+      "title": "Toerisme Vlaanderen accessibility vocabulary (AccessibilityInformation)"
+    },
+    {
+      "url": "https://data.vlaanderen.be/ns/logies",
+      "title": "OSLO Logies (Flemish application profile for tourist accommodation)"
+    }
   ],
-  "keywords": ["A-label", "A+-label", "toegankelijkheidslabel", "toegankelijk toerisme", "wheelchair", "rolstoel", "museum", "restaurant", "hotel", "jeugdverblijf", "vakantiewoning", "toerisme", "tourism", "autism", "deaf", "blind", "allergies"],
-  "themes": ["accessibility", "tourism"],
-  "languages": ["nl", "en"],
-  "spatial": ["Flanders", "Vlaanderen", "Brussels", "Belgium", "Gent", "Ghent", "Brugge", "Bruges", "Antwerpen", "Antwerp", "Leuven", "Kust"],
+  "keywords": [
+    "A-label",
+    "A+-label",
+    "toegankelijkheidslabel",
+    "toegankelijk toerisme",
+    "wheelchair",
+    "rolstoel",
+    "museum",
+    "restaurant",
+    "hotel",
+    "jeugdverblijf",
+    "vakantiewoning",
+    "toerisme",
+    "tourism",
+    "autism",
+    "deaf",
+    "blind",
+    "allergies"
+  ],
+  "themes": [
+    "accessibility",
+    "tourism"
+  ],
+  "languages": [
+    "nl",
+    "en"
+  ],
+  "spatial": [
+    "Flanders",
+    "Vlaanderen",
+    "Brussels",
+    "Belgium",
+    "Gent",
+    "Ghent",
+    "Brugge",
+    "Bruges",
+    "Antwerpen",
+    "Antwerp",
+    "Leuven",
+    "Kust"
+  ],
   "update_frequency": "DAILY",
   "landing_page": "https://linked.toerismevlaanderen.be",
-  "contact_email": "opendata@toerismevlaanderen.be"
+  "contact_email": "opendata@toerismevlaanderen.be",
+  "assessment": {
+    "methods": [
+      "certified",
+      "official"
+    ],
+    "note": "a_label A or A+ is the Toerisme Vlaanderen accessibility label (about 400 places). Other places carry accessibility information registered with Toerisme Vlaanderen, without a label; how it was collected is not stated per place."
+  }
 }

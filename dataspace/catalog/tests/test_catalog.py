@@ -19,6 +19,7 @@ REG = {
     "update_frequency": "MONTHLY",
     "conforms_to": [{"url": "https://gtfs.org/documentation/schedule/reference/", "title": "GTFS Schedule"}],
     "distributions": [{"url": "https://example.org/guide.pdf", "media_type": "application/pdf", "title": "Guide"}],
+    "assessment": {"methods": ["certified", "crowd_sourced"], "note": "verified=true: checked on site."},
 }
 
 
@@ -47,6 +48,7 @@ def test_register_search_and_get(client):
     hits = client.get("/datasets", params={"q": "restaurant wheelchair Ghent"}).json()
     assert [h["id"] for h in hits] == ["test-places"]
     assert hits[0]["openapi_url"] == REG["openapi_url"]
+    assert hits[0]["assessment"]["methods"] == ["certified", "crowd_sourced"]
     assert client.get("/datasets", params={"q": "tokyo"}).json() == []
     assert client.get("/datasets", params={"language": "fr"}).json() == []
     assert client.get("/datasets", params={"spatial": "flan"}).json()[0]["id"] == "test-places"
@@ -55,11 +57,11 @@ def test_register_search_and_get(client):
 
 
 def test_invalid_registration_is_readable(client):
-    bad = {**REG, "languages": ["xx"], "licence": "not a url"}
+    bad = {**REG, "languages": ["xx"], "licence": "not a url", "assessment": {"methods": ["rumour"], "note": "x"}}
     r = client.post("/datasets", json=bad)
     assert r.status_code == 422
     text = json.dumps(r.json())
-    assert "unknown language codes" in text and "licence" in text
+    assert "unknown language codes" in text and "licence" in text and "assessment" in text
     assert client.post("/datasets", json={**REG, "openapi_url": "http://broken/openapi.json"}).status_code == 422
 
 
@@ -79,6 +81,9 @@ def test_dcat_output(client):
              SELECT ?file ?type WHERE { ?d dcat:distribution ?x . ?x dcat:downloadURL ?file ; dcat:mediaType ?type }"""
     assert [(str(r.file), str(r.type)) for r in g.query(pdf)] == [
         ("https://example.org/guide.pdf", "https://www.iana.org/assignments/media-types/application/pdf")]
+    prov = """PREFIX dct: <http://purl.org/dc/terms/> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              SELECT ?label WHERE { ?d dct:provenance ?p . ?p a dct:ProvenanceStatement ; rdfs:label ?label }"""
+    assert [str(r.label) for r in g.query(prov)] == ["Collection methods: certified, crowd_sourced. verified=true: checked on site."]
     jsonld = client.get("/catalog", params={"format": "jsonld"})
     assert jsonld.headers["content-type"].startswith("application/ld+json")
     Graph().parse(data=jsonld.text, format="json-ld")

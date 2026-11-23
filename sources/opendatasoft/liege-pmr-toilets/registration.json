@@ -33,5 +33,11 @@
   ],
   "landing_page": "https://www.odwb.be/explore/dataset/toilettes-pmr/",
   "access_note": "Open Explore API; no key needed for reading.",
-  "licence": "https://creativecommons.org/licenses/by/4.0/"
+  "licence": "https://creativecommons.org/licenses/by/4.0/",
+  "assessment": {
+    "methods": [
+      "official"
+    ],
+    "note": "List of accessible public toilets published by the city."
+  }
 }

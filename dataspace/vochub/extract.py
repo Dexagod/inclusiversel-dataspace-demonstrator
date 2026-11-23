@@ -10,7 +10,9 @@ import re
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 
-MAX_WORDS = 250
+# The default embedding model reads only the first 128 tokens (about 1.6 per word in Dutch and French), and each
+# chunk is embedded with its document title and heading in front; anything past the limit is silently ignored.
+MAX_WORDS = 60
 
 
 @dataclass

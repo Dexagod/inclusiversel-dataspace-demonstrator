@@ -36,5 +36,11 @@
   ],
   "landing_page": "https://www.odwb.be/explore/dataset/parkings-pour-personnes-a-mobilite-reduite-pmr-la-louviere/",
   "access_note": "Open Explore API; no key needed for reading.",
-  "licence_note": "The publisher marks the licence as not specified (Licence non spécifiée)."
+  "licence_note": "The publisher marks the licence as not specified (Licence non spécifiée).",
+  "assessment": {
+    "methods": [
+      "official"
+    ],
+    "note": "Inventory of reserved parking published by the city."
+  }
 }

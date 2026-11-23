@@ -33,7 +33,7 @@ def payload(result):
 
 async def main():
     ids = [d["id"] for d in httpx.get(f"{CATALOG}/datasets").json()]
-    check({"iedereenoveral", "pictoaccess", "acceslibre"} <= set(ids), f"catalog lists the registered datasets ({ids})")
+    check({"iedereenoveral-food-and-drink", "iedereenoveral-toilets", "pictoaccess", "acceslibre"} <= set(ids), f"catalog lists the registered datasets ({ids})")
     check("endpointDescription" in httpx.get(f"{CATALOG}/catalog").text, "catalog exports DCAT with endpointDescription")
 
     # Fictional test document: searched only within its own tag, and always removed again.
@@ -56,7 +56,7 @@ async def main():
         vh = payload(await mcp.call_tool("vochub_search", {"question": "accessibility label", "k": 1}))
         check(vh.get("context"), "vochub_search returns the permanent context (make knowledge sets it)")
         hits = payload(await mcp.call_tool("catalog_search", {"query": "wheelchair restaurant Ghent"}))["results"]
-        check(any(h["id"] == "iedereenoveral" for h in hits), "catalog_search via MCP")
+        check(any(h["id"] == "iedereenoveral-food-and-drink" for h in hits), "catalog_search via MCP")
         api = payload(await mcp.call_tool("get_openapi", {"dataset_id": "pictoaccess"}))
         check("pictoaccess_search_places" in [o["operation_id"] for o in api["operations"]], "get_openapi condenses operations")
         res = payload(await mcp.call_tool("call_source_operation", {
@@ -79,13 +79,13 @@ async def main():
 
         # Live: needs internet, calls the IedereenOveral API through its adapter.
         res = payload(await mcp.call_tool("call_source_operation", {
-            "dataset_id": "iedereenoveral", "operation_id": "iedereenoveral_search_places",
-            "params": {"town": "Gent", "category": "food_and_drink", "limit": 5}}))
+            "dataset_id": "iedereenoveral-food-and-drink", "operation_id": "iedereenoveral_food_and_drink_search_places",
+            "params": {"town": "Gent", "limit": 5}}))
         places = res["data"]["places"]
         check(res["provenance"]["status"] == 200 and places and len(json.dumps(res)) < 6000,
               f"IedereenOveral search for Gent returns {res['data']['total']} compact places")
         res = payload(await mcp.call_tool("call_source_operation", {
-            "dataset_id": "iedereenoveral", "operation_id": "iedereenoveral_get_place",
+            "dataset_id": "iedereenoveral-food-and-drink", "operation_id": "iedereenoveral_food_and_drink_get_place",
             "params": {"place_id": places[0]["id"]}}))
         check(res["data"].get("accessibility") is not None and not res.get("truncated"),
               f"IedereenOveral place detail fits untruncated ({len(json.dumps(res))} chars)")

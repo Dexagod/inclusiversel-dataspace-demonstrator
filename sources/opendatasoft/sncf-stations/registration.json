@@ -38,5 +38,11 @@
   ],
   "landing_page": "https://ressources.data.sncf.com/explore/dataset/gares-de-voyageurs/",
   "access_note": "Open Explore API; no key needed for reading.",
-  "licence": "https://data.sncf.com/pages/licence"
+  "licence": "https://data.sncf.com/pages/licence",
+  "assessment": {
+    "methods": [
+      "official"
+    ],
+    "note": "Station reference list published by SNCF, the operator."
+  }
 }

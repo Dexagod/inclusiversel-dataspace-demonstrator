@@ -39,5 +39,11 @@
   ],
   "landing_page": "https://ressources.data.sncf.com/explore/dataset/assistance-psh-pmr/",
   "access_note": "Open Explore API; no key needed for reading.",
-  "licence": "https://data.sncf.com/pages/licence"
+  "licence": "https://data.sncf.com/pages/licence",
+  "assessment": {
+    "methods": [
+      "official"
+    ],
+    "note": "Published by SNCF, the operator; datestatut is the date of the status."
+  }
 }

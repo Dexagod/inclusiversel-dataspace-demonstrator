@@ -43,5 +43,11 @@
   ],
   "landing_page": "https://www.odwb.be/explore/dataset/emplacements-pmr-databusters/",
   "access_note": "Open Explore API; no key needed for reading.",
-  "licence": "https://creativecommons.org/licenses/by/4.0/"
+  "licence": "https://creativecommons.org/licenses/by/4.0/",
+  "assessment": {
+    "methods": [
+      "crowd_sourced"
+    ],
+    "note": "Collected by volunteers in a crowdsourcing challenge run by FuturoCité in October 2022; not checked since."
+  }
 }

@@ -1,0 +1,49 @@
+{
+  "id": "iedereenoveral-parking",
+  "catalog": "belgium",
+  "title": "IedereenOveral: reserved parking spaces for disabled people in Flanders and Brussels",
+  "description": "About 6,400 reserved parking spaces ('Parkeerplaatsen'). Each space has answers to an accessibility questionnaire, with measurements such as door widths. Texts are in Dutch. Live data from IedereenOveral (run by Inter, successor of Toevla). None was checked by Inter.",
+  "publisher": {
+    "name": "Inter",
+    "url": "https://www.vlaanderen.be/inter"
+  },
+  "licence_note": "Reuse terms not yet confirmed with Inter.",
+  "endpoint_url": "http://src-iedereenoveral:8000/parking/",
+  "openapi_url": "http://src-iedereenoveral:8000/parking/openapi.json",
+  "keywords": [
+    "parking",
+    "parkeerplaats",
+    "parkeren",
+    "voorbehouden parkeerplaats",
+    "PMR",
+    "stationnement",
+    "wheelchair",
+    "rolstoel"
+  ],
+  "themes": [
+    "accessibility",
+    "mobility"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "spatial": [
+    "Flanders",
+    "Vlaanderen",
+    "Brussels",
+    "Belgium",
+    "Gent",
+    "Ghent",
+    "Antwerpen",
+    "Leuven",
+    "Brugge"
+  ],
+  "update_frequency": "CONT",
+  "landing_page": "https://iedereen.overal.info/",
+  "assessment": {
+    "methods": [
+      "crowd_sourced"
+    ],
+    "note": "Parking spaces can be added by anyone on IedereenOveral ('voeg info toe'); none is confirmed by Inter."
+  }
+}

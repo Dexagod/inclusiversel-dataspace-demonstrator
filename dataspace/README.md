@@ -60,7 +60,7 @@ In `dataspace/.env` (read by Compose; restart with `make up` after a change):
 | `CONNECTOR_BIND` | `127.0.0.1` | Keep `127.0.0.1` when a reverse proxy on the same host forwards to the connector; `0.0.0.0` publishes port 8800 directly (only behind a firewall that allows your own addresses) |
 | `CATALOG_BIND` | `127.0.0.1` | Same, for port 8001 |
 | `VOCHUB_BIND` | `127.0.0.1` | Keep |
-| `ACCESLIBRE_API_KEY` | | Source API keys, as on a laptop |
+| `ACCESLIBRE_API_KEY`, `TOEVLA_API_TOKEN` | | Source API keys, as on a laptop |
 
 In `sources/.env`: `SOURCES_BIND` (default `127.0.0.1`, keep it).
 
@@ -280,6 +280,7 @@ curl -X PUT http://localhost:8001/datasets/my-source -H 'content-type: applicati
 | `licence_note` | no | reuse conditions in words |
 | `landing_page`, `contact_email`, `access_note` | no | `access_note` tells consumers how to get a key |
 | `catalog` | no | sub-catalog, see below |
+| `assessment` | no, but agents rank sources by it | how the facts were collected: `methods` from `certified` (a label or on-site check by an independent body), `official` (the owner or operator: transport operator, municipality, government), `self_declared` (the venue itself), `crowd_sourced` (anyone can edit); and a `note` naming the field that tells the method per record. Shown in search results; exported as `dct:provenance` |
 | `conforms_to` | no | published schemas, data models or vocabularies the data follows (`url`, `title`); exported as `dct:conformsTo` ([ADR 0004](docs/adr/0004-schemas-in-dcat.md)) |
 | `distributions` | no | further distributions besides the API (`url`, `media_type`, `title`), e.g. the web page or PDF a document dataset reads; exported as `dcat:Distribution` with `dcat:mediaType` ([ADR 0005](docs/adr/0005-documents-as-datasets.md)) |
 | `source_dcat_url` | no | the publisher's own DCAT for this dataset; copied into the catalog and linked with `dct:source` ([ADR 0003](docs/adr/0003-mobility-catalogs-source-dcat-optional-keys.md)) |
@@ -316,7 +317,7 @@ curl -X POST http://localhost:8002/documents/url -H 'content-type: application/j
 curl 'http://localhost:8002/search?q=rolstoeltoegankelijk+toilet&k=5'
 ```
 
-Supported: PDF (with page numbers), HTML and web pages (main content only), DOCX, PPTX, XLSX, CSV, Markdown, text and other formats [markitdown](https://github.com/microsoft/markitdown) reads. Documents are split on headings into chunks of up to 250 words; identical content is ingested once. The embedding model is set with the `EMBED_MODEL` build argument (default `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`; `intfloat/multilingual-e5-large` is more accurate and about ten times larger). Changing it requires `make clean`, because vector sizes differ.
+Supported: PDF (with page numbers), HTML and web pages (main content only), DOCX, PPTX, XLSX, CSV, Markdown, text and other formats [markitdown](https://github.com/microsoft/markitdown) reads. Documents are split on headings into chunks of up to 60 words, because the default model reads only 128 tokens; each chunk is embedded with its document title and heading in front, so a passage like "vert/A (accessible en autonomie)" is still found for "Picto Access". Identical content is ingested once. After changing the chunking, delete the documents (`DELETE /documents/{id}`) and run `make knowledge` again. The embedding model is set with the `EMBED_MODEL` build argument (default `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`; `intfloat/multilingual-e5-large` is more accurate, reads 512 tokens and is about ten times larger). Changing it requires `make clean`, because vector sizes differ.
 
 **Permanent context.** One Markdown text that the connector returns as `context` with every `vochub_search`, before the passages: rules that hold for every question, such as how to compare sources. Set it with `curl -X PUT http://localhost:8002/context -H 'content-type: application/json' -d '{"text": "…"}'` (at most 20,000 characters) and read it with `GET /context`. It is stored in the `vochub-data` volume. The viewer shows it on the vocabulary hub page. The demo text is `sources/permanent-context.md`, set by `make knowledge`. Keep it short: agents get it with every search.
 

@@ -1,0 +1,51 @@
+{
+  "id": "iedereenoveral-food-and-drink",
+  "catalog": "belgium",
+  "title": "IedereenOveral: accessible cafes and restaurants in Flanders and Brussels",
+  "description": "About 430 cafes and restaurants ('Eten en drinken'): entrance, dining area and toilet. Each place has a medal (gold, silver, bronze, ok, none) and answers to an accessibility questionnaire, with measurements such as door widths. Texts are in Dutch. Live data from IedereenOveral (run by Inter, successor of Toevla). 88 places were checked by Inter.",
+  "publisher": {
+    "name": "Inter",
+    "url": "https://www.vlaanderen.be/inter"
+  },
+  "licence_note": "Reuse terms not yet confirmed with Inter.",
+  "endpoint_url": "http://src-iedereenoveral:8000/food-and-drink/",
+  "openapi_url": "http://src-iedereenoveral:8000/food-and-drink/openapi.json",
+  "keywords": [
+    "restaurant",
+    "cafe",
+    "café",
+    "horeca",
+    "eten en drinken",
+    "wheelchair",
+    "rolstoel",
+    "aangepast toilet",
+    "drempelloos",
+    "medal"
+  ],
+  "themes": [
+    "accessibility"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "spatial": [
+    "Flanders",
+    "Vlaanderen",
+    "Brussels",
+    "Belgium",
+    "Gent",
+    "Ghent",
+    "Antwerpen",
+    "Leuven",
+    "Brugge"
+  ],
+  "update_frequency": "CONT",
+  "landing_page": "https://iedereen.overal.info/",
+  "assessment": {
+    "methods": [
+      "certified",
+      "crowd_sourced"
+    ],
+    "note": "Per place, confirmed_by_inter (in place details; search filter confirmed_by_inter=true) means an Inter accessibility advisor checked the information; the website shows an Inter icon for these places. Other places were added by visitors or the venue itself. The medal is computed from the questionnaire answers, not a label."
+  }
+}

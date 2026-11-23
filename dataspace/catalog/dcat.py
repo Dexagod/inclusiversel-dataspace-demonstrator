@@ -87,6 +87,12 @@ def build_graph(records, base: str) -> Graph:
             g.add((ds, DCTERMS.conformsTo, s))
             g.add((s, RDF.type, DCTERMS.Standard))
             g.add((s, DCTERMS.title, Literal(std["title"])))
+        if d.get("assessment"):
+            prov = BNode()
+            g.add((ds, DCTERMS.provenance, prov))
+            g.add((prov, RDF.type, DCTERMS.ProvenanceStatement))
+            a = d["assessment"]
+            g.add((prov, RDFS.label, Literal(f"Collection methods: {', '.join(a['methods'])}. {a['note']}", lang="en")))
         for k in d["keywords"]:
             g.add((ds, DCAT.keyword, Literal(k)))
         for t in d["themes"]:

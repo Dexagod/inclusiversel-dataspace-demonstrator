@@ -96,3 +96,18 @@ def test_openapi_is_agent_ready(client):
     assert all(o.get("summary") for o in ops)
     params = [p for o in ops for p in o.get("parameters", [])]
     assert all(p.get("description") for p in params if p["name"] not in {"page"})
+
+
+def test_category_sub_apis(client, lk):
+    r = client.get("/toilets/places", params={"town": "Gent"})
+    assert r.status_code == 200
+    _, params = client.calls[-1]
+    assert sorted(json.loads(params["type_filter"])) == sorted(
+        lk.type_ids[n] for n in ("Publiek toilet", "Changing place"))
+    assert client.get("/toilets/places", params={"category": "museum"}).status_code == 422
+    client.get("/museums/places")
+    assert json.loads(client.calls[-1][1]["type_filter"]) == [lk.type_ids["Museum"]]
+    spec = client.get("/parking/openapi.json").json()
+    assert {op["operationId"] for item in spec["paths"].values() for op in item.values()} == {
+        "iedereenoveral_parking_search_places", "iedereenoveral_parking_get_place",
+        "iedereenoveral_parking_facets", "iedereenoveral_parking_about"}

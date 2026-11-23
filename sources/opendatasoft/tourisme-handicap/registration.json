@@ -40,5 +40,11 @@
   ],
   "landing_page": "https://data.economie.gouv.fr/explore/dataset/etablissements-labellises-tourisme-et-handicap/",
   "access_note": "Open Explore API; no key needed for reading.",
-  "licence_note": "No licence is stated on data.economie.gouv.fr; the 2020 version of this dataset was under Licence Ouverte 2.0."
+  "licence_note": "No licence is stated on data.economie.gouv.fr; the 2020 version of this dataset was under Licence Ouverte 2.0.",
+  "assessment": {
+    "methods": [
+      "certified"
+    ],
+    "note": "Every record holds the French state label Tourisme & Handicap; droit_d_utilisation_du_label 'actif' means the label is currently valid. handicap_moteur, handicap_visuel, handicap_auditif and handicap_mental say which disability families the label covers."
+  }
 }

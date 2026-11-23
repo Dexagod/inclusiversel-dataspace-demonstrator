@@ -45,5 +45,13 @@
   ],
   "update_frequency": "CONT",
   "landing_page": "https://acceslibre.beta.gouv.fr",
-  "access_note": "API key in the header 'Authorization: Api-Key <key>'; request one at https://acceslibre.beta.gouv.fr/contact/api_key. In this stack: ACCESLIBRE_API_KEY in .env."
+  "access_note": "API key in the header 'Authorization: Api-Key <key>'; request one at https://acceslibre.beta.gouv.fr/contact/api_key. In this stack: ACCESLIBRE_API_KEY in .env.",
+  "assessment": {
+    "methods": [
+      "crowd_sourced",
+      "self_declared",
+      "official"
+    ],
+    "note": "Per place, user_type tells who entered it: public (anyone), gestionnaire (the venue's manager), system (imported; see sources, e.g. service_public). accessibilite.commentaire.labels lists labels the contributor claims; they are not verified here, so check Tourisme & Handicap labels in the tourisme-handicap dataset. updated_at is the last edit."
+  }
 }

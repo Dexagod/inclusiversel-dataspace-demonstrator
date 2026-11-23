@@ -11,12 +11,54 @@
   "endpoint_url": "http://src-documents:8000/zon-zee-zorgeloos/",
   "openapi_url": "http://src-documents:8000/zon-zee-zorgeloos/openapi.json",
   "distributions": [
-    {"url": "https://www.vlaanderen.be/inter/mensen-met-een-handicap/zon-zee-zorgeloos", "media_type": "text/html", "title": "Web page Zon, Zee … Zorgeloos (vlaanderen.be)"}
+    {
+      "url": "https://www.vlaanderen.be/inter/mensen-met-een-handicap/zon-zee-zorgeloos",
+      "media_type": "text/html",
+      "title": "Web page Zon, Zee … Zorgeloos (vlaanderen.be)"
+    }
   ],
-  "keywords": ["strand", "beach", "plage", "strandrolstoel", "beach wheelchair", "Changing Places", "kust", "coast", "assistent", "toegankelijk toilet", "zomer"],
-  "themes": ["accessibility", "tourism"],
-  "languages": ["nl"],
-  "spatial": ["Belgian coast", "Kust", "West-Vlaanderen", "Flanders", "Belgium", "De Panne", "Nieuwpoort", "Oostende", "Ostend", "Bredene", "De Haan", "Wenduine", "Zeebrugge", "Knokke-Heist"],
+  "keywords": [
+    "strand",
+    "beach",
+    "plage",
+    "strandrolstoel",
+    "beach wheelchair",
+    "Changing Places",
+    "kust",
+    "coast",
+    "assistent",
+    "toegankelijk toilet",
+    "zomer"
+  ],
+  "themes": [
+    "accessibility",
+    "tourism"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "spatial": [
+    "Belgian coast",
+    "Kust",
+    "West-Vlaanderen",
+    "Flanders",
+    "Belgium",
+    "De Panne",
+    "Nieuwpoort",
+    "Oostende",
+    "Ostend",
+    "Bredene",
+    "De Haan",
+    "Wenduine",
+    "Zeebrugge",
+    "Knokke-Heist"
+  ],
   "update_frequency": "ANNUAL",
-  "landing_page": "https://www.vlaanderen.be/inter/mensen-met-een-handicap/zon-zee-zorgeloos"
+  "landing_page": "https://www.vlaanderen.be/inter/mensen-met-een-handicap/zon-zee-zorgeloos",
+  "assessment": {
+    "methods": [
+      "official"
+    ],
+    "note": "Web page of Inter, the Flemish expertise centre for accessibility, on the beach service run by the coastal towns; seasonal, check the page date."
+  }
 }

@@ -36,5 +36,11 @@
   ],
   "landing_page": "https://ressources.data.sncf.com/explore/dataset/equipements-accessibilite-en-gare/",
   "access_note": "Open Explore API; no key needed for reading.",
-  "licence": "https://data.sncf.com/pages/licence"
+  "licence": "https://data.sncf.com/pages/licence",
+  "assessment": {
+    "methods": [
+      "official"
+    ],
+    "note": "Published by SNCF, the operator."
+  }
 }

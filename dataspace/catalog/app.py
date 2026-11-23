@@ -33,6 +33,17 @@ class Standard(BaseModel):
     title: str = Field(min_length=1)
 
 
+Method = Literal["certified", "official", "self_declared", "crowd_sourced"]
+
+
+class Assessment(BaseModel):
+    methods: list[Method] = Field(min_length=1, description=(
+        "How the facts were collected. certified: a label or on-site check by an independent body; official: "
+        "published by the owner or operator of the infrastructure (municipality, transport operator, government); "
+        "self_declared: filled in by the venue itself; crowd_sourced: anyone can add or edit it"))
+    note: str = Field(min_length=1, description="Which field tells the method per record, and what a label covers")
+
+
 class Distribution(BaseModel):
     url: AnyHttpUrl = Field(description="Where the file or page is published, e.g. the original PDF")
     media_type: str = Field(pattern=r"^[a-z]+/[a-z0-9.+-]+$", description="IANA media type, e.g. application/pdf, text/html")
@@ -57,6 +68,8 @@ class Registration(BaseModel):
                                         "source data follows; exported as dct:conformsTo on the dataset")
     distributions: list[Distribution] = Field(default=[], description="Further distributions besides the API, e.g. "
                                               "the web page or PDF the API reads; exported as dcat:Distribution")
+    assessment: Assessment | None = Field(default=None, description="How the facts were collected; exported as "
+                                          "dct:provenance. Agents use it to rank sources, so fill it in")
     keywords: list[str] = []
     themes: list[str] = Field(default=["accessibility"], description="Theme slugs")
     languages: list[str] = Field(default=[], description=f"ISO 639-1 codes: {sorted(LANGUAGES)}")
@@ -170,7 +183,7 @@ app = FastAPI(
 
 def summary(d: dict) -> dict:
     keys = ["id", "catalog", "title", "description", "publisher", "themes", "spatial", "languages", "licence",
-            "licence_note", "endpoint_url", "openapi_url", "access_note"]
+            "licence_note", "assessment", "endpoint_url", "openapi_url", "access_note"]
     return {k: d.get(k) for k in keys}
 
 

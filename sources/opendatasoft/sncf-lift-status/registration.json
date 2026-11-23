@@ -39,5 +39,11 @@
   "landing_page": "https://ressources.data.sncf.com/explore/dataset/etat-fonctionnement-elevatique-gare/",
   "access_note": "Open Explore API; no key needed for reading.",
   "licence": "https://data.sncf.com/pages/licence",
-  "update_frequency": "CONT"
+  "update_frequency": "CONT",
+  "assessment": {
+    "methods": [
+      "official"
+    ],
+    "note": "Live operating status of lifts, published by SNCF, the operator."
+  }
 }

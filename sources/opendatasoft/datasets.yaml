@@ -2,6 +2,9 @@
 # `make registrations` (in this folder) turns each entry into <id>/registration.json from the portal's own metadata;
 # `hint` is added to the description; other keys (except portal, dataset_id, catalog) override generated fields.
 - id: tourisme-handicap
+  assessment:
+    methods: [certified]
+    note: "Every record holds the French state label Tourisme & Handicap; droit_d_utilisation_du_label 'actif' means the label is currently valid. handicap_moteur, handicap_visuel, handicap_auditif and handicap_mental say which disability families the label covers."
   portal: data.economie.gouv.fr
   dataset_id: etablissements-labellises-tourisme-et-handicap
   catalog: france
@@ -10,12 +13,18 @@
   licence_note: No licence is stated on data.economie.gouv.fr; the 2020 version of this dataset was under Licence Ouverte 2.0.
 
 - id: liege-pmr-toilets
+  assessment:
+    methods: [official]
+    note: "List of accessible public toilets published by the city."
   portal: www.odwb.be
   dataset_id: toilettes-pmr
   catalog: belgium
   spatial: [Liège, Wallonia, Belgium]
 
 - id: sncf-lift-status
+  assessment:
+    methods: [official]
+    note: "Live operating status of lifts, published by SNCF, the operator."
   portal: ressources.data.sncf.com
   dataset_id: etat-fonctionnement-elevatique-gare
   catalog: france-mobility
@@ -25,6 +34,9 @@
   hint: Station names are not in this dataset; gareid is the id of the station in dataset sncf-stations (gares-de-voyageurs).
 
 - id: sncf-stations
+  assessment:
+    methods: [official]
+    note: "Station reference list published by SNCF, the operator."
   portal: ressources.data.sncf.com
   dataset_id: gares-de-voyageurs
   catalog: france-mobility
@@ -33,6 +45,9 @@
   hint: Reference list of passenger stations; its id is the gareid used in sncf-lift-status.
 
 - id: sncf-station-equipment
+  assessment:
+    methods: [official]
+    note: "Published by SNCF, the operator."
   portal: ressources.data.sncf.com
   dataset_id: equipements-accessibilite-en-gare
   catalog: france-mobility
@@ -40,6 +55,9 @@
   keywords: [gare, accessibilité, PMR, équipements]
 
 - id: sncf-assistance
+  assessment:
+    methods: [official]
+    note: "Published by SNCF, the operator; datestatut is the date of the status."
   portal: ressources.data.sncf.com
   dataset_id: assistance-psh-pmr
   catalog: france-mobility
@@ -47,18 +65,27 @@
   keywords: [gare, assistance, PMR, handicap, Accès Plus]
 
 - id: liege-pmr-parking
+  assessment:
+    methods: [official]
+    note: "Inventory of reserved parking published by the city; last_modified per space."
   portal: www.odwb.be
   dataset_id: stationnement-pmr
   catalog: belgium-mobility
   spatial: [Liège, Wallonia, Belgium]
 
 - id: brabant-wallon-pmr-parking
+  assessment:
+    methods: [official]
+    note: "Inventory of reserved parking published by the province; date_de_derniere_modification_de_la_donnee per space."
   portal: www.odwb.be
   dataset_id: stationnements-pmr-en-brabant-wallon
   catalog: belgium-mobility
   spatial: [Brabant wallon, Wallonia, Belgium]
 
 - id: marche-en-famenne-pmr-parking
+  assessment:
+    methods: [official]
+    note: "List published by the town."
   portal: www.odwb.be
   dataset_id: parkings-pmr
   catalog: belgium-mobility
@@ -67,6 +94,9 @@
   licence_note: The publisher's metadata conflicts; it names the licence CC0 but links to CC BY.
 
 - id: la-louviere-pmr-parking
+  assessment:
+    methods: [official]
+    note: "Inventory of reserved parking published by the city."
   portal: www.odwb.be
   dataset_id: parkings-pour-personnes-a-mobilite-reduite-pmr-la-louviere
   catalog: belgium-mobility
@@ -74,6 +104,9 @@
   licence_note: The publisher marks the licence as not specified (Licence non spécifiée).
 
 - id: databusters-pmr-parking
+  assessment:
+    methods: [crowd_sourced]
+    note: "Collected by volunteers in a crowdsourcing challenge run by FuturoCité in October 2022; not checked since."
   portal: www.odwb.be
   dataset_id: emplacements-pmr-databusters
   catalog: belgium-mobility

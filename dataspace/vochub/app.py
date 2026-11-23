@@ -62,7 +62,9 @@ def ingest(data: bytes, content_type: str, name: str, meta: dict) -> dict:
            "chunks": len(chunks)}
     if qdrant.count(COLLECTION, count_filter=_doc_filter(doc_id), exact=True).count:
         return {**doc, "duplicate": True}
-    vectors = state["embedder"].passage_embed([c["text"] for c in chunks])
+    # Title and heading in front: a passage alone often does not say what it is about ("vert/A" without "Picto Access")
+    vectors = state["embedder"].passage_embed(
+        ["\n".join(x for x in (doc["title"], c["heading"], c["text"]) if x) for c in chunks])
     qdrant.upsert(COLLECTION, points=[
         models.PointStruct(id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"{doc_id}/{i}")), vector=v.tolist(),
                            payload={**doc, **c, "chunk_index": i})

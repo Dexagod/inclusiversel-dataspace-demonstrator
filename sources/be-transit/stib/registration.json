@@ -45,5 +45,11 @@
   "licence": "https://creativecommons.org/licenses/by/4.0/",
   "endpoint_url": "http://src-be-transit:8000/stib/",
   "openapi_url": "http://src-be-transit:8000/stib/openapi.json",
-  "access_note": "Open data; reuse must cite 'Source: <operator> – Open Data – <date of dataset update>' (given in each response's provenance)."
+  "access_note": "Open data; reuse must cite 'Source: <operator> – Open Data – <date of dataset update>' (given in each response's provenance).",
+  "assessment": {
+    "methods": [
+      "official"
+    ],
+    "note": "Stop accessibility (wheelchair_boarding) as published by the operator in its GTFS feed; 0 means no information."
+  }
 }

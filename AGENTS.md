@@ -90,7 +90,7 @@ The repository `README.md` compares the two set-ups (A: catalog, vochub and prox
 
 | Dataset id | Sub-catalog | Served by | Mode | Licence |
 | --- | --- | --- | --- | --- |
-| `iedereenoveral` | belgium | `src-iedereenoveral` | live proxy (compact records, town names resolved to Xano ids, JSON-array filters) | unconfirmed with Inter |
+| `iedereenoveral-food-and-drink`, `-toilets`, `-museums`, `-parking` | belgium | `src-iedereenoveral` (one sub-API per kind) | live proxy (compact records, town names resolved to Xano ids, JSON-array filters) | unconfirmed with Inter |
 | `pictoaccess` | france | `src-pictoaccess` | snapshot of 1,720 places, loaded in memory at start-up; full export provided by PictoAccess, used until their API is back | demonstrator use agreed; wider reuse unconfirmed (open subset on data.gouv.fr is ODbL) |
 | `acceslibre` | france | Acceslibre API directly | live; `Authorization: Api-Key` from `ACCESLIBRE_API_KEY` | open data, licence URL not yet confirmed |
 | `tourisme-handicap` | france | data.economie.gouv.fr Explore API directly | live; 3,682 labelled establishments | none stated by the publisher |
@@ -100,6 +100,7 @@ The repository `README.md` compares the two set-ups (A: catalog, vochub and prox
 | `irail-stations` | belgium-mobility | `src-be-transit` | daily snapshot of iRail's station facilities (ramp, lift, induction loop, platform height) | repository CC0, but lift/escalator data from OSM (ODbL); some fields date from June 2023 |
 | `zon-zee-zorgeloos` | belgium | `src-documents` | Inter's web page on accessible beaches per coastal town, served as sections (outline, word search, full section) that keep the town as heading; refetched daily, with document dates | vlaanderen.be disclaimer: free reuse |
 | `toerismevlaanderen` | belgium | `src-toerismevlaanderen` | 1,039 tourist places with accessibility information from Toerisme Vlaanderen's SPARQL, loaded every 6 h; A / A+ labels, groups catered for, texts per topic (nl, en); topics often misfiled in the source, the API says so | no licence published; Toerisme Vlaanderen asked for the integration; licence being discussed |
+| `toevla` | belgium | external: https://toevla-api.rubendedecker.be (registration only, `sources/toevla/`) | archived ToeVla database, ~7,600 places screened on site, mostly 2012-2015; detailed screening per section via `getInrichtingAccessibility` (outline, then `?section=`), for about half of the dossiers; personal data and unrelated tables removed 2026-11-23 (no phone or email) | no licence; Toerisme Vlaanderen asked for the integration |
 | `onwheels`, `osm-accessibility` | root catalog (no sub-catalog; Belgium and Hauts-de-France) | `src-osm` | **not registered** (removed 2026-11-19; registrations parked as `registration.parked.json`, code and tests kept): the public Overpass server was full for a whole night of polite retries, so searches returned 503. Rename the files back and `make register` once a private Overpass instance (`OVERPASS_URL`) or access to the OnWheels API is arranged | ODbL, "© OpenStreetMap contributors"; not republished |
 | `liege-`, `brabant-wallon-`, `marche-en-famenne-`, `la-louviere-`, `databusters-pmr-parking` | belgium-mobility | ODWB Explore API directly | live; disabled parking spaces | CC BY, except Marche (publisher metadata conflicts) and La Louvière (not specified) |
 
@@ -126,6 +127,13 @@ The catalog has four DCAT sub-catalogs, linked from the root with `dcat:catalog`
   - the OSM API (`api.openstreetmap.org`) answers single features in well under a second.
 
   Hence the `osm/` adapter's politeness guards, and the advice to set `OVERPASS_URL` to a private instance if searches must be reliable. Overpass metadata includes contributor user names; never pass them on.
+- **Labels and verification per source** (checked Nov 20, 2026; recorded as `assessment` in each registration):
+  - IedereenOveral: `confirmed_by_inter` (Inter advisor checked it; the "Inter" icon on the site): 26 of 51 places in Gent. Only in place details, not in search hits; search with `confirmed_by_inter=true` to get the set. Other places are added by visitors or venues.
+  - Toerisme Vlaanderen: `a_label` A/A+ on 395 places.
+  - Tourisme & Handicap: every record is labelled; `droit_d_utilisation_du_label` 'actif' = valid; flags per disability family.
+  - Acceslibre: `user_type` public / gestionnaire / system; `accessibilite.commentaire.labels` are claimed, not verified.
+  - PictoAccess: self-diagnosis tool, no label field; assessment date `accessibility.updated_at` (some from 2017).
+  - Databusters PMR parking is crowd-sourced (2022 challenge). Transit, SNCF and municipal datasets are operator or municipal data, no labels.
 - **IedereenOveral's raw API** is unsuitable for agents (130 KB details, numeric ids, silently dropped array values); see `sources/iedereenoveral/README.md`.
 
 ### Status against the plan

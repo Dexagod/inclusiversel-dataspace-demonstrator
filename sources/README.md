@@ -4,12 +4,13 @@ Everything that is specific to a data source: proxies (adapters) in front of pro
 
 | Source | Catalog | How it is served | Notes |
 | --- | --- | --- | --- |
-| `iedereenoveral` | belgium | `src-iedereenoveral`, port 8102: live adapter in front of the IedereenOveral (Xano) API | [README](iedereenoveral/README.md) |
+| `iedereenoveral-food-and-drink`, `-toilets`, `-museums`, `-parking` | belgium | `src-iedereenoveral`, port 8102: live adapter in front of the IedereenOveral (Xano) API, one sub-API per kind of place | [README](iedereenoveral/README.md) |
 | `pictoaccess` | france | `src-pictoaccess`, port 8103: snapshot API over a local PictoAccess export | [README](pictoaccess/README.md) |
 | `acceslibre` | france | no proxy: registered with its own OpenAPI (https://acceslibre.beta.gouv.fr/api/openapi), called directly by the connector | needs an API key, see below |
 | `be-transit/*`: `stib-stops`, `tec-stops`, `delijn-stops`, `irail-stations` | belgium-mobility | `src-be-transit`, port 8104: daily snapshot of the static GTFS feeds on data.belgianmobility.io (CC BY 4.0, no key) and iRail's station facilities (GitHub); one sub-API with its own OpenAPI per operator | see below |
 | `opendatasoft/*` (11 datasets) | all four | no proxy: live Explore API of Opendatasoft portals (SNCF, ODWB, data.economie.gouv.fr); registrations generated from the portals' own metadata, with their DCAT copied in | see below |
 | `toerismevlaanderen` | belgium | `src-toerismevlaanderen`, port 8106: Toerisme Vlaanderen's linked open data (SPARQL), loaded into memory every 6 hours | see below |
+| `toevla` | belgium | none: registration only, for the archived ToeVla API at https://toevla-api.rubendedecker.be (hosted outside this repo) | see below |
 | `documents/*`: `zon-zee-zorgeloos` | belgium | `src-documents`, port 8107: published web pages and PDFs served as sections | see below |
 | `osm/*`: `onwheels`, `osm-accessibility` | **not registered** (registrations parked as `registration.parked.json`) | `src-osm`, port 8105: live adapter over OpenStreetMap's public Overpass and OSM APIs; waits for a private Overpass instance or OnWheels API access | see below |
 | Access-i | (belgium) | **not connected**: no public API, and reuse needs Access-i's approval (requested) | do not crawl or snapshot before approval |
@@ -29,6 +30,12 @@ Update them when a source or document changes status.
 - **Wheelchair values:** GTFS `wheelchair_boarding` becomes `accessible`, `not_accessible` or `unknown`. `0` or empty means the operator gave no information, not that the stop is inaccessible. De Lijn marks about 5,500 stops accessible and gives no information for the other 25,000; its finer classification is not in the feed.
 - **SNCB:** its GTFS has no wheelchair data, so train stations come from iRail. There, `wheelchair_available`, `ramp` and `audio_induction_loop` date from June 2023; lift and escalator fields derive from OpenStreetMap (ODbL) although the repository is CC0.
 - **Attribution:** each response's `provenance.attribution` gives the line the licence requires, e.g. "Source: STIB-MIVB – Open Data – 20261109".
+
+### ToeVla archive (`toevla`)
+
+`toevla/registration.json` registers the archived ToeVla database (about 7,600 screened places, mostly 2010-2015) straight at its public URL; there is no proxy here. `getInrichtingAccessibility` gives an outline of the newest dossier, then the answers of one section (`?section=WC`), each under the connector's 20 KB limit; places without a detailed screening only have `basisScreening` in `getInrichting`. The API asks for a bearer token (`API_TOKEN` on the API side); the connector sends it from `TOEVLA_API_TOKEN` in `dataspace/.env` (entry `toevla` in `config/credentials.yaml`). `/openapi.json`, `/docs` and the photos (`/api/images/...`) stay open, so registering needs no token and photo links work in a browser. Personal data (first and last names, phone, mobile, email, fax, staff user names, national register numbers) was removed from the archive database on 2026-11-23; job titles, person roles in dossiers and the screening organisations were kept.
+
+On the server that also runs the ToeVla API, the connector can skip the round trip through the public URL. Both run in Docker, so `localhost:3100` inside the connector container is the connector itself, and a port published on `127.0.0.1` of the host is not reachable from other containers either. Put the connector on the ToeVla container's Docker network and map the URL to the container name, e.g. `SOURCE_URL_MAP=https://toevla-api.rubendedecker.be/=http://<toevla-container>:3100/`. Without that, the public URL just works.
 
 ### Toerisme Vlaanderen (`toerismevlaanderen`)
 
@@ -110,12 +117,12 @@ Connect the agent to the data space's MCP connector (see the data space README),
 
 > Use the accessibility-dataspace MCP tools to find places in Gent with accessibility information from IedereenOveral. Look up relevant domain knowledge, inspect the source metadata and OpenAPI, then search and retrieve details. Cite the source and distinguish missing information from explicitly absent facilities.
 
-The agent should find `iedereenoveral` through `catalog_search`, inspect it with `catalog_get_dataset` and `get_openapi`, then use `call_source_operation`. Registering or updating a source needs no change to the agent or the connector.
+The agent should find `iedereenoveral-food-and-drink` (or another kind) through `catalog_search`, inspect it with `catalog_get_dataset` and `get_openapi`, then use `call_source_operation`. Registering or updating a source needs no change to the agent or the connector.
 
 ## Adding a source
 
 1. If the provider's API is hard for an agent to use (huge responses, numeric ids, no descriptions), write an adapter in `<id>/` with its own OpenAPI, and add it to `docker-compose.yml`. Otherwise register the provider's API directly, as for Acceslibre.
-2. Write `<id>/registration.json` (fields: see "Publishing a dataset" in the data space README). If the data follows a published schema, data model or vocabulary (GTFS, an OSLO model, the publisher's own vocabulary), list it in `conforms_to`: the DCAT export links it with `dct:conformsTo`, next to the API's OpenAPI document ([ADR 0004](../dataspace/docs/adr/0004-schemas-in-dcat.md)). Link only URLs you have opened.
+2. Write `<id>/registration.json` (fields: see "Publishing a dataset" in the data space README). If the data follows a published schema, data model or vocabulary (GTFS, an OSLO model, the publisher's own vocabulary), list it in `conforms_to`: the DCAT export links it with `dct:conformsTo`, next to the API's OpenAPI document ([ADR 0004](../dataspace/docs/adr/0004-schemas-in-dcat.md)). Link only URLs you have opened. Fill in `assessment` (how the facts were collected, and which field marks certified records): the permanent context tells agents to prefer certified sources.
 3. If it needs a key, add an entry to `../dataspace/config/credentials.yaml`.
 4. `make up register`.
 5. Update its row in [source-inventory.md](source-inventory.md).

@@ -45,5 +45,11 @@
     "rolstoel",
     "wheelchair",
     "ringleiding"
-  ]
+  ],
+  "assessment": {
+    "methods": [
+      "official"
+    ],
+    "note": "Station facilities published by NMBS/SNCB, collected in the iRail stations repository (a volunteer project); some fields were last published in June 2023."
+  }
 }

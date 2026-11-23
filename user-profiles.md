@@ -28,7 +28,7 @@ Each source rates accessibility in its own terms. A need such as "I use a manual
 
 | Source (dataset id) | What it gives for that need | Granularity |
 | --- | --- | --- |
-| `iedereenoveral` | medal (gold, silver, bronze, ok, none) and questionnaire answers with measurements such as door widths | measured |
+| `iedereenoveral-*` (food and drink, toilets, museums, parking) | medal (gold, silver, bronze, ok, none) and questionnaire answers with measurements such as door widths | measured |
 | `pictoaccess` | level per disability type, e.g. `mobility`: autonomous / with_help / inaccessible / unknown | verdict per group |
 | `acceslibre` | entrance, path, toilet and room fields; `null` = unknown (field names to check per need) | measured or yes/no |
 | `toerismevlaanderen` | A / A+ label; `support` flags (motor, visual, blind, auditive, deaf, mental, autism, allergies, …); free texts per topic | label + flags + text |

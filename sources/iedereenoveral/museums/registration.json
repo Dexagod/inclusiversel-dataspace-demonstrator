@@ -1,0 +1,46 @@
+{
+  "id": "iedereenoveral-museums",
+  "catalog": "belgium",
+  "title": "IedereenOveral: accessible museums in Flanders",
+  "description": "About 40 museums. Each place has a medal (gold, silver, bronze, ok, none) and answers to an accessibility questionnaire, with measurements such as door widths. Texts are in Dutch. Live data from IedereenOveral (run by Inter, successor of Toevla). For museums, the detailed accessibility information was mapped with the Toegankelijkheidswijzer (an initiative of the Agentschap Binnenlands Bestuur with Inter) and is published on the museum's own website; the first statement of each place links to it.",
+  "publisher": {
+    "name": "Inter",
+    "url": "https://www.vlaanderen.be/inter"
+  },
+  "licence_note": "Reuse terms not yet confirmed with Inter.",
+  "endpoint_url": "http://src-iedereenoveral:8000/museums/",
+  "openapi_url": "http://src-iedereenoveral:8000/museums/openapi.json",
+  "keywords": [
+    "museum",
+    "musea",
+    "Toegankelijkheidswijzer",
+    "wheelchair",
+    "rolstoel",
+    "medal"
+  ],
+  "themes": [
+    "accessibility"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "spatial": [
+    "Flanders",
+    "Vlaanderen",
+    "Brussels",
+    "Belgium",
+    "Gent",
+    "Ghent",
+    "Antwerpen",
+    "Leuven",
+    "Brugge"
+  ],
+  "update_frequency": "CONT",
+  "landing_page": "https://iedereen.overal.info/",
+  "assessment": {
+    "methods": [
+      "self_declared"
+    ],
+    "note": "Mapped with the Toegankelijkheidswijzer, a tool of the Agentschap Binnenlands Bestuur and Inter, presumably by the museum or municipality itself (not confirmed); no place is confirmed by Inter. The full information is on the museum's own website (linked in place details)."
+  }
+}
