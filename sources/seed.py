@@ -57,12 +57,10 @@ def knowledge(public: bool = False) -> int:
     for entry in yaml.safe_load((HERE / "domain-knowledge.yaml").read_text(encoding="utf-8")):
         if public and RESTRICTED in (entry.get("tags") or []):
             continue
-        if "file" in entry:  # a local file, path relative to this folder
-            meta = {k: ",".join(v) if isinstance(v, list) else v for k, v in entry.items() if k != "file" and v}
-            path = HERE / entry["file"]
-            r = httpx.post(f"{VOCHUB}/documents", files={"file": (path.name, path.read_bytes())}, data=meta, timeout=600)
-        else:
-            r = httpx.post(f"{VOCHUB}/documents/url", json=entry, timeout=600)
+        r = ingest(entry)
+        if r.is_success and too_short(r.json(), entry, present):
+            httpx.delete(f"{VOCHUB}/documents/{r.json()['doc_id']}", timeout=30)
+            r = ingest(entry)  # some sites now and then serve only a loading screen; one more try
         if r.is_success:
             d = r.json()
             print(f"{'=' if d['duplicate'] else '+'} {d['chunks']:4} chunks  {d['title']}")
@@ -73,24 +71,42 @@ def knowledge(public: bool = False) -> int:
     return failed
 
 
+def ingest(entry: dict) -> httpx.Response:
+    if "file" in entry:  # a local file, path relative to this folder
+        meta = {k: ",".join(v) if isinstance(v, list) else v for k, v in entry.items() if k != "file" and v}
+        path = HERE / entry["file"]
+        return httpx.post(f"{VOCHUB}/documents", files={"file": (path.name, path.read_bytes())}, data=meta, timeout=600)
+    return httpx.post(f"{VOCHUB}/documents/url", json=entry, timeout=600)
+
+
+def earlier_versions(new: dict, entry: dict, present: list[dict]) -> list[dict]:
+    return [d for d in present if d["doc_id"] != new["doc_id"] and (
+        (entry.get("url") and d.get("url") == entry["url"]) or (entry.get("file") and d.get("title") == new["title"]))]
+
+
+def too_short(new: dict, entry: dict, present: list[dict]) -> bool:
+    """Less than half as long as the longest earlier version: the page probably did not load properly."""
+    same = earlier_versions(new, entry, present)
+    return bool(same) and new["chunks"] < max(d["chunks"] for d in same) / 2
+
+
 def keep_one_version(new: dict, entry: dict, present: list[dict]) -> int:
     """A changed page is a new document (new content, new id): drop the older versions of the same entry. Unless the
     new one is less than half as long, which usually means the page did not load (a cookie wall, a loading screen):
     then keep the old one and drop the new."""
-    same = [d for d in present if d["doc_id"] != new["doc_id"] and (
-        (entry.get("url") and d.get("url") == entry["url"]) or (entry.get("file") and d.get("title") == new["title"]))]
+    same = earlier_versions(new, entry, present)
     if not same:
         return 0
     old = max(same, key=lambda d: d["chunks"])
-    if new["chunks"] < old["chunks"] / 2:
+    if too_short(new, entry, present):
         print(f"! kept the earlier version of {new['title']}: the new one has {new['chunks']} chunks against "
               f"{old['chunks']}; check the page")
-        drop, failed = [new], 1
+        drop = [new]
     else:
-        drop, failed = same, 0
+        drop = same
     for d in drop:
         httpx.delete(f"{VOCHUB}/documents/{d['doc_id']}", timeout=30)
-    return failed
+    return 0  # a warning, not a failure: the hub still holds a good version
 
 
 def clear_catalog() -> int:
