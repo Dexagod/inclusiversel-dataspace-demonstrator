@@ -32,6 +32,7 @@ Each source rates accessibility in its own terms. A need such as "I use a manual
 | `pictoaccess` | level per disability type, e.g. `mobility`: autonomous / with_help / inaccessible / unknown | verdict per group |
 | `acceslibre` | entrance, path, toilet and room fields; `null` = unknown (field names to check per need) | measured or yes/no |
 | `toerismevlaanderen` | A / A+ label; `support` flags (motor, visual, blind, auditive, deaf, mental, autism, allergies, …); free texts per topic | label + flags + text |
+| `toevla` | on-site screening per room and element (entrance, doors, lifts, toilets, parking) with measured answers and a written summary, in Dutch; 2010-2015 | measured, old |
 | `stib-stops`, `tec-stops`, `delijn-stops` | GTFS `wheelchair_boarding`: accessible / not_accessible / unknown | per stop |
 | `irail-stations`, `sncf-*` | ramp, lift, induction loop; live lift status (`sncf-lift-status`) | per station, some live |
 | `osm-accessibility`, `onwheels` | `wheelchair=yes/limited/no`, `toilets:wheelchair`, `hearing_loop`, `door:width`, `kerb:height` | per tag, often missing |

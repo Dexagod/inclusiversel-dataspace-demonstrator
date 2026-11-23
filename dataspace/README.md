@@ -180,7 +180,7 @@ A web-hosted agent calls the connector from its own servers, so the whole stack 
    | 22/tcp | SSH | administration |
 
    Nothing else: catalog, vochub and the proxies stay on `127.0.0.1` (keep the `*_BIND` defaults and leave `SOURCE_URL_MAP` empty).
-3. **Stack:** on the server, `make up` here and `make up register` in `../sources`; put the source API keys (`ACCESLIBRE_API_KEY`) in this server's `.env`.
+3. **Stack:** on the server, `make up` here and `make up register` in `../sources`; put the source API keys (`ACCESLIBRE_API_KEY`, `TOEVLA_API_TOKEN`) in this server's `.env`.
 4. **Reverse proxy:** use the Caddy or nginx configuration from [Reverse proxy: Caddy or nginx](#reverse-proxy-caddy-or-nginx). Every path other than `/mcp`, the optional `/catalog` and the optional viewer returns 404.
 5. **Check** from any machine: the first call returns 200 with the server's capabilities, the second 404.
 
@@ -232,6 +232,7 @@ The connector holds the source API keys and is what your agent talks to, so runn
    VOCHUB_URL=http://host.docker.internal:8002
    SOURCE_URL_MAP=http://src-iedereenoveral:8000/=http://host.docker.internal:8102/,http://src-pictoaccess:8000/=http://host.docker.internal:8103/,http://src-be-transit:8000/=http://host.docker.internal:8104/,http://src-osm:8000/=http://host.docker.internal:8105/,http://src-toerismevlaanderen:8000/=http://host.docker.internal:8106/,http://src-documents:8000/=http://host.docker.internal:8107/
    ACCESLIBRE_API_KEY=...
+   TOEVLA_API_TOKEN=...
    ```
 4. On the laptop: `make up-connector`, and connect the agent to `http://localhost:8800/mcp` as usual.
 
