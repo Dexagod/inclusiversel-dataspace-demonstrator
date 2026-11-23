@@ -65,6 +65,8 @@ literatuurstudie.pdf        the project's literature study (Dutch); loaded into 
 ## Commands
 
 ```bash
+make start-public | start-full | public | full | restart | stop | update | reset[-knowledge|-catalog] | status
+                            # root Makefile: everyday commands for everything; `make help` explains them
 make -C dataspace up        # data space (catalog, vochub, connector); starts empty
 make -C sources up          # source proxies (needs the data space network)
 make -C sources full        # register all sources and load all documents (local, closed demos)

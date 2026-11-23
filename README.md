@@ -17,10 +17,24 @@ Requirements: Docker with Compose, [uv](https://docs.astral.sh/uv/), and for Pic
 ## Run locally
 
 ```bash
-make -C dataspace up             # catalog, vocabulary hub, connector (first build downloads a ~220 MB model)
-make -C sources up full          # source proxies, then register every source and load every document
+make start-full     # data space, sources and viewer; then every source and document (first build downloads ~220 MB)
 claude mcp add --transport http accessibility-dataspace http://localhost:8800/mcp
 ```
+
+The `Makefile` in this folder wraps the everyday commands; `make help` lists them:
+
+| Command | What it does |
+| --- | --- |
+| `make start-public`, `make start-full` | build and start everything, then load the public or the full content set ([which is which](sources/README.md#public-and-full-content)) |
+| `make public`, `make full` | switch a running data space to the other set |
+| `make restart` / `make stop` | restart or stop every container; registrations, documents and caches stay on their volumes |
+| `make update` | `git pull`, rebuild what changed, load the content set again |
+| `make reset-knowledge`, `make reset-catalog`, `make reset` | empty the vocabulary hub, the catalog or both, and load the content set again |
+| `make status` | what runs and what it holds (datasets, private ones among them, documents, restricted ones) |
+| `make calls` | the connector's tool calls, when `CALL_LOG=1` ([Logging tool calls](dataspace/README.md#logging-tool-calls)) |
+| `make test` | offline tests of every component |
+
+The last set chosen (`public` or `full`) is remembered in `.content-mode`, so `restart`, `update` and the resets keep it; `MODE=full` overrides it once.
 
 The first start of the Belgian transport proxy downloads about 300 MB of timetable data; its calls return 503 until that is done (a minute or two).
 
@@ -46,9 +60,9 @@ rsync -a sources/pictoaccess/pictoaccess_dump/places/ \
 
 Set-up B needs a reverse proxy on the server. Ready-made configurations for Caddy and nginx are in [Reverse proxy: Caddy or nginx](dataspace/README.md#reverse-proxy-caddy-or-nginx).
 
-Then set `dataspace/.env` (`make up` creates it from `.env.example`): source API keys (`ACCESLIBRE_API_KEY`, `TOEVLA_API_TOKEN`), and `CATALOG_BASE_URL` if you publish the DCAT catalog. Then load the content: `make -C sources public` on a published server (set-up B), `make -C sources full` elsewhere ([Public and full content](sources/README.md#public-and-full-content)). All settings and ports are listed in [Running on a remote server](dataspace/README.md#running-on-a-remote-server).
+Then set `dataspace/.env` (`make up` creates it from `.env.example`): source API keys (`ACCESLIBRE_API_KEY`, `TOEVLA_API_TOKEN`), and `CATALOG_BASE_URL` if you publish the DCAT catalog. Then start with `make start-public` on a published server (set-up B), or `make start-full` elsewhere ([Public and full content](sources/README.md#public-and-full-content)). All settings and ports are listed in [Running on a remote server](dataspace/README.md#running-on-a-remote-server).
 
-To update a running server: `git pull`, then `make -C dataspace up`, `make -C sources up`, and `make -C sources public` (or `full`); loading again is safe, it replaces each entry. After a change to the vocabulary hub's chunking or search, also load the knowledge again (see [Vocabulary hub](dataspace/README.md#vocabulary-hub)).
+First start on a published server: `make start-public`. To update it: `make update` (pull, rebuild, load the set again; safe to repeat, each entry is replaced). After a change to the vocabulary hub's chunking or search, also load the knowledge again (see [Vocabulary hub](dataspace/README.md#vocabulary-hub)).
 
 If a source's API runs on the same server, containers may not reach it through the server's own public address; see [Sources on the same server](dataspace/README.md#sources-on-the-same-server).
 

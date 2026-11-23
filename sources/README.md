@@ -104,7 +104,7 @@ Two files feed the vocabulary hub; `make knowledge` loads both.
 | `summary` | a few sentences on what the document is, for whom and where; indexed as a passage of its own, so broad questions find the document ([ADR 0007](../dataspace/docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md)). Write one for every entry; without it the hub uses the page's own description, if any |
 | `licence` | optional licence URL or note |
 
-Documents whose site forbids reproduction carry the tag `licence-restricted`: allowed locally and in closed demos only, never in a published hub; `make public` leaves them out ([Public and full content](#public-and-full-content)). The status and terms of every document are in [domain-knowledge-inventory.md](domain-knowledge-inventory.md); update it with each change. gtfs.org refuses automated requests, so its pages come from its GitHub repository as Markdown.
+Documents whose site forbids reproduction carry the tag `licence-restricted`: allowed locally and in closed demos only, never in a published hub; `make public` leaves them out ([Public and full content](#public-and-full-content)). The status and terms of every document are in [domain-knowledge-inventory.md](domain-knowledge-inventory.md); update it with each change. gtfs.org refuses automated requests, so its pages come from its GitHub repository as Markdown. When a page has changed since the last load, the hub stores it as a new document; `seed.py` then removes the older version, unless the new one is less than half as long, which usually means the page did not load properly (a cookie wall or a loading screen): then it keeps the old one and prints a warning.
 
 **[`permanent-context.md`](permanent-context.md)** is the hub's permanent context: one short text the connector returns with every `vochub_search`. It holds the rules that apply to every question:
 1. **Which sources to trust first**, by the basis of each record (`provenance.records`, else the dataset's `assessment`): certified, then official, then self-declared and crowd-sourced; with only one weak source, say so and check the web (the venue's own page first); with several, compare the facts side by side, with dates. Unknown is not "no".
@@ -112,7 +112,7 @@ Documents whose site forbids reproduction carry the tag `licence-restricted`: al
 3. **Search the web** when the data space has nothing, only a label without details, or only old data.
 4. **How to answer**: give every fact its own link (the record's page, never a homepage or "check it yourself"), say who backs it, cite a place found in the data space with its data-space record; tag each fact with its basis ([certified], [official], [self-declared], [crowd-sourced], [web]); a verdict per place, facts per need, a comparison table only with two or more sources, what was checked, and what is still unknown.
 
-Keep it short (now about 600 words): it travels with every search. Change it, then `make knowledge` (or `PUT /context`); the viewer shows the current text.
+Keep it short (now about 860 words): it travels with every search. Change it, then `make knowledge` (or `PUT /context`); the viewer shows the current text.
 
 ## Public and full content
 
@@ -123,7 +123,7 @@ The data space is loaded in one of two sets:
 | `make full` | all | all documents, also those tagged `licence-restricted` | local use, closed demos |
 | `make public` | all except those whose `registration.json` says `"visibility": "private"` | all except the `licence-restricted` ones | a server whose connector is published (set-up B) |
 
-Both also set the permanent context. Each command switches a running data space to its set: `make public` removes private datasets from the catalog and restricted documents from the hub if a `make full` added them; `make full` adds them back. `seed.py` drops the `visibility` field before registering, so it never reaches the catalog.
+Both also set the permanent context. From the main folder: `make public` / `make full` (the set is remembered), or `make start-public` / `make start-full` to start everything. Each command switches a running data space to its set: `make public` removes private datasets from the catalog and restricted documents from the hub if a `make full` added them; `make full` adds them back. `seed.py` drops the `visibility` field before registering, so it never reaches the catalog.
 
 Private now: `toevla` (an archive kept for demos only while ToeVla is offline) and `toerismevlaanderen` (no licence published yet). PictoAccess and IedereenOveral come from project partners and are public. The permanent context still lists the restricted labels as hub topics; in the public set the agent finds less about them and searches the web.
 
