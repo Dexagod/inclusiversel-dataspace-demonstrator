@@ -1,0 +1,15 @@
+name: accessibility-profile-context
+services:
+  profile:
+    build: .
+    restart: unless-stopped  # come back after a reboot, like the data space and the viewer
+    ports:
+      - "${PROFILE_BIND:-127.0.0.1}:8095:8095"
+    environment:
+      # Link to the viewer in the sidebar. Behind the reverse proxy set PROFILE_VIEWER_URL=/viewer/ in .env.
+      VIEWER_URL: ${PROFILE_VIEWER_URL:-http://localhost:8090/}
+    volumes:
+      - ../../viewer/static:/app/viewer-static:ro
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]

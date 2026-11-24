@@ -112,9 +112,10 @@ The reverse proxy runs on the server itself (not in Docker). It handles HTTPS an
 | `/mcp` | `127.0.0.1:8800/mcp`, the connector | none (see above) |
 | `/catalog/…` (optional) | `127.0.0.1:8001/…`, the catalog | read-only: only `GET` and `HEAD` pass |
 | `/viewer/…` (optional) | `127.0.0.1:8090/…`, the [viewer](../viewer/README.md) | read-only by design: it answers only `GET` and `HEAD`, on a fixed list of paths |
+| `/profile/…` (optional) | `127.0.0.1:8095/…`, the [profile context tool](../user-profile/context-tool/README.md) | `GET`, `HEAD`, and `POST /generate` only; it stores and logs nothing, so keep the proxy's access log off |
 | anything else | nothing | 404 |
 
-Replace `dataspace.example.org` with your host name. To publish the viewer, start it on the server with `make -C ../viewer up` (after `make up` here); it uses relative paths, so it works under `/viewer/` (the proxy strips the prefix) or at the root. If you publish the catalog, set `CATALOG_BASE_URL=https://dataspace.example.org/catalog` in `.env` and run `make up`; the DCAT export is then at `https://dataspace.example.org/catalog/catalog`.
+Replace `dataspace.example.org` with your host name. To publish the viewer, start it on the server with `make -C ../viewer up` (after `make up` here); it uses relative paths, so it works under `/viewer/` (the proxy strips the prefix) or at the root. The profile context tool works the same way under `/profile/` (`make -C ../user-profile/context-tool up`; set `PROFILE_VIEWER_URL=/viewer/` in `user-profile/context-tool/.env` so its sidebar links to the published viewer). The root `make start` starts both. If you publish the catalog, set `CATALOG_BASE_URL=https://dataspace.example.org/catalog` in `.env` and run `make up`; the DCAT export is then at `https://dataspace.example.org/catalog/catalog`.
 
 **Caddy** (2.8 or later) fetches and renews the certificate itself. Put this in `/etc/caddy/Caddyfile`, then run `sudo systemctl reload caddy`:
 
@@ -136,6 +137,17 @@ dataspace.example.org {
     redir /viewer /viewer/ 308
     handle_path /viewer/* {
         reverse_proxy 127.0.0.1:8090
+    }
+
+    # Optional: the profile context tool under /profile/ (POST only for /generate)
+    redir /profile /profile/ 308
+    handle_path /profile/* {
+        @write {
+            not method GET HEAD
+            not path /generate
+        }
+        respond @write 405
+        reverse_proxy 127.0.0.1:8095
     }
 
     handle {
@@ -185,6 +197,20 @@ server {
     location /viewer/ {
         access_log off;   # search questions are in the query string
         proxy_pass http://127.0.0.1:8090/;
+    }
+
+    # Optional: the profile context tool under /profile/ (profiles are health data: no access log)
+    location = /profile { return 301 /profile/; }
+    location = /profile/generate {
+        access_log off;
+        limit_except POST { deny all; }
+        client_max_body_size 100k;
+        proxy_pass http://127.0.0.1:8095/generate;
+    }
+    location /profile/ {
+        access_log off;
+        limit_except GET { deny all; }
+        proxy_pass http://127.0.0.1:8095/;
     }
 
     location / { return 404; }

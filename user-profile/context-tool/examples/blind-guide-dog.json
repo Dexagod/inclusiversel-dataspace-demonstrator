@@ -1,0 +1,8 @@
+{
+  "language": "fr",
+  "needs": ["blind"],
+  "support": {"assistance_dog": true},
+  "communication": ["written_contact"],
+  "evidence": {"min_basis": "official", "accepted_labels": ["tourisme-handicap"], "label_must_cover_need": true},
+  "answer": {"length": "short", "screen_reader": true}
+}

@@ -1,4 +1,4 @@
-# Everyday commands for the whole demonstrator: data space, sources and viewer.
+# Everyday commands for the whole demonstrator: data space, sources, viewer and profile context tool.
 # The content set is public (what may be published) or full (also private sources and licence-restricted documents;
 # local use and closed demos). The last one chosen is remembered in .content-mode; MODE=public|full overrides it.
 
@@ -16,6 +16,7 @@ start:           ## build and start everything, then load the content set (MODE=
 	$(MAKE) -C dataspace up
 	$(MAKE) -C sources up
 	$(MAKE) -C viewer up
+	$(MAKE) -C user-profile/context-tool up
 	$(MAKE) $(MODE)
 
 start-public:    ## start, with only what may be published (for a published server)
@@ -36,8 +37,10 @@ restart:         ## restart every container; registrations, documents and caches
 	cd dataspace && docker compose restart
 	cd sources && docker compose restart
 	cd viewer && docker compose restart
+	cd user-profile/context-tool && docker compose restart
 
 stop:            ## stop everything (data stays on the volumes; start brings it back)
+	$(MAKE) -C user-profile/context-tool down
 	$(MAKE) -C viewer down
 	$(MAKE) -C sources down
 	$(MAKE) -C dataspace down
@@ -72,3 +75,4 @@ test:            ## offline tests of every component
 	$(MAKE) -C dataspace test
 	$(MAKE) -C sources test
 	$(MAKE) -C viewer test
+	$(MAKE) -C user-profile/context-tool test

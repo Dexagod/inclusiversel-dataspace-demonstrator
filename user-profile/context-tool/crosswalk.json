@@ -1,0 +1,191 @@
+{
+  "version": "0.1",
+  "derived_from": "../disability-profile-mappings.md (24 Nov 2026) and the assessment blocks of the registrations in sources/",
+  "bases": ["certified", "official", "self_declared", "crowd_sourced"],
+  "profiles": {
+    "wheelchair": {
+      "label": "Wheelchair user",
+      "use": [
+        {"source": "Picto Access", "datasets": ["pictoaccess"], "what": "level `mobility` (export key `moteur`, \"incapacité à marcher\")", "values": "2 autonomous; 1 with help; -1 autonomous or with help (check the detail); 0 inaccessible; -2 unknown"},
+        {"source": "Access-i (web only, not in the data space)", "datasets": [], "what": "profile \"Les personnes en fauteuil roulant\"", "values": "\"Accessible !\" alone; \"Accessible avec un coup de main ponctuel !\" with help; \"Attention, particularités !\" read the details, may be unsuitable"},
+        {"source": "Acceslibre", "datasets": ["acceslibre"], "what": "`entree_plain_pied`, `entree_marches`, `entree_marches_rampe`, `entree_largeur_mini` (cm), `entree_pmr`, `*_ascenseur_pmr`, `cheminement_ext_retrecissement`, `sanitaires_adaptes`, `stationnement_pmr`", "values": "empty or null means unknown, not no"},
+        {"source": "IedereenOveral", "datasets": ["iedereenoveral-food-and-drink", "iedereenoveral-toilets", "iedereenoveral-museums", "iedereenoveral-parking"], "what": "medal per area (Toegang, Toilet, Verbruiksruimte) and the answers (door widths, turning space); features \"Toegankelijke toegang\", \"Aangepast toilet\"", "values": "gold independent; silver with help; bronze attention to accessibility; medals are per area, not per user"},
+        {"source": "Toerisme Vlaanderen", "datasets": ["toerismevlaanderen"], "what": "`a_label` A or A+", "values": "A basic, help may be needed; A+ comfortable and independent"},
+        {"source": "Public transport", "datasets": ["stib-stops", "tec-stops", "delijn-stops", "irail-stations", "sncf-stations", "sncf-lift-status"], "what": "wheelchair value per stop, station facilities, live lift status", "values": "GTFS 0 means no information"}
+      ],
+      "merged": [
+        {"source": "Handy.Brussels (web only)", "what": "\"Accessible for prm\"", "note": "persons with reduced mobility in general"}
+      ],
+      "not_proof": [
+        {"what": "Picto Access `walking_difficulty`", "note": "another group; a place fine for walking aids can still have steps"},
+        {"what": "OSM `wheelchair=limited`", "note": "allows a step up to about 7 cm"}
+      ]
+    },
+    "walking_difficulty": {
+      "label": "Difficulty walking",
+      "use": [
+        {"source": "Picto Access", "datasets": ["pictoaccess"], "what": "level `walking_difficulty` (export key `senior`, \"difficultés à marcher\")", "values": "2 autonomous; 1 with help; -1 autonomous or with help (check the detail); 0 inaccessible; -2 unknown"},
+        {"source": "Access-i (web only, not in the data space)", "datasets": [], "what": "profile \"Les personnes marchant difficilement\"", "values": "\"Accessible !\" alone; \"Accessible avec un coup de main ponctuel !\" with help; \"Attention, particularités !\" read the details"},
+        {"source": "Acceslibre", "datasets": ["acceslibre"], "what": "`entree_marches`, `entree_marches_main_courante`, `cheminement_ext_nombre_marches`, `cheminement_ext_main_courante`, `*_plain_pied`, `*_ascenseur`, `cheminement_ext_pente_degre_difficulte`, `cheminement_ext_terrain_stable`, `stationnement_pmr`", "values": "empty or null means unknown, not no"},
+        {"source": "IedereenOveral", "datasets": ["iedereenoveral-food-and-drink", "iedereenoveral-toilets", "iedereenoveral-museums"], "what": "the answers on steps, handrails and distances in the area Toegang", "values": "medals are per area, not per user"},
+        {"source": "Handy.Brussels (web only)", "datasets": [], "what": "\"Accessible impaired pedestrians\"", "values": "independent or with help"}
+      ],
+      "merged": [
+        {"source": "Tourisme & Handicap", "what": "`handicap_moteur`", "note": "the motor family mixes wheelchair users and people who walk with difficulty"},
+        {"source": "Toerisme Vlaanderen", "what": "`a_label` A / A+", "note": "designed for reduced mobility, mainly wheelchairs"},
+        {"source": "Acceslibre", "what": "`labels_familles_handicap` = `moteur`", "note": "a claimed label family, not checked"}
+      ],
+      "not_proof": [
+        {"what": "Picto Access `mobility` and any wheelchair-only flag (GTFS `wheelchair_boarding`, OSM `wheelchair`)", "note": "another group; a wheelchair ramp may be long, and a place with two steps and a handrail may suit this user"}
+      ]
+    },
+    "temporary_mobility": {
+      "label": "Temporary or situational mobility limitation (pram, luggage, injury)",
+      "use": [
+        {"source": "Picto Access", "datasets": ["pictoaccess"], "what": "level `temporary_mobility` (export key `femme-enceinte`, \"poussette ou valise\")", "values": "2 autonomous; 1 with help; -1 autonomous or with help; 0 inaccessible; -2 unknown"},
+        {"source": "Acceslibre", "datasets": ["acceslibre"], "what": "`entree_plain_pied`, `*_ascenseur`, `entree_largeur_mini`, `entree_porte_type`", "values": "empty or null means unknown, not no"},
+        {"source": "IedereenOveral", "datasets": ["iedereenoveral-food-and-drink", "iedereenoveral-toilets"], "what": "features \"Babyverzorgingstafel\", \"Voorzieningen voor kinderen\"", "values": "present or not"}
+      ],
+      "merged": [
+        {"source": "Wheelchair data", "what": "step-free entrance, lifts", "note": "a good proxy for prams and luggage, but not a statement about them"}
+      ],
+      "not_proof": []
+    },
+    "blind": {
+      "label": "Blind",
+      "use": [
+        {"source": "Picto Access", "datasets": ["pictoaccess"], "what": "level `blind` (export key `mal-voyant`, \"cécité totale\")", "values": "2 autonomous; 1 with help; 0 inaccessible; -2 unknown"},
+        {"source": "Access-i (web only, not in the data space)", "datasets": [], "what": "profile \"Les personnes aveugles\"", "values": "three levels, see wheelchair"},
+        {"source": "Acceslibre", "datasets": ["acceslibre"], "what": "`cheminement_ext_bande_guidage`, `*_reperage_marches`, `entree_balise_sonore`, `accueil_audiodescription`, `accueil_personnels`, `entree_aide_humaine`", "values": "empty or null means unknown, not no"},
+        {"source": "IedereenOveral", "datasets": ["iedereenoveral-museums"], "what": "feature \"Beluisteren van tekstmateriaal\"; target audience \"Blinden en slechtzienden\"", "values": "present or not"}
+      ],
+      "merged": [
+        {"source": "Tourisme & Handicap", "what": "`handicap_visuel`", "note": "one family for blind and low-vision visitors"},
+        {"source": "Handy.Brussels (web only)", "what": "\"Facilities for the blind and visually impaired\"", "note": "blind and low vision merged"}
+      ],
+      "not_proof": [
+        {"what": "Picto Access `low_vision`", "note": "another group"}
+      ]
+    },
+    "low_vision": {
+      "label": "Low vision",
+      "use": [
+        {"source": "Picto Access", "datasets": ["pictoaccess"], "what": "level `low_vision` (export key `mal-voyant-partiel`)", "values": "2 autonomous; 1 with help; 0 inaccessible; -2 unknown"},
+        {"source": "Access-i (web only, not in the data space)", "datasets": [], "what": "profile \"Les personnes malvoyantes\"", "values": "three levels, see wheelchair"},
+        {"source": "Acceslibre", "datasets": ["acceslibre"], "what": "`*_reperage_marches`, `entree_reperage`, `entree_vitree_vitrophanie`, `accueil_visibilite`", "values": "empty or null means unknown, not no"},
+        {"source": "IedereenOveral", "datasets": ["iedereenoveral-food-and-drink", "iedereenoveral-toilets"], "what": "features \"Contrasten\", \"Goede verlichting\"", "values": "present or not"}
+      ],
+      "merged": [
+        {"source": "Tourisme & Handicap", "what": "`handicap_visuel`", "note": "one family for blind and low-vision visitors"},
+        {"source": "Handy.Brussels (web only)", "what": "\"Facilities for the blind and visually impaired\"", "note": "blind and low vision merged"}
+      ],
+      "not_proof": []
+    },
+    "deaf": {
+      "label": "Deaf",
+      "use": [
+        {"source": "Picto Access", "datasets": ["pictoaccess"], "what": "level `deaf` (export key `mal-entendant`, \"surdité totale\")", "values": "2 autonomous; 1 with help; -1 autonomous or with help; 0 inaccessible; -2 unknown"},
+        {"source": "Access-i (web only, not in the data space)", "datasets": [], "what": "profile \"Les personnes sourdes\"", "values": "three levels, see wheelchair"},
+        {"source": "Acceslibre", "datasets": ["acceslibre"], "what": "`accueil_equipements_malentendants` = `lsf` (sign language), `lpc` (cued speech), `sts` (subtitles); `entree_dispositif_appel_type` = `visiophone`", "values": "empty or null means unknown, not no"},
+        {"source": "IedereenOveral", "datasets": ["iedereenoveral-toilets"], "what": "feature \"Visueel brandalarm\"", "values": "present or not"}
+      ],
+      "merged": [
+        {"source": "Tourisme & Handicap", "what": "`handicap_auditif`", "note": "one family for deaf and hard-of-hearing visitors"},
+        {"source": "Handy.Brussels (web only)", "what": "\"Facilities for the deaf and hearing impaired\"", "note": "deaf and hard of hearing merged"}
+      ],
+      "not_proof": [
+        {"what": "an induction loop alone", "note": "helps hearing-aid users, not deaf signers"}
+      ]
+    },
+    "hard_of_hearing": {
+      "label": "Hard of hearing",
+      "use": [
+        {"source": "Picto Access", "datasets": ["pictoaccess"], "what": "level `hard_of_hearing` (export key `mal-entendant-partiel`)", "values": "2 autonomous; 1 with help; -1 autonomous or with help; 0 inaccessible; -2 unknown"},
+        {"source": "Access-i (web only, not in the data space)", "datasets": [], "what": "profile \"Les personnes malentendantes\"", "values": "three levels, see wheelchair"},
+        {"source": "Acceslibre", "datasets": ["acceslibre"], "what": "`accueil_equipements_malentendants` = `bim` (fixed loop), `bmp` (portable loop), `sts` (subtitles)", "values": "empty or null means unknown, not no"},
+        {"source": "IedereenOveral", "datasets": ["iedereenoveral-museums"], "what": "feature \"Balie - ringleiding\"", "values": "present or not"}
+      ],
+      "merged": [
+        {"source": "Tourisme & Handicap", "what": "`handicap_auditif`", "note": "one family for deaf and hard-of-hearing visitors"},
+        {"source": "Handy.Brussels (web only)", "what": "\"Facilities for the deaf and hearing impaired\"", "note": "deaf and hard of hearing merged"}
+      ],
+      "not_proof": []
+    },
+    "cognitive": {
+      "label": "Difficulty understanding, communicating or deciding",
+      "use": [
+        {"source": "Picto Access", "datasets": ["pictoaccess"], "what": "level `cognitive` (export key `psychique`, \"compréhension, communication, décision\")", "values": "2 autonomous; 1 with help; 0 inaccessible; -2 unknown"},
+        {"source": "Access-i (web only, not in the data space)", "datasets": [], "what": "profile \"Les personnes avec des difficultés de compréhension\"", "values": "three levels, see wheelchair"},
+        {"source": "Acceslibre", "datasets": ["acceslibre"], "what": "`accueil_visibilite`, `accueil_personnels` = `formés`", "values": "empty or null means unknown, not no"},
+        {"source": "IedereenOveral", "datasets": ["iedereenoveral-museums"], "what": "feature \"Visueel stappenplan\"; target audience \"Verstandelijke beperking\"", "values": "present or not"},
+        {"source": "Handy.Brussels (web only)", "datasets": [], "what": "\"Accessible for a person with a mental disability\"", "values": "independent or with help"}
+      ],
+      "merged": [
+        {"source": "Tourisme & Handicap", "what": "`handicap_mental`", "note": "the mental family; criteria not checked per sub-group"}
+      ],
+      "not_proof": []
+    },
+    "sensory_sensitivity": {
+      "label": "Sensory sensitivity (noise, crowds, light), e.g. autism",
+      "use": [
+        {"source": "IedereenOveral", "datasets": ["iedereenoveral-food-and-drink", "iedereenoveral-museums"], "what": "features \"Rustige hoeken\", \"Stille ruimte\", \"Zintuiglijke beleving\"; target audience \"Autisme\"", "values": "present or not"}
+      ],
+      "merged": [
+        {"source": "Tourisme & Handicap", "what": "`handicap_mental`", "note": "may include some measures; not specific to sensory sensitivity"}
+      ],
+      "not_proof": [],
+      "gap": "No source in the literature study has a profile for this group. Expect little structured data; the venue's own page or a phone call is often the only source."
+    }
+  },
+  "labels": {
+    "access-i": {
+      "name": "Access-i",
+      "basis": "certified",
+      "where": "access-i.be pages (not in the data space; reuse awaits approval)",
+      "covers": {"wheelchair": "yes", "walking_difficulty": "yes", "blind": "yes", "low_vision": "yes", "deaf": "yes", "hard_of_hearing": "yes", "cognitive": "yes"},
+      "note": "only \"Accessible !\" and \"Accessible avec un coup de main ponctuel !\" are positive; \"Attention, particularités !\" is also given to places unsuitable for the group. Valid 3 years."
+    },
+    "tourisme-handicap": {
+      "name": "Tourisme & Handicap",
+      "basis": "certified",
+      "where": "dataset `tourisme-handicap` (`handicap_moteur`, `handicap_visuel`, `handicap_auditif`, `handicap_mental`; `droit_d_utilisation_du_label` = `actif`); in Acceslibre `labels` = `th` is only a claim",
+      "covers": {"wheelchair": "yes", "walking_difficulty": "merged", "temporary_mobility": "merged", "blind": "merged", "low_vision": "merged", "deaf": "merged", "hard_of_hearing": "merged", "cognitive": "merged", "sensory_sensitivity": "merged"},
+      "note": "pass or fail per family; a family covers several groups."
+    },
+    "a-label": {
+      "name": "Toerisme Vlaanderen A / A+",
+      "basis": "certified",
+      "where": "dataset `toerismevlaanderen`, field `a_label`",
+      "covers": {"wheelchair": "yes", "walking_difficulty": "merged", "temporary_mobility": "merged"},
+      "note": "A: basic, help may be needed; A+: comfortable and independent."
+    },
+    "inter-label": {
+      "name": "Inter Label Toegankelijk Gebouw (A, A+, A++)",
+      "basis": "certified",
+      "where": "not in the data space; see the vocabulary hub",
+      "covers": {"wheelchair": "yes", "walking_difficulty": "merged", "blind": "A++ only", "low_vision": "A++ only", "deaf": "A++ only", "hard_of_hearing": "A++ only", "cognitive": "A++ only"},
+      "note": "A and A+ concern mobility; A++ covers all target groups."
+    },
+    "inter-confirmed": {
+      "name": "IedereenOveral, confirmed by Inter",
+      "basis": "certified",
+      "where": "IedereenOveral datasets, field `confirmed_by_inter`",
+      "covers": {"wheelchair": "facts", "walking_difficulty": "facts", "temporary_mobility": "facts", "blind": "facts", "low_vision": "facts", "deaf": "facts", "hard_of_hearing": "facts", "cognitive": "facts", "sensory_sensitivity": "facts"},
+      "note": "an Inter advisor checked the record's facts; it is not a verdict for a group."
+    },
+    "toevla-screening": {
+      "name": "ToeVla on-site screening",
+      "basis": "certified",
+      "where": "dataset `toevla` (`screenedBy`, `receivedAt`)",
+      "covers": {"wheelchair": "facts", "walking_difficulty": "facts", "temporary_mobility": "facts", "blind": "facts", "low_vision": "facts", "deaf": "facts", "hard_of_hearing": "facts", "cognitive": "facts"},
+      "note": "measured on site, mostly 2010-2015; always give the date."
+    },
+    "handiplage": {
+      "name": "Handiplage",
+      "basis": "certified",
+      "where": "Acceslibre `labels` = `handiplage` (a claim); vocabulary hub",
+      "covers": {"wheelchair": "yes", "walking_difficulty": "merged", "blind": "higher levels only", "low_vision": "higher levels only"},
+      "note": "beaches only; four levels."
+    }
+  }
+}

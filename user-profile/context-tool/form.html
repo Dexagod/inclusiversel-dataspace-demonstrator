@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accessibility data space · Profile context</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Layout for the form only; colours, type and components come from the viewer's styles.css. */
+    .profile-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,.9fr);gap:24px;align-items:start}
+    .profile-form .panel{margin-bottom:18px}
+    .panel-body{padding:0 23px 21px}
+    .field{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0;font-size:13px}
+    .field>span:first-child{min-width:190px;color:var(--muted)}
+    .choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:2px 18px;margin:6px 0 10px}
+    .choices label,.check{display:flex;align-items:flex-start;gap:8px;font-size:13px;padding:4px 0}
+    .choices input,.check input{margin-top:3px;accent-color:var(--green)}
+    input[type=text],input[type=date],input[type=number],select{padding:7px 9px;min-height:36px}
+    input[type=number]{width:7em}
+    textarea{width:100%;padding:10px 12px}
+    .subhead{font-size:10px;font-weight:700;letter-spacing:1.65px;color:var(--muted);margin:16px 0 4px}
+    .output{position:sticky;top:20px}
+    .output-actions{display:flex;gap:8px;flex-wrap:wrap}
+    #result{height:68vh;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:#fcfcf9;resize:vertical}
+    #error:empty{display:none}
+    .file-button{position:relative;overflow:hidden}
+    .file-button input{position:absolute;inset:0;opacity:0;cursor:pointer}
+    @media(max-width:1100px){.profile-grid{grid-template-columns:1fr}.output{position:static}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="#main"><img src="favicon.svg" alt="" width="38" height="38"><span>Accessibility<span class="brand-sub">USER PROFILE CONTEXT</span></span></a>
+    <div class="header-note"><span class="dot"></span>KNoWS · Ghent University<span class="research-tag">Research demonstrator</span></div>
+  </header>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <p class="eyebrow">PROFILE</p>
+      <nav aria-label="Profile sections">
+        <a class="nav-item" href="#needs-panel"><span class="nav-icon" aria-hidden="true">◎</span>Needs</a>
+        <a class="nav-item" href="#limits-panel"><span class="nav-icon" aria-hidden="true">↕</span>Limits and facilities</a>
+        <a class="nav-item" href="#support-panel"><span class="nav-icon" aria-hidden="true">⚇</span>Support and communication</a>
+        <a class="nav-item" href="#evidence-panel"><span class="nav-icon" aria-hidden="true">✓</span>Evidence I accept</a>
+        <a class="nav-item" href="#answers-panel"><span class="nav-icon" aria-hidden="true">≡</span>Answers and trip</a>
+        <a class="nav-item" href="#comment-panel"><span class="nav-icon" aria-hidden="true">❝</span>In your own words</a>
+        <a class="nav-item" href="#output-panel"><span class="nav-icon" aria-hidden="true">▤</span>Context document</a>
+      </nav>
+      <div class="sidebar-note"><span class="mini-mark" aria-hidden="true">↗</span><strong>Your needs.<br>Answers you can trust.</strong><p>Describe what you need and which evidence you accept; the chatbot reads it before it answers.</p></div>
+      <div class="connection-panel"><p class="eyebrow">ALSO IN THE DATA SPACE</p><div><a href="{{VIEWER_URL}}">Data space explorer</a></div><p class="muted small">Runs locally · nothing is stored</p></div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <div class="page-heading"><div><p class="eyebrow">PREPARE A CHATBOT</p><h1>Accessibility profile</h1><p class="intro">Fill in what applies. The context document updates as you type; paste it into the chatbot before your question.</p></div></div>
+      <p class="notice">Accessibility needs are personal health data. This page sends your answers only to this tool, which keeps nothing and logs nothing. Save the profile yourself if you want to reuse it.</p>
+      <div class="profile-grid">
+        <form id="f" class="profile-form">
+          <section class="panel" id="needs-panel" aria-labelledby="needs-h">
+            <div class="panel-heading"><h2 id="needs-h">Needs</h2></div>
+            <div class="panel-body">
+              <div class="choices" id="needs"></div>
+              <label class="field"><span>Wheelchair type</span><select name="wheelchair_type"><option value="">—</option><option>manual</option><option>electric</option><option>scooter</option></select></label>
+              <label class="field"><span>Walking aid</span><input type="text" name="walking_aid" placeholder="e.g. rollator"></label>
+              <label class="field"><span>Sign language</span><input type="text" name="sign_language" placeholder="e.g. VGT, LSF"></label>
+              <label class="field"><span>Other need</span><input type="text" name="other" size="34"></label>
+            </div>
+          </section>
+
+          <section class="panel" id="limits-panel" aria-labelledby="limits-h">
+            <div class="panel-heading"><h2 id="limits-h">Limits and facilities</h2></div>
+            <div class="panel-body">
+              <label class="field"><span>Max steps (0 = step-free only)</span><input type="number" name="max_steps" min="0"></label>
+              <label class="field"><span>Max step height (cm)</span><input type="number" name="max_step_height_cm" min="0"></label>
+              <label class="check"><input type="checkbox" name="handrail_needed"> Handrail needed on steps</label>
+              <label class="field"><span>Min clear width (cm)</span><input type="number" name="min_width_cm" min="0"></label>
+              <label class="field"><span>Max slope (%)</span><input type="number" name="max_slope_pct" min="0"></label>
+              <label class="field"><span>Max walking/wheeling distance (m)</span><input type="number" name="max_walk_m" min="0"></label>
+              <label class="field"><span>Seating needed every (m)</span><input type="number" name="seating_every_m" min="0"></label>
+              <p class="subhead">FACILITIES</p>
+              <label class="field"><span>Toilet</span><select name="toilet"><option value="">no requirement</option><option value="accessible">accessible toilet</option><option value="transfer_left">accessible, transfer left</option><option value="transfer_right">accessible, transfer right</option><option value="changing_places">Changing Places</option></select></label>
+              <label class="check"><input type="checkbox" name="lift_required"> Lift required</label>
+              <label class="check"><input type="checkbox" name="parking_card"> Holds a disability parking card</label>
+            </div>
+          </section>
+
+          <section class="panel" id="support-panel" aria-labelledby="support-h">
+            <div class="panel-heading"><h2 id="support-h">Support and communication</h2></div>
+            <div class="panel-body">
+              <label class="field"><span>Travels</span><select name="companion"><option value="">not stated</option><option value="no">alone</option><option value="yes">with a companion</option></select></label>
+              <p class="subhead">COMPANION CAN</p>
+              <div class="choices">
+                <label><input type="checkbox" name="companion_can" value="push"> push a wheelchair</label>
+                <label><input type="checkbox" name="companion_can" value="single_step"> help over a single step</label>
+                <label><input type="checkbox" name="companion_can" value="guide"> guide</label>
+                <label><input type="checkbox" name="companion_can" value="interpret"> interpret</label>
+                <label><input type="checkbox" name="companion_can" value="transfer"> help with transfers</label>
+              </div>
+              <label class="check"><input type="checkbox" name="assistance_dog"> Assistance dog</label>
+              <p class="subhead">COMMUNICATION</p>
+              <div class="choices">
+                <label><input type="checkbox" name="communication" value="sign_language"> sign language</label>
+                <label><input type="checkbox" name="communication" value="induction_loop"> induction loop</label>
+                <label><input type="checkbox" name="communication" value="subtitles"> subtitles / transcription</label>
+                <label><input type="checkbox" name="communication" value="easy_to_read"> Easy-to-Read</label>
+                <label><input type="checkbox" name="communication" value="written_contact"> written contact rather than phone</label>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" id="evidence-panel" aria-labelledby="evidence-h">
+            <div class="panel-heading"><h2 id="evidence-h">Evidence I accept</h2></div>
+            <div class="panel-body">
+              <label class="field"><span>Minimum basis</span><select name="min_basis">
+                <option value="crowd_sourced">anything, incl. crowd-sourced</option>
+                <option value="self_declared">self-declared or better</option>
+                <option value="official">official or certified</option>
+                <option value="certified">certified only</option></select></label>
+              <label class="field"><span>Toilet facts at least</span><select name="per_need_toilet"><option value="">same as above</option><option value="official">official</option><option value="certified">certified</option></select></label>
+              <label class="field"><span>Entrance facts at least</span><select name="per_need_entrance"><option value="">same as above</option><option value="official">official</option><option value="certified">certified</option></select></label>
+              <p class="subhead">LABELS I ACCEPT AS CERTIFICATION</p>
+              <div class="choices" id="labels"></div>
+              <label class="check"><input type="checkbox" name="label_must_cover_need" checked> A label counts only if it covers my group</label>
+              <label class="field"><span>Max age of data (years)</span><input type="number" name="max_age_years" min="0"></label>
+              <label class="field"><span>When nothing meets this</span><select name="when_nothing_meets">
+                <option value="show_weaker_marked">show weaker facts, marked</option>
+                <option value="say_so">say so and stop</option>
+                <option value="search_web">search the web</option></select></label>
+              <label class="field"><span>Unknowns</span><select name="unknowns"><option value="show">show as unknown</option><option value="exclude_must">leave out places with unknown must-haves</option></select></label>
+              <label class="field"><span>Conflicts</span><select name="conflicts"><option value="show_all">show all sources</option><option value="newest">prefer newest</option><option value="strongest">prefer strongest basis</option></select></label>
+            </div>
+          </section>
+
+          <section class="panel" id="answers-panel" aria-labelledby="answers-h">
+            <div class="panel-heading"><h2 id="answers-h">Answers and trip</h2></div>
+            <div class="panel-body">
+              <label class="field"><span>Language</span><select name="language"><option value="nl">Dutch</option><option value="fr">French</option><option value="en">English</option><option value="de">German</option></select></label>
+              <label class="field"><span>Length</span><select name="answer_length"><option value="short">short</option><option value="detailed">detailed</option></select></label>
+              <label class="check"><input type="checkbox" name="measurements"> Give measurements</label>
+              <label class="check"><input type="checkbox" name="screen_reader"> Screen reader (no tables)</label>
+              <label class="check"><input type="checkbox" name="easy_to_read"> Easy-to-Read answers</label>
+              <p class="subhead">THIS TRIP (OPTIONAL)</p>
+              <label class="field"><span>Note</span><input type="text" name="trip_note" size="34" placeholder="e.g. with a pram"></label>
+              <label class="field"><span>Until</span><input type="date" name="trip_until"></label>
+            </div>
+          </section>
+
+          <section class="panel" id="comment-panel" aria-labelledby="comment-h">
+            <div class="panel-heading"><div><h2 id="comment-h">In your own words</h2><p class="muted small">Passed on as a quote; the form above wins where they differ.</p></div></div>
+            <div class="panel-body"><textarea name="comment" rows="5" aria-labelledby="comment-h"></textarea></div>
+          </section>
+        </form>
+
+        <section class="panel output" id="output-panel" aria-labelledby="output-h">
+          <div class="panel-heading"><h2 id="output-h">Context document</h2>
+            <div class="output-actions">
+              <button type="button" class="button primary" id="copy">Copy</button>
+              <button type="button" class="button secondary" id="download">Download .md</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <p id="error" class="notice" role="alert"></p>
+            <textarea id="result" readonly aria-label="Generated context document"></textarea>
+            <div class="output-actions" style="margin-top:12px">
+              <button type="button" class="button secondary" id="save">Save profile (JSON)</button>
+              <span class="button secondary file-button">Load profile<input type="file" id="load" accept=".json" aria-label="Load profile"></span>
+            </div>
+          </div>
+        </section>
+      </div>
+      <footer class="page-footer"><span>Profile context tool · first iteration</span><span>Mappings from user-profile/disability-profile-mappings.md</span></footer>
+    </main>
+  </div>
+<script>
+const f = document.getElementById("f");
+const num = n => f.elements[n].value === "" ? undefined : Number(f.elements[n].value);
+const checked = n => [...f.querySelectorAll(`[name=${n}]:checked`)].map(e => e.value);
+const prune = o => Object.fromEntries(Object.entries(o).filter(([, v]) =>
+  v !== undefined && v !== "" && v !== false && !(Array.isArray(v) && !v.length) &&
+  !(typeof v === "object" && !Array.isArray(v) && !Object.keys(v).length)));
+
+function state() {
+  const e = f.elements, comp = e.companion.value;
+  const perNeed = prune({toilet: e.per_need_toilet.value, entrance: e.per_need_entrance.value});
+  return prune({
+    language: e.language.value,
+    needs: checked("needs"),
+    details: prune({wheelchair_type: e.wheelchair_type.value, walking_aid: e.walking_aid.value.trim(),
+                    sign_language: e.sign_language.value.trim(), other: e.other.value.trim()}),
+    limits: prune({max_steps: num("max_steps"), max_step_height_cm: num("max_step_height_cm"),
+                   handrail_needed: e.handrail_needed.checked, min_width_cm: num("min_width_cm"),
+                   max_slope_pct: num("max_slope_pct"), max_walk_m: num("max_walk_m"), seating_every_m: num("seating_every_m")}),
+    facilities: prune({toilet: e.toilet.value, lift_required: e.lift_required.checked, parking_card: e.parking_card.checked}),
+    support: comp === "" && !e.assistance_dog.checked ? undefined : prune({
+      companion: comp === "" ? undefined : comp === "yes",
+      companion_can: comp === "yes" ? checked("companion_can") : [], assistance_dog: e.assistance_dog.checked}),
+    communication: checked("communication"),
+    evidence: {min_basis: e.min_basis.value, per_need: perNeed, accepted_labels: checked("labels"),
+               label_must_cover_need: e.label_must_cover_need.checked, max_age_years: num("max_age_years"),
+               when_nothing_meets: e.when_nothing_meets.value, unknowns: e.unknowns.value, conflicts: e.conflicts.value},
+    answer: prune({length: e.answer_length.value, measurements: e.measurements.checked,
+                   screen_reader: e.screen_reader.checked, easy_to_read: e.easy_to_read.checked}),
+    trip: prune({note: e.trip_note.value.trim(), until: e.trip_until.value}),
+    comment: e.comment.value,
+  });
+}
+
+function fill(s) {
+  f.reset();
+  const e = f.elements, set = (n, v) => { if (v !== undefined && e[n]) e[n].value = v; };
+  const tick = (n, vals) => (vals || []).forEach(v => { const b = f.querySelector(`[name=${n}][value="${v}"]`); if (b) b.checked = true; });
+  const flag = (n, v) => { e[n].checked = !!v; };
+  set("language", s.language); tick("needs", s.needs);
+  const d = s.details || {}; ["wheelchair_type", "walking_aid", "sign_language", "other"].forEach(k => set(k, d[k]));
+  const l = s.limits || {}; ["max_steps", "max_step_height_cm", "min_width_cm", "max_slope_pct", "max_walk_m", "seating_every_m"].forEach(k => set(k, l[k]));
+  flag("handrail_needed", l.handrail_needed);
+  const fa = s.facilities || {}; set("toilet", fa.toilet); flag("lift_required", fa.lift_required); flag("parking_card", fa.parking_card);
+  const su = s.support || {}; set("companion", su.companion === undefined ? "" : su.companion ? "yes" : "no");
+  tick("companion_can", su.companion_can); flag("assistance_dog", su.assistance_dog);
+  tick("communication", s.communication);
+  const ev = s.evidence || {}; set("min_basis", ev.min_basis); tick("labels", ev.accepted_labels);
+  set("per_need_toilet", (ev.per_need || {}).toilet || ""); set("per_need_entrance", (ev.per_need || {}).entrance || "");
+  flag("label_must_cover_need", ev.label_must_cover_need !== false); set("max_age_years", ev.max_age_years);
+  ["when_nothing_meets", "unknowns", "conflicts"].forEach(k => set(k, ev[k]));
+  const a = s.answer || {}; set("answer_length", a.length); ["measurements", "screen_reader", "easy_to_read"].forEach(k => flag(k, a[k]));
+  const t = s.trip || {}; set("trip_note", t.note); set("trip_until", t.until);
+  set("comment", s.comment || "");
+}
+
+let timer, seq = 0;
+async function render() {
+  const mine = ++seq;
+  const res = await fetch("generate", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(state())});
+  const text = await res.text();
+  if (mine !== seq) return;  // a newer render is under way; drop this stale response
+  document.getElementById("error").textContent = res.ok ? "" : text;
+  if (res.ok) document.getElementById("result").value = text;
+}
+f.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(render, 250); });
+f.addEventListener("change", () => { clearTimeout(timer); timer = setTimeout(render, 250); });
+
+function download(name, text, type) {
+  const a = Object.assign(document.createElement("a"), {href: URL.createObjectURL(new Blob([text], {type})), download: name});
+  a.click(); URL.revokeObjectURL(a.href);
+}
+document.getElementById("copy").onclick = () => navigator.clipboard.writeText(document.getElementById("result").value);
+document.getElementById("download").onclick = () => download("context.md", document.getElementById("result").value, "text/markdown");
+document.getElementById("save").onclick = () => download("profile.json", JSON.stringify(state(), null, 2), "application/json");
+document.getElementById("load").onchange = async ev => { fill(JSON.parse(await ev.target.files[0].text())); render(); };
+
+fetch("crosswalk.json").then(r => r.json()).then(cw => {
+  const box = (id, name, entries) => document.getElementById(id).innerHTML = entries.map(([v, t]) =>
+    `<label><input type="checkbox" name="${name}" value="${v}"> ${t}</label>`).join("");
+  box("needs", "needs", Object.entries(cw.profiles).map(([k, p]) => [k, p.label]));
+  box("labels", "labels", Object.entries(cw.labels).map(([k, l]) => [k, l.name]));
+  render();
+});
+</script>
+</body>
+</html>

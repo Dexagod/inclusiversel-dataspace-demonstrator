@@ -1,0 +1,14 @@
+{
+  "language": "nl",
+  "needs": ["walking_difficulty"],
+  "details": {"walking_aid": "rollator"},
+  "limits": {"max_steps": 3, "max_step_height_cm": 15, "handrail_needed": true, "max_walk_m": 300},
+  "facilities": {"toilet": "accessible"},
+  "support": {"companion": true, "companion_can": ["single_step"]},
+  "evidence": {"min_basis": "self_declared", "per_need": {"toilet": "certified"},
+               "accepted_labels": ["tourisme-handicap", "access-i", "inter-confirmed"],
+               "label_must_cover_need": true, "max_age_years": 5,
+               "when_nothing_meets": "show_weaker_marked", "unknowns": "show", "conflicts": "show_all"},
+  "answer": {"length": "short", "measurements": true, "screen_reader": true},
+  "comment": "Fictional example. Ik kan twee à drie treden aan als er een leuning is. Ik vertrouw niet op wat zaken zelf invullen."
+}

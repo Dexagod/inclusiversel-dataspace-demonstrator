@@ -1,0 +1,12 @@
+{
+  "language": "en",
+  "needs": ["wheelchair"],
+  "details": {"wheelchair_type": "electric"},
+  "limits": {"max_steps": 0, "min_width_cm": 85, "max_slope_pct": 6},
+  "facilities": {"toilet": "transfer_left", "lift_required": true, "parking_card": true},
+  "support": {"companion": false},
+  "evidence": {"min_basis": "certified", "accepted_labels": ["tourisme-handicap", "a-label", "access-i"],
+               "max_age_years": 3, "when_nothing_meets": "say_so", "unknowns": "exclude_must", "conflicts": "strongest"},
+  "answer": {"length": "detailed", "measurements": true},
+  "comment": "Fictional example. I can't do even one step; my chair weighs 140 kg, so portable ramps are often too weak."
+}

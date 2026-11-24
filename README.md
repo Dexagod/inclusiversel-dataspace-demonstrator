@@ -7,6 +7,7 @@ A small, runnable data space for accessibility information in Belgium and France
 | [`dataspace/`](dataspace/) | the generic data space: catalog (broker), vocabulary hub, MCP connector | [README](dataspace/README.md) |
 | [`sources/`](sources/) | everything source-specific: proxies, catalog registrations, domain knowledge and the permanent context for the vocabulary hub, end-to-end test | [README](sources/README.md) |
 | [`viewer/`](viewer/) | read-only web interface over the catalog and the vocabulary hub, for people (agents use the connector) | [README](viewer/README.md) |
+| [`user-profile/`](user-profile/) | how sources map disability profiles to data, and a tool that turns a user's needs and evidence preferences into context for a chatbot (:8095) | [README](user-profile/context-tool/README.md) |
 | [`AGENTS.md`](AGENTS.md) | status, rules, decisions, known source quirks, open work, golden questions | for coding agents and maintainers |
 | [`sources/source-inventory.md`](sources/source-inventory.md), [`sources/domain-knowledge-inventory.md`](sources/domain-knowledge-inventory.md) | every source and document from the literature study (`literatuurstudie.pdf`): added, candidate, blocked or skipped, with licences | source of truth for what is in and why |
 | [`user-profiles.md`](user-profiles.md) | analysis of personal needs and preferences (not built) | read before adding anything profile-related |
@@ -17,7 +18,7 @@ Requirements: Docker with Compose, [uv](https://docs.astral.sh/uv/), and for Pic
 ## Run locally
 
 ```bash
-make start-full     # data space, sources and viewer; then every source and document (first build downloads ~220 MB)
+make start-full     # data space, sources, viewer and profile tool; then every source and document (first build downloads ~220 MB)
 claude mcp add --transport http accessibility-dataspace http://localhost:8800/mcp
 ```
 
