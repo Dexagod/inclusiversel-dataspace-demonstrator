@@ -22,3 +22,39 @@ test('retains only the latest 1000 calls', () => {
   assert.equal(parseLogText(text).calls.length, 1000);
   assert.equal(parseLogText(text).omitted, 2);
 });
+
+import {callKey, groupCalls, clientIdentity, reconcileChildren} from '../static/logs.mjs';
+test('interleaved clients get separate groups; idle gaps are per client', () => {
+  const a = {session_id: 'session-a', client_name: 'Example A'}, b = {session_id: 'session-b', client_name: 'Example B'};
+  const groups = groupCalls([call('00:00', 1000, {requester: a}), call('00:10', 100, {requester: b}), call('01:00', 100, {requester: a}), call('04:00', 100, {requester: a})]);
+  assert.deepEqual(groups.map(g => g.calls.length), [2, 1, 1]);
+  assert.equal(groups[0].identity.name, 'Example A');
+  assert.notEqual(groups[0].key, groups[2].key);
+});
+test('group keys survive appended requests and eviction of the oldest call', () => {
+  const events = ['00:00', '00:10', '00:20'].map((time, i) => call(time, 1, {call_id: `call-${i}`, requester: {session_id: 'example'}}));
+  const original = groupCalls(events.slice(0, 2));
+  assert.equal(groupCalls(events, 120000, original)[0].key, original[0].key);
+  assert.equal(groupCalls(events.slice(1), 120000, original)[0].key, original[0].key);
+  assert.equal(callKey({...events[0], chars: 50}), callKey(events[0]));
+});
+test('identity fields are allowlisted; unknown and inferred clients are labelled honestly', () => {
+  const parsed = parseLogText(JSON.stringify(call('00:00', 1, {requester: {client_name: 'Example', session_id: 'abc', authorization: 'fictional-secret', request_id: '123'}})));
+  assert.equal(parsed.calls[0].requester.authorization, undefined);
+  assert.equal(parsed.calls[0].requester.request_id, '123');
+  assert.equal(clientIdentity(call('00:00', 1)).name, 'Unknown requester');
+  assert.match(clientIdentity({requester: {remote_address: '127.0.0.1', user_agent: 'Example'}}).basis, /Inferred/);
+});
+test('unchanged keyed nodes are not detached and retain expanded/response state', () => {
+  let mutations = 0;
+  const parent = {children: [], get firstElementChild() { return this.children[0] || null; }, insertBefore(child, before) {
+    mutations++; this.children = this.children.filter(item => item !== child);
+    const index = before ? this.children.indexOf(before) : this.children.length;
+    this.children.splice(index, 0, child);
+  }};
+  const make = () => ({open: true, response: 'preserved response', get nextElementSibling() { return parent.children[parent.children.indexOf(this) + 1] || null; }, remove() { mutations++; parent.children = parent.children.filter(item => item !== this); }});
+  const a = make(), b = make(), c = make(); parent.children = [a, b];
+  reconcileChildren(parent, [a, b]); assert.equal(mutations, 0);
+  reconcileChildren(parent, [a, b, c]); assert.equal(mutations, 1);
+  assert.equal(parent.children[0], a); assert.equal(a.open, true); assert.equal(a.response, 'preserved response');
+});

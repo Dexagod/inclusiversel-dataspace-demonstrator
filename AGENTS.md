@@ -275,9 +275,13 @@ make -C viewer check        # offline fictional fixtures; Python and Node.js 18+
 - **Connections:** the viewer's allowlisted GET/HEAD proxy uses `CATALOG_URL`
   (default `http://localhost:8001`) and `VOCHUB_URL` (default
   `http://localhost:8002`). This administrative viewing interface reads the REST
-  services; the agent workflow still uses `http://localhost:8800/mcp`. No existing
-  service contract, CORS configuration, source registration or credential changes
-  are needed. The viewer does not read `.env` files or private source exports.
+  services; the agent workflow still uses `http://localhost:8800/mcp`. The Logs tab
+  groups calls by reported requester identity, with labelled fallbacks and a
+  per-client idle gap, preserving expanded details during refresh. Explicit
+  response replays use `CONNECTOR_URL` and the connector's read-only
+  `POST /demo/replay` route (ADR 0010), not direct source calls. Replays are new
+  calls, not historical responses. The viewer does not read `.env` files or
+  private source export files. Requester metadata is not authenticated identity.
 - **Verification:** `make -C viewer check` adds offline proxy and frontend logic
   checks to the existing project gates. `python3 viewer/tests/preview.py` serves
   explicitly fictional browser fixtures on port 8091; normal operation always

@@ -6,7 +6,9 @@ from datetime import datetime
 MAX_BYTES = 8 * 1024 * 1024
 MAX_CALLS = 1000
 FIELDS = {'call_log', 'start', 'tool', 'args', 'ms', 'chars', 'results', 'status',
-          'truncated', 'records_cut', 'error', 'exception'}
+          'truncated', 'records_cut', 'error', 'exception', 'call_id'}
+IDENTITY_FIELDS = {'session_id', 'client_id', 'client_name', 'client_version', 'client_title',
+                   'request_id', 'remote_address', 'forwarded_for', 'user_agent', 'protocol_version'}
 
 
 def parse_logs(text):
@@ -28,7 +30,12 @@ def parse_logs(text):
                 raise ValueError()
             if not isinstance(item.get('args', {}), dict):
                 raise ValueError()
-            calls.append({key: value for key, value in item.items() if key in FIELDS})
+            clean = {key: value for key, value in item.items() if key in FIELDS}
+            identity = item.get('requester')
+            if isinstance(identity, dict):
+                clean['requester'] = {key: str(value)[:512] for key, value in identity.items()
+                                      if key in IDENTITY_FIELDS and isinstance(value, (str, int, float))}
+            calls.append(clean)
         except (ValueError, TypeError, KeyError):
             skipped += 1
     calls.sort(key=lambda item: datetime.fromisoformat(item['start'].replace('Z', '+00:00')))

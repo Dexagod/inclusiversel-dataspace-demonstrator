@@ -170,7 +170,7 @@ async function openDataset(id) {
         detailField('Registered', date(d.registered_at)),
         detailField('Metadata modified', date(d.modified))),
       dcat, raw,
-      el('p', {class: 'muted small', text: `Registration retrieved ${date(new Date().toISOString())}. API links may use addresses on the Docker network. No place records are queried by this viewer.`}));
+      el('p', {class: 'muted small', text: `Registration retrieved ${date(new Date().toISOString())}. API links may use addresses on the Docker network. This registration view does not query place records.`}));
   } catch (error) {
     if (request !== state.detailRequest) return;
     const retry = el('button', {class: 'button secondary', text: 'Retry'});

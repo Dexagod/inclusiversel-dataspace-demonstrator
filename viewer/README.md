@@ -21,8 +21,8 @@ make -C sources register
 make -C sources knowledge  # optional public document ingestion, needs internet
 ```
 
-The viewer works without the source proxies running: it reads registration and
-document metadata, not source place APIs. An empty catalog or hub remains empty
+Catalog and vocabulary browsing work without the source proxies running.
+Replaying source calls requires the connector and the relevant source API. An empty catalog or hub remains empty
 until seeded. It never substitutes demo records for missing live data.
 
 Configuration is via process environment; the viewer does **not** read `.env`:
@@ -90,29 +90,53 @@ No addresses are guessed or rewritten.
 All implementation and tests live in `viewer/`. The root `AGENTS.md` documents the
 component; `dataspace/` and `sources/` remain owned by their respective workstreams.
 The viewer talks to existing broker/hub read endpoints and optionally reads a local
-connector log snapshot for demonstrations. It neither uses the
-agent MCP connector nor changes its agent-only workflow.
+connector log snapshot for demonstrations. Explicit replay requests use the
+connector’s validated read-only tools through its demo endpoint.
 
 The standard-library Python server serves static files and proxies an explicit
-GET/HEAD allowlist to the two configured services. It rejects mutation methods,
+GET/HEAD allowlist to the two configured services. A single same-origin POST endpoint
+repeats read-only tools through the connector. It rejects other mutation methods,
 unknown paths, unsupported query parameters, arbitrary target URLs and upstream
-redirects. Responses are bounded at 16 MiB with a 45-second upstream timeout.
+redirects. Responses are bounded at 16 MiB with a 45-second upstream timeout (75 seconds
+for replay).
 Errors are isolated per service, and questions are not written to request logs.
 The same-origin proxy removes any need to add CORS to the existing services.
 Metadata and retrieved passages are rendered as text. The collapsed Permanent
 context section renders Markdown headings, lists, links, tables, quotes and code
 using a locally bundled MIT-licensed markdown-it parser. Raw HTML stays literal,
 images display their alt text, and outgoing links accept only credential-free
-HTTP(S) URLs. No authentication keys or private exports are used.
+HTTP(S) URLs. The viewer never reads credential files or private export files;
+replay responses can contain source records returned by the connector.
 
 ## Demonstrating connector logs
 
 The **Logs** tab reads the connector's existing `call_log: 1` JSON lines. It
 shows expandable calls with arguments, timestamps, duration, answer size, source
 operation, errors and truncation. Search and failure filters apply to the timeline
-and its totals. Activity blocks use a two-minute idle gap, not actual session IDs;
-parallel calls count once in active time. Interleaved agents cannot be separated
-without session identifiers in the original logs.
+and its totals. The scrollable timeline groups calls by reported MCP session ID,
+then declared client ID, then an explicitly labelled address/client heuristic.
+A new group starts after 2, 5 or 15 idle minutes for that client. Old entries with
+no identity appear as Unknown requester and may contain several clients. The
+connector remains stateless, so initialized client names/session IDs may not be
+available; inferred groups can combine clients behind a proxy. Metadata is not
+verified identity. Filtering does not change the original grouping. Expanded
+groups, calls, request identity and responses remain open during refresh, and the
+list retains its scroll position. Parallel calls count once in active time.
+
+**Show request response** repeats the selected read-only tool through the
+connector and displays the fresh result in a read-only text field. This is not
+recovery of the original response; source data may have changed. Replays retain
+SDK argument validation, source OpenAPI validation and connector credential
+handling, and are logged as new viewer requests when logging is enabled.
+`CONNECTOR_URL` defaults to `http://localhost:8800` for a Python-hosted viewer and
+`http://connector:8800` in Compose. A random per-tab ID in session storage groups
+viewer replays without impersonating the original requester. Response bodies stay
+in the page and are neither written to the log snapshot nor browser storage.
+
+After upgrading, rebuild the connector to enable metadata and the replay endpoint:
+`docker compose -f dataspace/docker-compose.yml up --build -d --no-deps connector`.
+Re-run the collector as described below. Metadata cannot be added retroactively
+to historical call entries.
 
 For a recorded demo, export from the machine running the connector:
 

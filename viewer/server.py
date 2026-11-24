@@ -79,9 +79,10 @@ def proxy_route(target):
     return service, path + suffix
 
 
-def make_handler(catalog_url, vochub_url, timeout=45, log_file=None):
+def make_handler(catalog_url, vochub_url, timeout=45, log_file=None, connector_url='http://localhost:8800'):
     upstreams = {"catalog": base_url(catalog_url), "vochub": base_url(vochub_url)}
     opener = build_opener(ProxyHandler({}), NoRedirect())
+    replay_url = base_url(connector_url) + '/demo/replay'
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, format, *args):
@@ -155,7 +156,48 @@ def make_handler(catalog_url, vochub_url, timeout=45, log_file=None):
         def readonly(self):
             self.error(405, "The viewer is read-only; only GET and HEAD are allowed")
 
-        do_POST = do_PUT = do_DELETE = do_PATCH = do_OPTIONS = readonly
+        def do_POST(self):
+            if self.path != '/api/logs/replay':
+                return self.readonly()
+            origin = self.headers.get('Origin')
+            if (self.headers.get('Sec-Fetch-Site') == 'cross-site'
+                    or (origin and urlsplit(origin).netloc != self.headers.get('Host'))):
+                return self.error(403, 'Replay requests must come from this viewer')
+            if self.headers.get('Content-Type', '').split(';')[0] != 'application/json':
+                return self.error(415, 'JSON required')
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                if not 0 < length <= 65536:
+                    return self.error(413, 'Replay request must be at most 64 KiB')
+                body = json.loads(self.rfile.read(length))
+                if not isinstance(body, dict) or body.get('tool') not in {'vochub_search', 'catalog_search', 'catalog_get_dataset', 'get_openapi', 'call_source_operation'} or not isinstance(body.get('args'), dict):
+                    raise ValueError()
+                viewer_id = body.get('viewer_id', '')
+                if not isinstance(viewer_id, str) or not re.fullmatch(r'[a-zA-Z0-9-]{1,80}', viewer_id):
+                    raise ValueError()
+            except (ValueError, TypeError):
+                return self.error(400, 'Invalid tool, arguments or viewer identifier')
+            try:
+                req = Request(replay_url, data=json.dumps({'tool': body['tool'], 'args': body['args']}).encode(),
+                              headers={'Content-Type': 'application/json', 'Accept': 'application/json',
+                                       'User-Agent': 'accessibility-dataspace-viewer-replay/0.1',
+                                       'X-Demo-Client-Id': viewer_id})
+                with opener.open(req, timeout=75) as response:
+                    raw = response.read(MAX_RESPONSE + 1)
+                    if len(raw) > MAX_RESPONSE:
+                        return self.error(502, 'Replay response is too large to display')
+                    if response.headers.get_content_type() != 'application/json':
+                        return self.error(502, 'Connector returned an unexpected replay response')
+                    self.respond(200, raw)
+            except HTTPError as exc:
+                exc.close()
+                self.error(502, f'Connector replay returned HTTP {exc.code}; check the tool arguments and connector version')
+            except (TimeoutError, socket.timeout):
+                self.error(504, 'Replay timed out; the request may still have completed at the source')
+            except (URLError, OSError):
+                self.error(502, 'Cannot reach the connector for replay; check CONNECTOR_URL')
+
+        do_PUT = do_DELETE = do_PATCH = do_OPTIONS = readonly
 
     return Handler
 
@@ -167,7 +209,8 @@ def main():
     args = parser.parse_args()
     handler = make_handler(os.environ.get("CATALOG_URL", "http://localhost:8001"),
                            os.environ.get("VOCHUB_URL", "http://localhost:8002"),
-                           log_file=os.environ.get('VIEWER_LOG_FILE'))
+                           log_file=os.environ.get('VIEWER_LOG_FILE'),
+                           connector_url=os.environ.get('CONNECTOR_URL', 'http://localhost:8800'))
     server = ThreadingHTTPServer((args.host, args.port), handler)
     print(f"Data space viewer: http://{args.host}:{server.server_port}", flush=True)
     try:

@@ -32,6 +32,16 @@ class Stub(BaseHTTPRequestHandler):
     def log_message(self, *_args):
         pass
 
+    def do_POST(self):
+        payload = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+        assert self.path == '/demo/replay'
+        assert payload == {'tool': 'catalog_search', 'args': {'query': 'fictional'}}
+        assert self.headers['X-Demo-Client-Id'] == 'fixture-client'
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(b'{"replayed_at":"2026-11-24T10:00:00Z","result":{"content":[]}}')
+
     def do_GET(self):
         self.requests.append(self.path)
         path = urlsplit(self.path).path
@@ -78,7 +88,7 @@ class ViewerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.upstream, cls.upstream_url = start_server(Stub)
-        cls.viewer, cls.url = start_server(make_handler(cls.upstream_url, cls.upstream_url, timeout=1))
+        cls.viewer, cls.url = start_server(make_handler(cls.upstream_url, cls.upstream_url, timeout=1, connector_url=cls.upstream_url))
 
     @classmethod
     def tearDownClass(cls):
@@ -93,6 +103,17 @@ class ViewerTests(unittest.TestCase):
             response = exc
         with response:
             return response.status, response.headers, response.read()
+
+    def test_replay_proxy_and_cross_origin_rejection(self):
+        payload = json.dumps({'tool': 'catalog_search', 'args': {'query': 'fictional'}, 'viewer_id': 'fixture-client'}).encode()
+        req = Request(self.url + '/api/logs/replay', data=payload, headers={'Content-Type': 'application/json'})
+        with urlopen(req) as response:
+            self.assertIn('result', json.load(response))
+        req.add_header('Origin', 'https://unrelated.example')
+        with self.assertRaises(HTTPError) as error:
+            urlopen(req)
+        self.assertEqual(error.exception.code, 403)
+        self.assertEqual(self.request('/api/logs/replay', 'POST')[0], 415)
 
     def test_assets_and_health(self):
         for path in ["/", "/app.js", "/logs.mjs", "/styles.css", "/model.mjs", "/markdown.mjs", "/vendor/markdown-it.mjs", "/favicon.svg", "/health"]:

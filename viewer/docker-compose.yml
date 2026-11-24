@@ -8,6 +8,7 @@ services:
     environment:
       CATALOG_URL: http://catalog:8000
       VOCHUB_URL: http://vochub:8000
+      CONNECTOR_URL: http://connector:8800
     networks:
       - dataspace
     read_only: true
