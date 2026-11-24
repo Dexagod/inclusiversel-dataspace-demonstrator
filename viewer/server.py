@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urlencode, urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
+from call_logs import read_snapshot
 
 STATIC = Path(__file__).parent / "static"
 MAX_RESPONSE = 16 * 1024 * 1024
@@ -17,6 +18,7 @@ USER_AGENT = "accessibility-dataspace-demo/0.1 (open research demonstrator)"
 ASSETS = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+    "/logs.mjs": ("logs.mjs", "text/javascript; charset=utf-8"),
     "/model.mjs": ("model.mjs", "text/javascript; charset=utf-8"),
     "/markdown.mjs": ("markdown.mjs", "text/javascript; charset=utf-8"),
     "/vendor/markdown-it.mjs": ("vendor/markdown-it.mjs", "text/javascript; charset=utf-8"),
@@ -77,7 +79,7 @@ def proxy_route(target):
     return service, path + suffix
 
 
-def make_handler(catalog_url, vochub_url, timeout=45):
+def make_handler(catalog_url, vochub_url, timeout=45, log_file=None):
     upstreams = {"catalog": base_url(catalog_url), "vochub": base_url(vochub_url)}
     opener = build_opener(ProxyHandler({}), NoRedirect())
 
@@ -106,6 +108,12 @@ def make_handler(catalog_url, vochub_url, timeout=45):
 
         def do_GET(self):
             parsed = urlsplit(self.path)
+            if self.path == '/api/logs':
+                try:
+                    self.respond(200, json.dumps(read_snapshot(log_file)).encode())
+                except (OSError, ValueError, UnicodeError):
+                    self.error(502, 'Cannot read the log snapshot. Check the collector and its file permissions or size.')
+                return
             if not parsed.scheme and not parsed.netloc and parsed.path in ASSETS:
                 name, kind = ASSETS[parsed.path]
                 self.respond(200, (STATIC / name).read_bytes(), kind)
@@ -158,7 +166,8 @@ def main():
     parser.add_argument("--port", type=int, default=int(os.environ.get("VIEWER_PORT", "8090")))
     args = parser.parse_args()
     handler = make_handler(os.environ.get("CATALOG_URL", "http://localhost:8001"),
-                           os.environ.get("VOCHUB_URL", "http://localhost:8002"))
+                           os.environ.get("VOCHUB_URL", "http://localhost:8002"),
+                           log_file=os.environ.get('VIEWER_LOG_FILE'))
     server = ThreadingHTTPServer((args.host, args.port), handler)
     print(f"Data space viewer: http://{args.host}:{server.server_port}", flush=True)
     try:

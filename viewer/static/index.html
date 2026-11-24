@@ -21,6 +21,7 @@
       <nav aria-label="Data space sections">
         <a class="nav-item active" id="nav-catalog" href="#catalog" aria-current="page"><span class="nav-icon" aria-hidden="true">▦</span>Metadata broker<span class="nav-count" id="nav-datasets">—</span></a>
         <a class="nav-item" id="nav-vocabulary" href="#vocabulary"><span class="nav-icon" aria-hidden="true">≋</span>Vocabulary hub<span class="nav-count" id="nav-documents">—</span></a>
+        <a class="nav-item" id="nav-logs" href="#logs"><span class="nav-icon" aria-hidden="true">▤</span>Logs</a>
       </nav>
       <div class="sidebar-note"><span class="mini-mark" aria-hidden="true">↗</span><strong>Connected knowledge.<br>More accessible places.</strong><p>Explore who publishes what, and find the knowledge behind accessibility information.</p></div>
       <div class="connection-panel"><p class="eyebrow">SERVICE CONNECTIONS</p><div><span>Metadata broker</span><span id="catalog-status" class="status">Checking…</span></div><div><span>Vocabulary hub</span><span id="vochub-status" class="status">Checking…</span></div><p class="muted small">Read-only view · live metadata</p></div>
@@ -53,6 +54,14 @@
         </details>
         <section id="results-section" class="results-section" hidden aria-labelledby="results-heading"><div class="section-heading"><div><p class="eyebrow">RETRIEVED EVIDENCE</p><h2 id="results-heading">Relevant passages</h2></div><span class="muted small" id="results-meta"></span></div><p class="muted small" id="results-query"></p><div id="search-message" role="status" aria-live="polite"></div><div id="search-results"></div></section>
         <section class="panel document-panel" aria-labelledby="documents-heading"><div class="panel-heading"><div><p class="eyebrow">KNOWLEDGE COLLECTION</p><h2 id="documents-heading">Ingested documents <span class="count-label" id="document-count">—</span></h2><p class="muted small" id="document-summary">Loading document metadata…</p></div><label class="search-field"><span class="sr-only">Filter documents by title, topic or language</span><span aria-hidden="true">⌕</span><input id="document-search" type="search" placeholder="Find a document or topic…"></label></div><div id="document-list" class="document-list"></div><div id="document-empty" class="empty-state" hidden></div><div class="panel-footer"><span>Document inclusion does not imply that a provider's place API is connected.</span><span id="vocabulary-updated"></span></div></section>
+      </section>
+      <section id="logs-view" aria-labelledby="logs-heading" hidden>
+        <div class="page-heading"><div><p class="eyebrow">DEMONSTRATION</p><h1 id="logs-heading">Connector logs</h1><p class="intro">Follow the agent’s tool calls, source queries and response timings.</p></div><button class="button secondary" id="refresh-logs">Load live snapshot</button></div>
+        <p class="notice">Logs contain questions and arguments. Import files for a local replay, or enable the optional live feed for a closed demonstration. Source response bodies are not logged.</p>
+        <div class="log-controls"><label class="button secondary">Import log file <input id="log-file" type="file" accept=".jsonl,.log,.txt,.json"></label><label><input type="checkbox" id="log-live"> Refresh live every 3 seconds</label></div>
+        <p id="log-message" role="status" aria-live="polite" class="notice">Choose a saved connector log or load the live snapshot.</p>
+        <div class="metrics" id="log-metrics"></div><p id="log-timing" class="muted small"></p>
+        <div class="panel"><div class="panel-heading"><h2>Call timeline <span class="count-label" id="log-count"></span></h2></div><div class="filter-bar"><label class="search-field"><span class="sr-only">Filter calls</span><input id="log-search" type="search" placeholder="Filter tools, sources or arguments…"></label><label><input type="checkbox" id="log-errors"> Failures only</label></div><div id="log-list"></div><p class="empty-state" id="log-empty"></p></div>
       </section>
       <footer class="page-footer"><span>Accessibility data space</span><span>Public research · KNoWS, Ghent University</span></footer>
     </main>

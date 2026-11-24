@@ -1,3 +1,4 @@
+import {initLogs} from './logs.mjs';
 import {list, safeURL, filterDatasets, filterDocuments, searchParams} from './model.mjs';
 import {renderMarkdown} from './markdown.mjs';
 
@@ -265,14 +266,14 @@ async function search(event) {
 }
 
 function navigate() {
-  const vocabulary = location.hash === '#vocabulary';
-  $('catalog-view').hidden = vocabulary;
-  $('vocabulary-view').hidden = !vocabulary;
-  for (const [id, active] of [['nav-catalog', !vocabulary], ['nav-vocabulary', vocabulary]]) {
-    $(id).classList.toggle('active', active);
-    if (active) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current');
+  const selected = ['#vocabulary', '#logs'].includes(location.hash) ? location.hash.slice(1) : 'catalog';
+  for (const name of ['catalog', 'vocabulary', 'logs']) {
+    const active = selected === name;
+    $(name + '-view').hidden = !active;
+    $('nav-' + name).classList.toggle('active', active);
+    if (active) $('nav-' + name).setAttribute('aria-current', 'page'); else $('nav-' + name).removeAttribute('aria-current');
   }
-  document.title = `${vocabulary ? 'Vocabulary hub' : 'Metadata broker'} · Accessibility data space`;
+  document.title = `${{catalog: 'Metadata broker', vocabulary: 'Vocabulary hub', logs: 'Connector logs'}[selected]} · Accessibility data space`;
 }
 $('refresh-catalog').addEventListener('click', loadCatalog);
 $('refresh-vocabulary').addEventListener('click', loadVocabulary);
@@ -293,5 +294,5 @@ document.querySelectorAll('[data-question]').forEach(button => button.addEventLi
 $('close-dialog').addEventListener('click', () => $('dataset-dialog').close());
 $('dataset-dialog').addEventListener('close', () => { state.detailRequest++; });
 window.addEventListener('hashchange', navigate);
-navigate(); renderMetrics();
+navigate(); renderMetrics(); initLogs();
 await Promise.allSettled([loadCatalog(), loadVocabulary()]);

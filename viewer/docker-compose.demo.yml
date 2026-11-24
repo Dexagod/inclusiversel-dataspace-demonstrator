@@ -1,0 +1,7 @@
+# Opt-in only: log arguments can contain questions. Use for a closed demonstration.
+services:
+  viewer:
+    environment:
+      VIEWER_LOG_FILE: /logs/calls.jsonl
+    volumes:
+      - ./.logs:/logs:ro

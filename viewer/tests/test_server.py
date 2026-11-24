@@ -95,7 +95,7 @@ class ViewerTests(unittest.TestCase):
             return response.status, response.headers, response.read()
 
     def test_assets_and_health(self):
-        for path in ["/", "/app.js", "/styles.css", "/model.mjs", "/markdown.mjs", "/vendor/markdown-it.mjs", "/favicon.svg", "/health"]:
+        for path in ["/", "/app.js", "/logs.mjs", "/styles.css", "/model.mjs", "/markdown.mjs", "/vendor/markdown-it.mjs", "/favicon.svg", "/health"]:
             status, headers, body = self.request(path)
             self.assertEqual(status, 200)
             self.assertTrue(body)
@@ -103,6 +103,7 @@ class ViewerTests(unittest.TestCase):
         self.assertEqual(self.request("/", "HEAD")[2], b"")
 
     def test_metadata_and_full_registration(self):
+        self.assertFalse(json.loads(self.request('/api/logs')[2])['configured'])
         for path, expected in [("/api/catalog/catalogs", CATALOGS), ("/api/catalog/datasets", DATASETS), ("/api/vochub/documents", DOCUMENTS), ("/api/vochub/context", CONTEXT), ("/api/catalog/datasets/fictional-venues", DATASETS[0])]:
             status, _, body = self.request(path)
             self.assertEqual(status, 200)

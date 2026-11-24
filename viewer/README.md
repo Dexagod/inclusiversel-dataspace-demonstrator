@@ -89,7 +89,8 @@ No addresses are guessed or rewritten.
 
 All implementation and tests live in `viewer/`. The root `AGENTS.md` documents the
 component; `dataspace/` and `sources/` remain owned by their respective workstreams.
-The viewer talks only to existing broker/hub read endpoints. It neither uses the
+The viewer talks to existing broker/hub read endpoints and optionally reads a local
+connector log snapshot for demonstrations. It neither uses the
 agent MCP connector nor changes its agent-only workflow.
 
 The standard-library Python server serves static files and proxies an explicit
@@ -104,7 +105,50 @@ using a locally bundled MIT-licensed markdown-it parser. Raw HTML stays literal,
 images display their alt text, and outgoing links accept only credential-free
 HTTP(S) URLs. No authentication keys or private exports are used.
 
-## Verification
+## Demonstrating connector logs
+
+The **Logs** tab reads the connector's existing `call_log: 1` JSON lines. It
+shows expandable calls with arguments, timestamps, duration, answer size, source
+operation, errors and truncation. Search and failure filters apply to the timeline
+and its totals. Activity blocks use a two-minute idle gap, not actual session IDs;
+parallel calls count once in active time. Interleaved agents cannot be separated
+without session identifiers in the original logs.
+
+For a recorded demo, export from the machine running the connector:
+
+```sh
+mkdir -p viewer/.logs
+docker compose -f dataspace/docker-compose.yml logs --no-log-prefix connector > viewer/.logs/demo.log
+```
+
+Then choose **Import log file** in the tab. Files are parsed in the browser and
+are not uploaded or saved in browser storage. JSONL, plain Docker logs and Compose
+prefixes are accepted; non-call lines are skipped. Imports are limited to 8 MiB
+and the latest 1,000 calls. Arguments are shown only when a call is expanded.
+
+For a live, closed demonstration, with `CALL_LOG=1` already enabled on the
+connector, run these in separate terminals from the repository root:
+
+```sh
+make -C viewer logs       # follows Docker stdout; Ctrl+C stops collection
+make -C viewer demo-up    # starts only the viewer, with the snapshot mounted read-only
+```
+
+Open the Logs tab and select **Refresh live every 3 seconds**. Polling pauses when
+the tab or browser document is hidden. `python3 viewer/collect_logs.py --container
+NAME` selects a differently named connector. Re-run the collector after recreating
+the connector container. For a Python-hosted viewer, set
+`VIEWER_LOG_FILE=/absolute/path/to/viewer/.logs/calls.jsonl` before `make -C viewer run`.
+
+The collector runs on the Docker host; the viewer never gets the Docker socket.
+Snapshots contain only call-log fields, not source response bodies, and `.logs/`
+is excluded from Git and Docker builds. Logs include user questions: the normal
+Compose configuration leaves the live endpoint disabled. Enable the demo override
+only for an audience allowed to see those questions. Stop the collector and run
+`make -C viewer up` to remove the live feed afterward; the last local snapshot is
+retained until you remove it. Imported files remain local to that browser tab.
+
+## Verification commands
 
 ```sh
 make -C viewer check

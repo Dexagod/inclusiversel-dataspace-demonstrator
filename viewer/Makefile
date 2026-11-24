@@ -16,3 +16,11 @@ up:
 
 down:
 	docker compose down
+
+.PHONY: logs demo-up
+logs:
+	$(PYTHON) collect_logs.py
+
+demo-up:
+	mkdir -p .logs
+	docker compose -f docker-compose.yml -f docker-compose.demo.yml up --build -d --wait
