@@ -1,6 +1,7 @@
 """Evidence per record: the record's own page, how its facts were checked, by whom, and when (ADR 0008).
 
-A registration's `records` block says where the records sit in an answer and which fields hold this, e.g.
+A registration's `records` block says where the records sit in an answer and which fields hold this (and the place's
+own website), e.g.
   {"at": ["results"], "name": ["nom"], "url": ["web_url"], "date": ["updated_at"],
    "basis": [{"field": "user_type", "equals": "gestionnaire", "method": "self_declared", "by": "the manager"}],
    "default": {"method": "crowd_sourced"}}
@@ -8,6 +9,7 @@ Paths are dotted ("accessibility.updated_at"); a value with "{...}" is a templat
 """
 
 import re
+from urllib.parse import quote
 
 MISSING = object()
 LIMIT = 50  # records listed per answer
@@ -26,7 +28,8 @@ def _text(v) -> str:
 
 
 def fill(template: str | None, rec: dict) -> str | None:
-    """A field path, or a template such as "https://x.org/{slug}"; None when a value is missing or empty."""
+    """A field path, or a template such as "https://x.org/{slug}"; None when a value is missing or empty.
+    Values filled into a link are URL-encoded."""
     if not template:
         return None
     if "{" not in template:
@@ -37,7 +40,7 @@ def fill(template: str | None, rec: dict) -> str | None:
         v = get(rec, path)
         if v is MISSING or v in (None, "", []):
             return None
-        values[path] = _text(v)
+        values[path] = quote(_text(v), safe="") if template.startswith("http") else _text(v)
     return re.sub(r"\{([^{}]+)\}", lambda m: values[m.group(1)], template)
 
 
@@ -90,6 +93,6 @@ def records(body, spec: dict) -> list[dict]:
         if not isinstance(rec, dict):
             continue
         entry = {"name": first(rec, spec.get("name")), "url": first(rec, spec.get("url")),
-                 "date": first(rec, spec.get("date")), **basis(rec, spec.get("basis"), spec.get("default"))}
+                 "website": first(rec, spec.get("website")), "date": first(rec, spec.get("date")), **basis(rec, spec.get("basis"), spec.get("default"))}
         out.append({k: v for k, v in entry.items() if v})
     return out

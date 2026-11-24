@@ -46,3 +46,10 @@ def test_present_rule_and_by_from_a_field():
     assert out == [{"name": "S.1", "date": "2010-07-28", "basis": "certified", "by": "on-site screening by ATO vzw"}]
     assert records({"rows": [{"name": "X"}]}, spec)[0]["by"] == "on-site screening (ToeVla)"
     assert records({"unrelated": 1}, spec) == []
+
+
+def test_website_next_to_proof_and_names_encoded_in_links():
+    spec = {"name": ["nom"], "url": ['https://data.example/table/?q="{nom}"'], "website": ["site_web"]}
+    rec = {"nom": "Novotel Lille & Co", "site_web": "https://hotel.example/"}
+    assert records(rec, spec) == [{"name": "Novotel Lille & Co", "url": "https://data.example/table/?q=\"Novotel%20Lille%20%26%20Co\"",
+                                   "website": "https://hotel.example/", "basis": "unknown"}]

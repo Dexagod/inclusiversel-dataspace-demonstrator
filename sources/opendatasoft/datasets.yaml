@@ -5,9 +5,10 @@
   assessment:
     methods: [certified]
     note: "Every record holds the French state label Tourisme & Handicap; droit_d_utilisation_du_label 'actif' means the label is currently valid. handicap_moteur, handicap_visuel, handicap_auditif and handicap_mental say which disability families the label covers."
-  records: {"at": ["results"], "name": ["nom_du_professionnel"], "url": ["site_web"], "basis": [{"field": "droit_d_utilisation_du_label", "equals": "actif", "method": "certified", "by": "Tourisme & Handicap (French state label)", "label": "Tourisme & Handicap: {handicaps_attribues}"}], "default": {"method": "unknown", "note": "the Tourisme & Handicap label is not active"}}
+  records: {"at": ["results"], "name": ["nom_du_professionnel"], "url": ["https://data.economie.gouv.fr/explore/dataset/etablissements-labellises-tourisme-et-handicap/table/?q=\"{nom_du_professionnel}\""], "website": ["site_web"], "basis": [{"field": "droit_d_utilisation_du_label", "equals": "actif", "method": "certified", "by": "Tourisme & Handicap (French state label)", "label": "Tourisme & Handicap: {handicaps_attribues}"}], "default": {"method": "unknown", "note": "the Tourisme & Handicap label is not active"}}
   portal: data.economie.gouv.fr
   dataset_id: etablissements-labellises-tourisme-et-handicap
+  hint: "Towns in ville are in capitals: filter with ville=\"LILLE\" (search(\"Lille\") also finds Lillebonne). activite gives the kind of place: Hôtel, Hôtel-restaurant, Restauration, \"Café, bar, brasserie\", Lieu de visite, Office de tourisme and others. Each record's url opens it in the official label list; site_web is the place's own website."
   catalog: france
   spatial: [France]
   keywords: [Tourisme et Handicap, label, accessibilité, handicap moteur, handicap visuel, handicap auditif, handicap mental]

@@ -64,6 +64,9 @@
     "url": [
       "web_url"
     ],
+    "website": [
+      "site_internet"
+    ],
     "date": [
       "updated_at"
     ],

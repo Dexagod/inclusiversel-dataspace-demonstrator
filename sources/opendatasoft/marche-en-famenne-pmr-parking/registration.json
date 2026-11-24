@@ -37,11 +37,11 @@
   "landing_page": "https://www.odwb.be/explore/dataset/parkings-pmr/",
   "access_note": "Open Explore API; no key needed for reading.",
   "licence": null,
-  "licence_note": "The publisher's metadata conflicts; it names the licence CC0 but links to CC BY.",
   "assessment": {
     "methods": [
       "official"
     ],
     "note": "List published by the town."
-  }
+  },
+  "licence_note": "The publisher's metadata conflicts; it names the licence CC0 but links to CC BY."
 }

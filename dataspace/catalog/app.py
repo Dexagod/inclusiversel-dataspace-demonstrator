@@ -73,6 +73,8 @@ class Records(BaseModel):
     name: list[str] = Field(min_length=1, description="Field(s) holding the record's name, first filled one wins")
     url: list[str] = Field(default=[], description="Field(s) or templates ('https://x.org/{slug}') for the record's own page")
     date: list[str] = Field(default=[], description="Field(s) holding when the record was assessed or last changed")
+    website: list[str] = Field(default=[], description="Field(s) or templates for the place's own website, next to "
+                                                       "`url`, the page that backs its facts")
     basis: list[BasisRule] = Field(default=[], description="First matching rule gives the record's basis")
     default: Basis | None = Field(default=None, description="Basis when no rule matches")
 

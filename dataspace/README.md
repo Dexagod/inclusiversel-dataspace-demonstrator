@@ -347,7 +347,7 @@ curl -X PUT http://localhost:8001/datasets/my-source -H 'content-type: applicati
 | `landing_page`, `contact_email`, `access_note` | no | `access_note` tells consumers how to get a key |
 | `catalog` | no | sub-catalog, see below |
 | `assessment` | no, but agents rank sources by it | how the facts were collected: `methods` from `certified` (a label or on-site check by an independent body), `official` (the owner or operator: transport operator, municipality, government), `self_declared` (the venue itself), `crowd_sourced` (anyone can edit); and a `note` naming the field that tells the method per record. Shown in search results; exported as `dct:provenance` ([ADR 0006](docs/adr/0006-assessment-methods.md)) |
-| `records` | no, but agents cite each record with it | where the records sit in an answer and which fields give each record's own page, date and basis (`at`, `name`, `url`, `date`, `basis` rules, `default`); the connector turns it into `provenance.records` with a link and a basis per record ([ADR 0008](docs/adr/0008-evidence-per-record.md)) |
+| `records` | no, but agents cite each record with it | where the records sit in an answer and which fields give each record's own page, date and basis (`at`, `name`, `url`, `website`, `date`, `basis` rules, `default`); the connector turns it into `provenance.records` with a link and a basis per record ([ADR 0008](docs/adr/0008-evidence-per-record.md)) |
 | `operations` | no | the operation ids agents need, when the OpenAPI describes a whole portal (Opendatasoft: `getRecords`, `getRecord`); `get_openapi` shows only these, and the catalog rejects ids that are not in the OpenAPI ([ADR 0009](docs/adr/0009-lean-answers.md)) |
 | `conforms_to` | no | published schemas, data models or vocabularies the data follows (`url`, `title`); exported as `dct:conformsTo` ([ADR 0004](docs/adr/0004-schemas-in-dcat.md)) |
 | `distributions` | no | further distributions besides the API (`url`, `media_type`, `title`), e.g. the web page or PDF a document dataset reads; exported as `dcat:Distribution` with `dcat:mediaType` ([ADR 0005](docs/adr/0005-documents-as-datasets.md)) |
@@ -432,7 +432,7 @@ The connector provides these tools:
 | `catalog_search` | find sources by text, theme, area, language; hits carry the first 300 characters of each description |
 | `catalog_get_dataset` | check licence, coverage, update frequency |
 | `get_openapi` | read a source's full description and its operations and parameters (only those in the registration's `operations`, if set) |
-| `call_source_operation` | run a read-only operation; parameters are checked against the OpenAPI and the API key is added. Provenance lists per record its own page, basis (certified, official, self-declared, crowd-sourced), by whom and date ([ADR 0008](docs/adr/0008-evidence-per-record.md)). Empty fields are left out; an answer over 20,000 characters keeps its first records and says how many it dropped (`records_cut`) ([ADR 0009](docs/adr/0009-lean-answers.md)) |
+| `call_source_operation` | run a read-only operation; parameters are checked against the OpenAPI and the API key is added. Provenance lists per record the page that backs it, the place's website, basis (certified, official, self-declared, crowd-sourced), by whom and date ([ADR 0008](docs/adr/0008-evidence-per-record.md)). Empty fields are left out; an answer over 20,000 characters keeps its first records and says how many it dropped (`records_cut`) ([ADR 0009](docs/adr/0009-lean-answers.md)) |
 
 ## Logging tool calls
 
