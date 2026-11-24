@@ -5,6 +5,7 @@ import functools
 import json
 import os
 import time
+import uuid
 from datetime import datetime, timezone
 from urllib.parse import urlencode
 
@@ -15,6 +16,7 @@ from mcp.types import TextContent
 from starlette.responses import JSONResponse
 
 from evidence import records
+from request_identity import capture_requester, http_identity, requester
 from openapi_calls import (CallError, build_request, compact, condense, load_credentials, parse_url_map, reachable,
                            shrink)
 
@@ -30,7 +32,7 @@ HIT_DESCRIPTION = 300  # characters of a dataset's description in catalog_search
 # One JSON line per tool call on stdout. Off by default: the arguments hold the users' questions.
 CALL_LOG = os.environ.get("CALL_LOG", "").lower() in {"1", "true", "yes"}
 
-mcp = MCPServer("accessibility-dataspace", version="0.1.0",
+mcp = MCPServer("accessibility-dataspace", version="0.1.0", middleware=[capture_requester],
                 instructions="Read-only access to an accessibility data space. Workflow: vochub_search, "
                              "catalog_search, get_openapi, call_source_operation. If no source in the data "
                              "space covers the question, or the results are insufficient (needed facts missing, "
@@ -105,7 +107,8 @@ def logged(fn):
         if not CALL_LOG:
             return await fn(*args, **kwargs)
         start, t0 = datetime.now(timezone.utc).isoformat(timespec="milliseconds"), time.perf_counter()
-        entry = {"call_log": 1, "start": start, "tool": fn.__name__, "args": kwargs}
+        entry = {"call_log": 1, "call_id": uuid.uuid4().hex, "start": start,
+                 "tool": fn.__name__, "args": kwargs, "requester": dict(requester.get())}
         try:
             result = await fn(*args, **kwargs)
             entry.update(_summary(fn.__name__, result))
@@ -122,6 +125,37 @@ def logged(fn):
 @mcp.custom_route("/health", methods=["GET"])
 async def health(_request):
     return JSONResponse({"status": "ok"})
+
+
+REPLAY_TOOLS = {'vochub_search', 'catalog_search', 'catalog_get_dataset', 'get_openapi', 'call_source_operation'}
+
+
+@mcp.custom_route('/demo/replay', methods=['POST'])
+async def replay_call(request):
+    """Repeat an existing read-only MCP tool, with the same SDK argument validation."""
+    if request.headers.get('content-type', '').split(';')[0] != 'application/json':
+        return JSONResponse({'error': 'JSON required'}, status_code=415)
+    raw = bytearray()
+    async for chunk in request.stream():
+        raw.extend(chunk)
+        if len(raw) > 65536:
+            return JSONResponse({'error': 'Replay request too large'}, status_code=413)
+    try:
+        body = json.loads(raw)
+        if not isinstance(body, dict) or body.get('tool') not in REPLAY_TOOLS or not isinstance(body.get('args'), dict):
+            raise ValueError()
+    except (ValueError, TypeError):
+        return JSONResponse({'error': 'Choose a supported read-only tool and its arguments'}, status_code=400)
+    token = requester.set({**http_identity(request), 'client_name': 'Data space viewer replay',
+                           'request_id': uuid.uuid4().hex})
+    try:
+        result = await mcp.call_tool(body['tool'], body['args'])
+        return JSONResponse({'replayed_at': datetime.now(timezone.utc).isoformat(),
+                             'result': result.model_dump(mode='json', by_alias=True)})
+    except Exception:
+        return JSONResponse({'error': 'Replay failed: check the tool arguments and connector logs'}, status_code=502)
+    finally:
+        requester.reset(token)
 
 
 @mcp.tool()

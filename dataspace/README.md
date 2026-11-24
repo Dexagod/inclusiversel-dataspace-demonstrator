@@ -419,6 +419,19 @@ make calls SINCE=30m   # only the last 30 minutes
 
 `make calls` groups calls that follow each other within two minutes into one block (usually one question) and shows per call the **gap**: the time since the previous call ended, which is the agent thinking or searching the web. Per block it gives the time inside the tools against the time between calls, and how often each source operation was called. Note that the log holds the users' questions; the reverse proxy examples deliberately log nothing, so switch `CALL_LOG` off again after analysing. The log lives with the container: recreating the connector (`docker compose up -d connector` after a change, or `make down`) deletes it, so run `make calls` first.
 
+New call entries also include a unique `call_id` and an allowlisted `requester`
+object: request ID, reported MCP session/client ID, client name/version/title when
+available, protocol, user-agent, peer address and forwarded-for. Credentials,
+cookies, arbitrary headers and response bodies are not captured. The connector
+remains stateless; some clients supply no stable identity, and proxy addresses
+may be shared. These fields identify reported clients, not authenticated people.
+
+The viewer can repeat a read-only tool through `POST /demo/replay` (`{tool,args}`).
+This uses the same SDK argument validation and source checks as MCP, returns a
+fresh result, and logs the replay as a viewer call. See
+[ADR 0010](docs/adr/0010-demo-request-identity-and-replay.md) and the
+[viewer log instructions](../viewer/README.md#demonstrating-connector-logs).
+
 ## Layout
 
 ```text

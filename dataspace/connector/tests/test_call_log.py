@@ -43,3 +43,57 @@ def test_summary_shows_gaps_and_blocks(capsys):
     assert "block 1" in out and "block 2" in out  # an hour apart: two questions
     assert "10.0" in out  # the gap between the first two calls
     assert "acceslibre.listErps 1x" in out
+
+from types import SimpleNamespace
+from starlette.requests import Request
+from request_identity import capture_requester, requester
+
+
+def request_for(body=None):
+    raw = json.dumps(body or {}).encode()
+    async def receive():
+        return {'type': 'http.request', 'body': raw, 'more_body': False}
+    return Request({'type': 'http', 'method': 'POST', 'path': '/demo/replay',
+                    'headers': [(b'content-type', b'application/json'), (b'user-agent', b'Fictional client'),
+                                (b'mcp-session-id', b'fixture-session'), (b'authorization', b'fictional-secret')],
+                    'client': ('127.0.0.1', 1234)}, receive)
+
+
+def test_request_metadata_is_allowlisted_and_scoped():
+    async def run():
+        async def handle(ctx):
+            await asyncio.sleep(0)
+            return dict(requester.get())
+        def context(identifier):
+            return SimpleNamespace(request=request_for(), request_id=identifier, protocol_version='test',
+                                   session=SimpleNamespace(client_params=SimpleNamespace(client_info=SimpleNamespace(name='Example', version='1', title=None))))
+        first, second = await asyncio.gather(capture_requester(context('one'), handle), capture_requester(context('two'), handle))
+        assert first['request_id'] == 'one' and second['request_id'] == 'two'
+        assert first['client_name'] == 'Example' and first['session_id'] == 'fixture-session'
+        assert 'secret' not in json.dumps(first) and 'authorization' not in first
+        assert requester.get() == {}
+    asyncio.run(run())
+
+
+def test_replay_runs_validated_tool_and_logs_as_viewer(monkeypatch, capsys):
+    monkeypatch.setattr(server, 'CALL_LOG', True)
+    async def get_json(*args, **kwargs):
+        return []
+    monkeypatch.setattr(server, '_get_json', get_json)
+    monkeypatch.setattr(server, 'load_credentials', lambda path: {})
+    response = asyncio.run(server.replay_call(request_for({'tool': 'catalog_search', 'args': {'query': 'fictional'}})))
+    assert response.status_code == 200
+    body = json.loads(response.body)
+    assert json.loads(body['result']['content'][0]['text'])['results'] == []
+    entry = json.loads(capsys.readouterr().out)
+    assert entry['requester']['client_name'] == 'Data space viewer replay'
+    assert entry['call_id'] and entry['args']['query'] == 'fictional'
+    assert entry['args']['theme'] is None
+    assert requester.get() == {}
+
+
+def test_replay_rejects_unknown_tools_and_invalid_arguments(monkeypatch):
+    assert asyncio.run(server.replay_call(request_for({'tool': 'delete', 'args': {}}))).status_code == 400
+    assert asyncio.run(server.replay_call(request_for({'tool': [], 'args': {}}))).status_code == 400
+    # Required arguments are validated by the same SDK path as MCP requests.
+    assert asyncio.run(server.replay_call(request_for({'tool': 'call_source_operation', 'args': {}}))).status_code == 502
