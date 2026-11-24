@@ -59,7 +59,7 @@ rsync -a sources/pictoaccess/pictoaccess_dump/places/ \
     user@server:data-architecture/sources/pictoaccess/pictoaccess_dump/places/
 ```
 
-Set-up B needs a reverse proxy on the server. Ready-made configurations for Caddy and nginx are in [Reverse proxy: Caddy or nginx](dataspace/README.md#reverse-proxy-caddy-or-nginx).
+Set-up B needs a reverse proxy on the server. Ready-made configurations for Caddy and nginx are in [Reverse proxy: Caddy or nginx](dataspace/README.md#reverse-proxy-caddy-or-nginx). They also publish the [viewer](viewer/README.md) under `/viewer/` and the [profile context tool](user-profile/context-tool/README.md) under `/profile/`, both optional.
 
 Then set `dataspace/.env` (`make up` creates it from `.env.example`): source API keys (`ACCESLIBRE_API_KEY`, `TOEVLA_API_TOKEN`), and `CATALOG_BASE_URL` if you publish the DCAT catalog. Then start with `make start-public` on a published server (set-up B), or `make start-full` elsewhere ([Public and full content](sources/README.md#public-and-full-content)). All settings and ports are listed in [Running on a remote server](dataspace/README.md#running-on-a-remote-server).
 

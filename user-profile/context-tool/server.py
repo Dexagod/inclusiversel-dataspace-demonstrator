@@ -15,7 +15,8 @@ from generate import CROSSWALK, generate
 HERE = Path(__file__).parent
 # The page uses the viewer's stylesheet and icon, so both interfaces look alike without a copy.
 VIEWER_STATIC = Path(os.environ.get("VIEWER_STATIC", HERE.parent.parent / "viewer" / "static"))
-VIEWER_URL = os.environ.get("VIEWER_URL", "http://localhost:8090/")
+# Link to the viewer. Unset: /viewer/ next to /profile/ behind a reverse proxy, else the local viewer port.
+VIEWER_URL = os.environ.get("VIEWER_URL") or None
 SHARED = {"/styles.css": ("styles.css", "text/css"), "/favicon.svg": ("favicon.svg", "image/svg+xml")}
 
 
@@ -34,7 +35,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?", 1)[0]
         if path in ("/", "/index.html"):
-            page = (HERE / "form.html").read_text(encoding="utf-8").replace("{{VIEWER_URL}}", VIEWER_URL)
+            viewer = VIEWER_URL or ("../viewer/" if self.headers.get("X-Forwarded-For") else "http://localhost:8090/")
+            page = (HERE / "form.html").read_text(encoding="utf-8").replace("{{VIEWER_URL}}", viewer)
             self._send(200, page, "text/html")
         elif path == "/crosswalk.json":
             self._send(200, json.dumps(CROSSWALK, ensure_ascii=False), "application/json")

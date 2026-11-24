@@ -21,14 +21,14 @@ The page uses the [viewer](../../viewer/README.md)'s `styles.css` and `favicon.s
 
 ### On a server, behind Caddy or nginx
 
-All paths are relative, so the tool also works under a prefix. The proxy blocks for `/profile/` → `127.0.0.1:8095` are in "Reverse proxy: Caddy or nginx" in [dataspace/README.md](../../dataspace/README.md). Unlike the viewer, the tool needs `POST /generate`; the snippets let only that `POST` through.
+On a server the tool is published under `/profile/`, next to the viewer under `/viewer/`, e.g. https://dataspace.example.org/profile/. `make start-public` (or `make start-full`) starts it; the proxy forwards the prefix to `127.0.0.1:8095`. All paths are relative, so the tool also works at the root. The proxy blocks for `/profile/` → `127.0.0.1:8095` are in "Reverse proxy: Caddy or nginx" in [dataspace/README.md](../../dataspace/README.md). Unlike the viewer, the tool needs `POST /generate`; the snippets let only that `POST` through.
 
 Settings in `user-profile/context-tool/.env`:
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `PROFILE_BIND` | `127.0.0.1` | address the port binds to; leave it for a proxy on the same machine |
-| `PROFILE_VIEWER_URL` | `http://localhost:8090/` | the sidebar's link to the viewer; `/viewer/` behind the proxy |
+| `PROFILE_VIEWER_URL` | empty: `../viewer/` (= `/viewer/`) behind the proxy, `http://localhost:8090/` otherwise | the sidebar's link to the viewer; set it only if the viewer lives elsewhere |
 
 A profile sent to a published tool crosses the network, so serve it over HTTPS only and keep the proxy's access log off. The tool itself stores and logs nothing.
 

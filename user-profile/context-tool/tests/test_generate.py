@@ -122,6 +122,13 @@ class ServerTest(unittest.TestCase):
         with self.post(json.dumps(load("rollator")).encode()) as r:
             self.assertEqual(r.read().decode(), (HERE / "examples" / "rollator.md").read_text(encoding="utf-8"))
 
+    def test_viewer_link_follows_the_proxy(self):
+        with urllib.request.urlopen(f"{self.base}/", timeout=5) as r:
+            self.assertIn(b'href="http://localhost:8090/"', r.read())
+        req = urllib.request.Request(f"{self.base}/", headers={"X-Forwarded-For": "203.0.113.1"})
+        with urllib.request.urlopen(req, timeout=5) as r:
+            self.assertIn(b'href="../viewer/"', r.read())
+
     def test_invalid_state_gives_400(self):
         with self.assertRaises(urllib.error.HTTPError) as ctx:
             self.post(b'{"needs": ["nope"]}')
