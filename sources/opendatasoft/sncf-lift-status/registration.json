@@ -8,6 +8,10 @@
   },
   "endpoint_url": "https://ressources.data.sncf.com/api/explore/v2.1/",
   "openapi_url": "https://ressources.data.sncf.com/api/explore/v2.1/swagger.json",
+  "operations": [
+    "getRecords",
+    "getRecord"
+  ],
   "source_dcat_url": "https://ressources.data.sncf.com/api/explore/v2.1/catalog/exports/dcat?where=dataset_id%3D%22etat-fonctionnement-elevatique-gare%22",
   "conforms_to": [
     {

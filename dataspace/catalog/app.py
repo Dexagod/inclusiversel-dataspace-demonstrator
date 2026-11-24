@@ -94,6 +94,8 @@ class Registration(BaseModel):
     licence_note: str | None = Field(default=None, description="Reuse conditions in words, e.g. 'terms not yet confirmed'")
     endpoint_url: AnyHttpUrl = Field(description="Base URL of the API; OpenAPI paths are resolved against it")
     openapi_url: AnyHttpUrl = Field(description="URL of the OpenAPI 3.x document describing the API")
+    operations: list[str] = Field(default=[], description="Operation ids agents need, when the OpenAPI document "
+                                  "describes a whole portal (Opendatasoft); get_openapi then shows only these")
     source_dcat_url: AnyHttpUrl | None = Field(default=None, description="URL of the publisher's own DCAT description of "
                                                "this dataset (one dcat:Dataset; Turtle, RDF/XML or JSON-LD); it is copied "
                                                "into this catalog and linked with dct:source")
@@ -192,6 +194,10 @@ async def register(reg: Registration) -> dict:
     record = reg.model_dump(mode="json")
     # A copy, so the DCAT export links a description that resolves even when openapi_url is Docker-internal.
     record["openapi"] = await fetch_openapi(record["openapi_url"])
+    known = {o.get("operationId") for p in record["openapi"].get("paths", {}).values() for o in p.values()
+             if isinstance(o, dict)}
+    if unknown := sorted(set(reg.operations) - known):
+        raise HTTPException(422, f"operations not in the OpenAPI document: {unknown}")
     if record.get("source_dcat_url"):
         record["source_dcat"] = await fetch_source_dcat(record["source_dcat_url"])
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")

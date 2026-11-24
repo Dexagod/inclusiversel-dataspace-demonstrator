@@ -322,6 +322,7 @@ curl -X PUT http://localhost:8001/datasets/my-source -H 'content-type: applicati
 | `catalog` | no | sub-catalog, see below |
 | `assessment` | no, but agents rank sources by it | how the facts were collected: `methods` from `certified` (a label or on-site check by an independent body), `official` (the owner or operator: transport operator, municipality, government), `self_declared` (the venue itself), `crowd_sourced` (anyone can edit); and a `note` naming the field that tells the method per record. Shown in search results; exported as `dct:provenance` ([ADR 0006](docs/adr/0006-assessment-methods.md)) |
 | `records` | no, but agents cite each record with it | where the records sit in an answer and which fields give each record's own page, date and basis (`at`, `name`, `url`, `date`, `basis` rules, `default`); the connector turns it into `provenance.records` with a link and a basis per record ([ADR 0008](docs/adr/0008-evidence-per-record.md)) |
+| `operations` | no | the operation ids agents need, when the OpenAPI describes a whole portal (Opendatasoft: `getRecords`, `getRecord`); `get_openapi` shows only these, and the catalog rejects ids that are not in the OpenAPI ([ADR 0009](docs/adr/0009-lean-answers.md)) |
 | `conforms_to` | no | published schemas, data models or vocabularies the data follows (`url`, `title`); exported as `dct:conformsTo` ([ADR 0004](docs/adr/0004-schemas-in-dcat.md)) |
 | `distributions` | no | further distributions besides the API (`url`, `media_type`, `title`), e.g. the web page or PDF a document dataset reads; exported as `dcat:Distribution` with `dcat:mediaType` ([ADR 0005](docs/adr/0005-documents-as-datasets.md)) |
 | `source_dcat_url` | no | the publisher's own DCAT for this dataset; copied into the catalog and linked with `dct:source` ([ADR 0003](docs/adr/0003-mobility-catalogs-source-dcat-optional-keys.md)) |
@@ -370,7 +371,7 @@ Supported: PDF (with page numbers; the PDF's table of contents gives each page i
 
 **After changing the chunking or the search:** the vectors live in the Qdrant collection `passages`. Delete it (or run `make clean`) and run `make knowledge` again. An older collection `chunks` (meaning-only vectors) is no longer read and can be deleted. The embedding model is set with the `EMBED_MODEL` build argument (default `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`; `intfloat/multilingual-e5-large` is more accurate, reads 512 tokens and is about ten times larger). Changing it requires `make clean`, because vector sizes differ.
 
-**Permanent context** ([ADR 0007](docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md)). One Markdown text that the connector returns as `context` with every `vochub_search`, before the passages: rules that hold for every question, such as how to compare sources. Set it with `curl -X PUT http://localhost:8002/context -H 'content-type: application/json' -d '{"text": "…"}'` (at most 20,000 characters) and read it with `GET /context`. It is stored in the `vochub-data` volume. The viewer shows it on the vocabulary hub page. The demo text is [`sources/permanent-context.md`](../sources/permanent-context.md), set by `make knowledge`. Keep it short: agents get it with every search.
+**Permanent context** ([ADR 0007](docs/adr/0007-vocabulary-hub-context-summaries-hybrid-search.md)). One Markdown text that the connector returns as `context` with every `vochub_search`, before the passages: rules that hold for every question, such as how to compare sources. Set it with `curl -X PUT http://localhost:8002/context -H 'content-type: application/json' -d '{"text": "…"}'` (at most 20,000 characters) and read it with `GET /context`. It is stored in the `vochub-data` volume. The viewer shows it on the vocabulary hub page. The demo text is [`sources/permanent-context.md`](../sources/permanent-context.md), set by `make knowledge`. Keep it short: agents get it with every search (moving it to the server instructions is considered in [ADR 0009](docs/adr/0009-lean-answers.md)).
 
 ## Connecting an agent
 
@@ -402,14 +403,14 @@ The connector provides these tools:
 | Tool | Use it to |
 | --- | --- |
 | `vochub_search` | learn terms and criteria first; returns `{context, results}`: the permanent context (rules for every question) and the passages |
-| `catalog_search` | find sources by text, theme, area, language |
+| `catalog_search` | find sources by text, theme, area, language; hits carry the first 300 characters of each description |
 | `catalog_get_dataset` | check licence, coverage, update frequency |
-| `get_openapi` | read a source's operations and parameters |
-| `call_source_operation` | run a read-only operation; parameters are checked against the OpenAPI and the API key is added. Provenance lists per record its own page, basis (certified, official, self-declared, crowd-sourced), by whom and date ([ADR 0008](docs/adr/0008-evidence-per-record.md)) |
+| `get_openapi` | read a source's full description and its operations and parameters (only those in the registration's `operations`, if set) |
+| `call_source_operation` | run a read-only operation; parameters are checked against the OpenAPI and the API key is added. Provenance lists per record its own page, basis (certified, official, self-declared, crowd-sourced), by whom and date ([ADR 0008](docs/adr/0008-evidence-per-record.md)). Empty fields are left out; an answer over 20,000 characters keeps its first records and says how many it dropped (`records_cut`) ([ADR 0009](docs/adr/0009-lean-answers.md)) |
 
 ## Logging tool calls
 
-To see what an agent asks and where the time goes, set `CALL_LOG=1` in `.env` and restart the connector (`docker compose up -d connector`; for one session also `CALL_LOG=1 docker compose up -d connector`). It then writes one JSON line per tool call to its log: start time, tool, arguments, duration in ms, size of the answer in characters, and for source calls the HTTP status, an error, and whether the answer was cut off. The returned data itself is never logged, nor the API keys (they are added after the arguments are logged).
+To see what an agent asks and where the time goes, set `CALL_LOG=1` in `.env` and restart the connector (`docker compose up -d connector`; for one session also `CALL_LOG=1 docker compose up -d connector`). It then writes one JSON line per tool call to its log: start time, tool, arguments, duration in ms, size of the answer in characters, and for source calls the HTTP status, an error, and whether the answer was cut off (`truncated`, `records_cut`). The returned data itself is never logged, nor the API keys (they are added after the arguments are logged).
 
 ```bash
 make calls             # every logged call, grouped per question

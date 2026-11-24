@@ -1,5 +1,7 @@
-"""Pure helpers: condense an OpenAPI document, validate a call against it, and inject source credentials."""
+"""Pure helpers: condense an OpenAPI document, validate a call against it, inject source credentials, and make
+source answers small enough for an agent."""
 
+import json
 import os
 import re
 from urllib.parse import quote, urlsplit
@@ -82,12 +84,12 @@ def _security_schemes(spec: dict, op: dict) -> list[dict]:
     return [_resolve(spec, schemes[name]) for req in reqs for name in req if name in schemes]
 
 
-def condense(spec: dict, credentials_configured: bool) -> dict:
-    """A compact view of the API that fits in an agent's context."""
+def condense(spec: dict, credentials_configured: bool, only: list[str] | None = None) -> dict:
+    """A compact view of the API that fits in an agent's context; `only` (a registration's `operations`) limits it."""
     info = spec.get("info", {})
     out = []
     for op_id, o in operations(spec).items():
-        if o["method"] not in READ_METHODS:
+        if o["method"] not in READ_METHODS or (only and op_id not in only):
             continue
         params = []
         for p in o["parameters"]:
@@ -105,6 +107,47 @@ def condense(spec: dict, credentials_configured: bool) -> dict:
         }.items() if v not in (None, "")})
     return {"title": info.get("title"), "description": info.get("description"),
             "credentials_configured": credentials_configured, "operations": out}
+
+
+EMPTY = (None, "", [], {})
+
+
+def compact(x):
+    """Without empty values (null, "", [], {}): in many sources most fields are empty. Missing means unknown."""
+    if isinstance(x, dict):
+        return {k: c for k, v in x.items() if (c := compact(v)) not in EMPTY}
+    if isinstance(x, list):
+        return [c for v in x if (c := compact(v)) not in EMPTY]
+    return x
+
+
+def _longest_list(obj, path=()):
+    """(size, path) of the biggest list in an answer, looking through dicts only: the records, as a rule."""
+    best = (len(json.dumps(obj, default=str)), path) if isinstance(obj, list) else (0, None)
+    for k, v in obj.items() if isinstance(obj, dict) else ():
+        best = max(best, _longest_list(v, path + (k,)), key=lambda b: b[0])
+    return best
+
+
+def _with(obj, path, value):
+    return {**obj, path[0]: _with(obj[path[0]], path[1:], value)} if path else value
+
+
+def shrink(body, fits):
+    """Drop whole records from the end of the biggest list until fits(body); the answer stays valid JSON.
+    Returns (body, None) or (shorter body, {"kept": n, "of": total}); at least one record is kept."""
+    if fits(body):
+        return body, None
+    _, path = _longest_list(body)
+    if path is None:
+        return body, None
+    items = body
+    for k in path:
+        items = items[k]
+    n = len(items)
+    while n > 1 and not fits(_with(body, path, items[:n])):
+        n -= 1
+    return _with(body, path, items[:n]), {"kept": n, "of": len(items)}
 
 
 class CallError(ValueError):

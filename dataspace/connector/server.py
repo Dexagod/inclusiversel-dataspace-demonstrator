@@ -11,10 +11,12 @@ from urllib.parse import urlencode
 import httpx
 import yaml
 from mcp.server.mcpserver import MCPServer
+from mcp.types import TextContent
 from starlette.responses import JSONResponse
 
 from evidence import records
-from openapi_calls import CallError, build_request, condense, load_credentials, parse_url_map, reachable
+from openapi_calls import (CallError, build_request, compact, condense, load_credentials, parse_url_map, reachable,
+                           shrink)
 
 CATALOG = os.environ.get("CATALOG_URL", "http://localhost:8001").rstrip("/")
 VOCHUB = os.environ.get("VOCHUB_URL", "http://localhost:8002").rstrip("/")
@@ -23,6 +25,8 @@ SOURCE_URL_MAP = parse_url_map(os.environ.get("SOURCE_URL_MAP", ""))
 CREDENTIALS_FILE = os.environ.get("CREDENTIALS_FILE", "config/credentials.yaml")
 TIMEOUT = float(os.environ.get("SOURCE_TIMEOUT_S", "20"))
 MAX_CHARS = int(os.environ.get("MAX_RESPONSE_CHARS", "20000"))
+SPEC_TTL = float(os.environ.get("SPEC_CACHE_S", "3600"))  # OpenAPI documents rarely change; refetching cost up to 0.45 s
+HIT_DESCRIPTION = 300  # characters of a dataset's description in catalog_search hits; get_openapi gives all of it
 # One JSON line per tool call on stdout. Off by default: the arguments hold the users' questions.
 CALL_LOG = os.environ.get("CALL_LOG", "").lower() in {"1", "true", "yes"}
 
@@ -50,11 +54,23 @@ async def _dataset(dataset_id: str) -> dict:
     return await _get_json(f"{CATALOG}/datasets/{dataset_id}")
 
 
+_specs: dict[str, tuple[float, dict]] = {}
+
+
 async def _spec(dataset: dict) -> dict:
+    url = reachable(dataset["openapi_url"], SOURCE_URL_MAP)
+    if url in _specs and time.monotonic() - _specs[url][0] < SPEC_TTL:
+        return _specs[url][1]
     async with httpx.AsyncClient(timeout=TIMEOUT, follow_redirects=True) as c:
-        r = await c.get(reachable(dataset["openapi_url"], SOURCE_URL_MAP))
+        r = await c.get(url)
         r.raise_for_status()
-        return yaml.safe_load(r.text)
+        spec = yaml.safe_load(r.text)
+    _specs[url] = (time.monotonic(), spec)
+    return spec
+
+
+def _short(text: str) -> str:
+    return text if len(text) <= HIT_DESCRIPTION else text[:HIT_DESCRIPTION].rsplit(" ", 1)[0] + " …"
 
 
 def _summary(tool: str, result) -> dict:
@@ -66,10 +82,20 @@ def _summary(tool: str, result) -> dict:
         out["results"] = len(result["results"])
     if tool == "call_source_operation":
         out.update({k: v for k, v in (("status", result.get("provenance", {}).get("status")),
-                                      ("truncated", result.get("truncated")), ("error", result.get("error"))) if v})
+                                      ("truncated", result.get("truncated")), ("records_cut", result.get("records_cut")),
+                                      ("error", result.get("error"))) if v})
     elif "error" in result:
         out["error"] = result["error"]
     return out
+
+
+def as_text(fn):
+    """Send a result as compact JSON: the SDK indents it otherwise, which costs the agent a third more tokens."""
+    @functools.wraps(fn)
+    async def wrapper(*args, **kwargs):
+        result = await fn(*args, **kwargs)
+        return TextContent(type="text", text=json.dumps(result, ensure_ascii=False, separators=(",", ":"), default=str))
+    return wrapper
 
 
 def logged(fn):
@@ -99,6 +125,7 @@ async def health(_request):
 
 
 @mcp.tool()
+@as_text
 @logged
 async def vochub_search(question: str, k: int = 5, language: str | None = None, tag: str | None = None) -> dict:
     """Search the vocabulary hub for domain knowledge (terminology, accessibility criteria, how each source rates them).
@@ -111,17 +138,22 @@ async def vochub_search(question: str, k: int = 5, language: str | None = None, 
 
 
 @mcp.tool()
+@as_text
 @logged
 async def catalog_search(query: str = "", theme: str | None = None, spatial: str | None = None,
                          language: str | None = None) -> dict:
     """Find datasets in the data space that could answer the question. Filter by theme slug, covered area
-    (substring, e.g. 'Ghent') or ISO 639-1 language. Each hit has openapi_url and credentials_configured."""
+    (substring, e.g. 'Ghent') or ISO 639-1 language. Each hit has the start of the description and
+    credentials_configured; get_openapi gives the full description, with how to query the dataset."""
     hits = await _get_json(f"{CATALOG}/datasets", q=query, theme=theme, spatial=spatial, language=language)
     creds = load_credentials(CREDENTIALS_FILE)
-    return {"results": [{**h, "credentials_configured": h["id"] in creds} for h in hits]}
+    return {"results": [{**{k: v for k, v in h.items() if k not in ("endpoint_url", "openapi_url")},
+                         "description": _short(h["description"]), "credentials_configured": h["id"] in creds}
+                        for h in hits]}
 
 
 @mcp.tool()
+@as_text
 @logged
 async def catalog_get_dataset(id: str) -> dict:
     """Full catalog record of one dataset: licence, coverage, update frequency, publisher, access note."""
@@ -129,15 +161,22 @@ async def catalog_get_dataset(id: str) -> dict:
 
 
 @mcp.tool()
+@as_text
 @logged
 async def get_openapi(dataset_id: str, full: bool = False) -> dict:
-    """Learn how to query one dataset: a condensed list of its read operations and parameters
-    (full=true returns the whole OpenAPI document). Never guess parameters; read them here."""
-    spec = await _spec(await _dataset(dataset_id))
-    return spec if full else condense(spec, dataset_id in load_credentials(CREDENTIALS_FILE))
+    """Learn how to query one dataset: its full description (which says how to query it, and its fields) and a
+    condensed list of its read operations and parameters (full=true returns the whole OpenAPI document).
+    Never guess parameters; read them here."""
+    dataset = await _dataset(dataset_id)
+    spec = await _spec(dataset)
+    if full:
+        return spec
+    return {"dataset_description": dataset["description"],
+            **condense(spec, dataset_id in load_credentials(CREDENTIALS_FILE), dataset.get("operations"))}
 
 
 @mcp.tool()
+@as_text
 @logged
 async def call_source_operation(dataset_id: str, operation_id: str, params: dict | None = None) -> dict:
     """Run one read operation of a dataset's API, using operation_id and parameter names from get_openapi.
@@ -162,8 +201,12 @@ async def call_source_operation(dataset_id: str, operation_id: str, params: dict
         body = r.json()
     except ValueError:
         body = r.text
-    text = json.dumps(body, ensure_ascii=False)
-    truncated = len(text) > MAX_CHARS
+    # Too big: drop whole records, so the agent still gets valid JSON. Evidence is read before compacting:
+    # a null field and a missing one give a different basis.
+    body, cut = shrink(body, lambda b: len(json.dumps(compact(b), ensure_ascii=False)) <= MAX_CHARS)
+    data = compact(body)
+    text = json.dumps(data, ensure_ascii=False)
+    truncated = len(text) > MAX_CHARS  # a single record is still too big
     spec = dataset.get("records")
     evidence = ({"records": records(body, spec)} if spec and r.is_success
                 else {"basis": dataset["assessment"]} if dataset.get("assessment") else {})
@@ -174,7 +217,9 @@ async def call_source_operation(dataset_id: str, operation_id: str, params: dict
             "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "status": r.status_code,
             **({"dataset_page": dataset["landing_page"]} if dataset.get("landing_page") else {}), **evidence,
         },
-        "data": text[:MAX_CHARS] if truncated else body,
+        "data": text[:MAX_CHARS] if truncated else data,
+        **({"records_cut": cut, "hint": f"Only the first {cut['kept']} of the {cut['of']} records in this answer fit; "
+                                        "narrow the query or page on for the rest."} if cut else {}),
         **({"truncated": True, "hint": "Response cut; narrow the query or lower 'limit'."} if truncated else {}),
         **({"error": "the source refused the call without an API key; none is configured for this dataset "
                      "in the connector's credentials.yaml"} if r.status_code in (401, 403) and not cred else {}),

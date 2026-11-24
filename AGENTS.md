@@ -174,6 +174,7 @@ Done:
 - ToeVla archive connected (2026-11-23), with personal data removed from its database first.
 - Evidence per record ([ADR 0008](dataspace/docs/adr/0008-evidence-per-record.md)): `records` blocks in the registrations of Acceslibre, IedereenOveral (4), PictoAccess, Tourisme & Handicap, Toerisme Vlaanderen and ToeVla; the connector returns a link, basis, by whom and date per record. IedereenOveral search hits now carry `confirmed_by_inter`.
 - Connector call log (`CALL_LOG=1`, `make -C dataspace calls`).
+- Lean answers ([ADR 0009](dataspace/docs/adr/0009-lean-answers.md)): source answers without empty fields and cut by whole records, compact JSON, short catalog hits, `operations` in the Opendatasoft registrations, cached OpenAPI documents; a replayed Lille question went from about 270 KB to 142 KB.
 - Viewer, published under `/viewer/`.
 - `make e2e`.
 - MCP client snippets for Claude Code and VS Code in the data space README (part of 3.6).
@@ -183,7 +184,7 @@ Changed from the plan:
 - **No catalog seeding at start-up.** The data space starts empty.
 - **The gateway may be unnecessary.** Proxies reach the data space over the shared Docker network, so a gateway is only needed for public URLs.
 - **Access-i is on hold.** There is no public API, and reuse needs Access-i's approval, which has been requested.
-- **No shared place model yet (1.5, 2.1).** Each proxy has its own response shape, and agents adapt by reading each OpenAPI.
+- **No shared place model (1.5, 2.1).** Each proxy has its own response shape, and agents adapt by reading each OpenAPI. Considered and left out in [ADR 0009](dataspace/docs/adr/0009-lean-answers.md); the `records` block is the small shared part.
 
 ## Open work
 
@@ -203,6 +204,7 @@ Pick one task, stay in one component, and meet its acceptance criteria.
 | 10 | CI running `make check` and `make -C sources test` (0.1) | repo root | green on push |
 | 11 | More sources from the literature study: take the next one from "Candidates, in suggested order" in [`sources/source-inventory.md`](sources/source-inventory.md) (DATAtourisme, Accessibility.Cloud and so on) | `sources/` | one registration each, tested through the connector; its row in the inventory updated |
 | 12 | Better retrieval in the vocabulary hub, once a demo needs it: a golden question set for search (expected document in the top 5), then a reranker on the top 30 to 50 hits (e.g. `bge-reranker-v2-m3`) and a stronger multilingual model (e.g. `bge-m3`, longer chunks) | `dataspace/vochub/` | the question set scores higher than with the current hybrid search |
+| 13 | Fewer turns and tokens, after measuring a real client with `make calls` ([ADR 0009](dataspace/docs/adr/0009-lean-answers.md), "Not done"): the permanent context in the MCP server instructions (check first that the client shows them to the model), and a batch tool for clients without parallel tool calls | `dataspace/connector/` | a logged session of a golden question needs fewer KB or turns than before |
 
 User profiles (personal needs and preferences) are analysed in [`user-profiles.md`](user-profiles.md): not implemented; read it before adding anything profile-related to the connector or skill.
 

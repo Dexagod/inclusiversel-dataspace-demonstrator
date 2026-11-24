@@ -181,3 +181,17 @@ def test_records_evidence_is_validated_and_returned(client):
     assert client.put("/datasets/test-places", json={**REG, "records": no_condition}).status_code == 422
     bad_method = {**records, "default": {"method": "trusted"}}
     assert client.put("/datasets/test-places", json={**REG, "records": bad_method}).status_code == 422
+
+
+def test_operations_must_exist_in_the_openapi(client, monkeypatch):
+    OPENAPI["paths"] = {"/records": {"get": {"operationId": "getRecords"}}}
+    monkeypatch.setattr("app.fetch_openapi", lambda url: _async(OPENAPI))
+    ok = client.put("/datasets/test-places", json={**REG, "operations": ["getRecords"]})
+    assert ok.status_code == 200 and ok.json()["operations"] == ["getRecords"]
+    bad = client.put("/datasets/test-places", json={**REG, "operations": ["getRecord"]})
+    assert bad.status_code == 422 and "getRecord" in bad.text
+    OPENAPI["paths"] = {}
+
+
+async def _async(value):
+    return value

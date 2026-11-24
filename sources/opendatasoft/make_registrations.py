@@ -40,6 +40,7 @@ def registration(entry: dict) -> dict:
         "publisher": {"name": m.get("publisher") or entry["portal"]},
         "endpoint_url": f"{api}/",
         "openapi_url": f"{api}/swagger.json",
+        "operations": ["getRecords", "getRecord"],  # the portal's OpenAPI also lists catalog and export operations
         "source_dcat_url": f"{api}/catalog/exports/dcat?where=" + quote(f'dataset_id="{entry["dataset_id"]}"'),
         "conforms_to": [{"url": f"{api}/catalog/datasets/{entry['dataset_id']}",
                          "title": f"Schema of '{m['title']}': its fields with name, type and label (Opendatasoft)"}],
