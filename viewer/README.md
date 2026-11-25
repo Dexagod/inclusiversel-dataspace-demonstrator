@@ -114,7 +114,8 @@ The **Logs** tab reads the connector's existing `call_log: 1` JSON lines. It
 shows expandable calls with arguments, timestamps, duration, answer size, source
 operation, errors and truncation. Search and failure filters apply to the timeline
 and its totals. The scrollable timeline groups calls by reported MCP session ID,
-then declared client ID, then an explicitly labelled address/client heuristic.
+then declared client ID, then an explicitly labelled guess from client name and
+user agent (not the address: ChatGPT calls from a new address almost every time).
 A new group starts after 2, 5 or 15 idle minutes for that client. Old entries with
 no identity appear as Unknown requester and may contain several clients. The
 connector remains stateless, so initialized client names/session IDs may not be

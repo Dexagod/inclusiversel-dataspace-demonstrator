@@ -1,4 +1,4 @@
-# 10. Proposed: one place search across sources
+# 11. Proposed: one place search across sources
 
 Date: 2026-11-24. Status: proposed, not built.
 

@@ -45,9 +45,10 @@ export function clientIdentity(call) {
   const name = info.client_title || info.client_name || info.user_agent || 'Unknown requester';
   if (info.session_id) return {key: `session:${info.session_id}`, name, basis: 'Reported MCP session'};
   if (info.client_id) return {key: `client:${info.client_id}`, name, basis: 'Declared client ID'};
-  if (info.remote_address && (info.user_agent || info.client_name)) return {
-    key: JSON.stringify(['inferred', info.remote_address, info.forwarded_for || '', info.user_agent || '', info.client_name || '']),
-    name, basis: 'Inferred from address and client information; may combine clients behind a proxy',
+  // Not the address: hosted clients (ChatGPT) call from a different egress IP almost every time.
+  if (info.user_agent || info.client_name) return {
+    key: JSON.stringify(['inferred', info.user_agent || '', info.client_name || '']),
+    name, basis: 'Inferred from client name; may combine users of the same client asking at the same time',
   };
   return {key: 'unknown', name: 'Unknown requester', basis: 'No client identity logged; these calls may belong to different clients'};
 }

@@ -297,7 +297,7 @@ Nine golden questions cover every source, three languages, a cross-source compar
 | --- | --- | --- |
 | 1 | Is there a restaurant in Ghent with a wheelchair-accessible toilet? (EN) | Queries IedereenOveral only; lists places with toilet details and provenance |
 | 2 | Welke cafés in Leuven zijn rolstoeltoegankelijk? (NL) | Vochub maps the Dutch term to the source's criteria; queries IedereenOveral |
-| 3 | Quels musées à Lille sont accessibles en fauteuil roulant ? (FR) | Queries Acceslibre (and Picto Access if it covers Lille); answers in French |
+| 3 | Quels musées à Lille sont accessibles en fauteuil roulant ? (FR) | Queries Acceslibre and Picto Access); answers in French |
 | 4 | Which tourist sites in Namur suit blind visitors? (EN) | Queries Access-i; reports the rating for visual impairment, not a general score |
 | 5 | How do Acceslibre and Picto Access describe the same municipal building in Limoges? (EN) | Queries both; matches the place across sources; flags differences in scale and wording |
 | 6 | Where can I find accessible hotels in Brussels? (EN) | Uses Access-i; says which other sources do not cover Brussels |

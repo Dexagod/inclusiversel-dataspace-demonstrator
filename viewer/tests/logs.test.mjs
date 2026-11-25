@@ -45,6 +45,11 @@ test('identity fields are allowlisted; unknown and inferred clients are labelled
   assert.equal(clientIdentity(call('00:00', 1)).name, 'Unknown requester');
   assert.match(clientIdentity({requester: {remote_address: '127.0.0.1', user_agent: 'Example'}}).basis, /Inferred/);
 });
+test('a hosted client calling from changing addresses stays one group', () => {
+  const from = ip => ({user_agent: 'example-mcp/1.0', client_name: 'example-mcp', remote_address: '172.26.0.1', forwarded_for: ip});
+  const groups = groupCalls([call('00:00', 10, {requester: from('192.0.2.1')}), call('00:02', 10, {requester: from('192.0.2.2')})]);
+  assert.equal(groups.length, 1);
+});
 test('unchanged keyed nodes are not detached and retain expanded/response state', () => {
   let mutations = 0;
   const parent = {children: [], get firstElementChild() { return this.children[0] || null; }, insertBefore(child, before) {
