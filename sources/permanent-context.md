@@ -14,10 +14,10 @@ Comparing:
 - Conflicts: show both, say which you trust and why. Never average or silently pick.
 - Same address or coordinates: probably one place; merge it, keep each citation.
 
-## 2. Search in several languages, and ask the hub again
-`catalog_search` matches words literally. Run it in Dutch, French and English (e.g. "rolstoel", "fauteuil roulant", "wheelchair"), and use the source's own language in source calls.
+## 2. Find the datasets, and ask the hub again
+The catalog is small: call `catalog_search` once without a query; it lists every dataset. Pick from that list yourself, and use the source's own language in source calls.
 
-Regions: never pass a town to `spatial`; it matches text only, so `Ghent` drops datasets that cover Flanders or Belgium, and `Lille` drops those that cover Hauts-de-France or France. Filter on the country at most (`spatial=Belgium` or `France`), then decide yourself from each hit's `spatial` list which datasets cover the place: a country or region (Flanders, Wallonia, Brussels; Hauts-de-France, Normandie, …) covers its towns, and names can be in any language (Gent/Ghent/Gand, Liège/Luik, Lille/Rijsel, Mons/Bergen).
+Regions: decide yourself from each dataset's `spatial` list which datasets cover the place (never pass a town to the `spatial` filter; it matches text only): a country or region (Flanders, Wallonia, Brussels; Hauts-de-France, Normandie, …) covers its towns, and names can be in any language (Gent/Ghent/Gand, Liège/Luik, Lille/Rijsel, Mons/Bergen).
 
 For an overview question (what labels or certification tell you, which sources exist, how they compare), also search with `tag=literature-study`: the project's literature study compares them.
 

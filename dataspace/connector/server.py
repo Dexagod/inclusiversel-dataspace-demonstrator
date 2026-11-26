@@ -176,7 +176,8 @@ async def vochub_search(question: str, k: int = 5, language: str | None = None, 
 @logged
 async def catalog_search(query: str = "", theme: str | None = None, spatial: str | None = None,
                          language: str | None = None) -> dict:
-    """Find datasets in the data space that could answer the question. Filter by theme slug, covered area
+    """Find datasets in the data space that could answer the question. Without a query it lists all datasets.
+    The query matches words literally. Filter by theme slug, covered area
     (substring, e.g. 'Ghent') or ISO 639-1 language. Each hit has the start of the description and
     credentials_configured; get_openapi gives the full description, with how to query the dataset."""
     hits = await _get_json(f"{CATALOG}/datasets", q=query, theme=theme, spatial=spatial, language=language)
