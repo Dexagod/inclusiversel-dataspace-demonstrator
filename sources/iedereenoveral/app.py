@@ -89,7 +89,9 @@ def build(prefix: str, places: str, kinds: list[str]) -> FastAPI:
         category: Literal[tuple(kinds)] | None = Query(None, description="Kind of place; empty means all of "
                                                                          + ", ".join(kinds)),
         needs: list[str] = Query([], description="Facilities the place must have, by IedereenOveral filter name, "
-                                                 "e.g. 'Toegankelijk toilet', 'Drempelloze toegang'. "
+                                                 "e.g. 'Toegankelijk toilet', 'Drempelloze toegang'; for low vision 'Contrasten', "
+                                                 "'Goede verlichting', 'Beluisteren van tekstmateriaal'. Menus (digital, "
+                                                 f"paper, easy to read) are no filter: read them with {prefix}_get_place area='Verbruiksruimte'. "
                                                  f"All names are listed by {prefix}_facets."),
         medal: list[Medal] = Query([], description="Only places with one of these medals"),
         confirmed_by_inter: bool = Query(False, description="Only places whose information Inter has checked"),
